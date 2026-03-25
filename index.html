@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة بنك أسئلة الفيزياء - الثاني عشر</title>
+    <!-- استدعاء Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- استدعاء أيقونات Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- خطوط جوجل -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+        }
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- الرأس (Header) -->
+    <header class="bg-gradient-to-l from-blue-900 via-blue-800 to-indigo-800 text-white shadow-xl relative overflow-hidden">
+        <!-- أشكال تزيينية في الخلفية -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-20 -mt-20"></div>
+        <div class="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full -ml-10 -mb-10"></div>
+        
+        <div class="container mx-auto px-6 py-12 text-center relative z-10">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-2xl backdrop-blur-sm mb-6 shadow-inner border border-white/20">
+                <i class="ph-duotone ph-atom text-5xl text-blue-200"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black mb-4 drop-shadow-md">المنصة التفاعلية للفيزياء</h1>
+            <p class="text-blue-100 text-xl md:text-2xl mb-6 font-medium">الصف الثاني عشر العلمي - الفصل الدراسي الثاني</p>
+            <div class="inline-flex items-center gap-2 bg-white/20 px-5 py-2 rounded-full backdrop-blur-md text-sm md:text-base font-bold border border-white/30 shadow-sm">
+                <i class="ph-fill ph-chalkboard-teacher text-xl"></i>
+                إعداد الموجه الفني للفيزياء أ/ وليد عزت
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي (Cards) -->
+    <main class="flex-grow container mx-auto px-4 md:px-6 py-12 -mt-8 relative z-20">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl font-bold text-slate-700">اختر مسار التدريب للبدء</h2>
+            <p class="text-slate-500 mt-2 text-lg">تحتوي هذه البوابة على ثلاثة أنظمة مختلفة لاختبار مهاراتك</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            
+            <!-- البطاقة الأولى: الاختبار الشامل -->
+            <a href="بنك أسئلة تفاعلي للصف الثاني عشر.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                    <i class="ph-duotone ph-exam text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800">الاختبار الشامل</h3>
+                <p class="text-slate-500 mb-8 leading-relaxed h-24">
+                    اختبار تفاعلي يضم 105 سؤال اختيار من متعدد. يأتي مع التفسير العلمي بعد كل إجابة وتقييم لنسبتك المئوية في النهاية.
+                </p>
+                <div class="flex items-center text-blue-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                    <span>الدخول للاختبار</span>
+                    <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- البطاقة الثانية: التدريب الموجه -->
+            <a href="بنك أسئلة تفاعلي للصف الثاني عشر1.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                    <i class="ph-duotone ph-squares-four text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800">خريطة الأسئلة</h3>
+                <p class="text-slate-500 mb-8 leading-relaxed h-24">
+                    تدريب موجه لـ 100 سؤال يحتوي على لوحة جانبية لتتبع الأسئلة المنجزة والمتبقية، مع خاصية حفظ التقدم.
+                </p>
+                <div class="flex items-center text-emerald-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                    <span>الدخول للتدريب</span>
+                    <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- البطاقة الثالثة: أسئلة التعليل -->
+            <a href="بنك أسئلة تفاعلي للصف الثاني عشر2.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                    <i class="ph-duotone ph-pencil-line text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800">أسئلة (علل)</h3>
+                <p class="text-slate-500 mb-8 leading-relaxed h-24">
+                    تطبيق مصمم خصيصاً لـ 100 سؤال مقالي "علل لما يأتي". يوفر مساحة لكتابة حلك الخاص مع إمكانية عرض الإجابة النموذجية.
+                </p>
+                <div class="flex items-center text-purple-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                    <span>الدخول للمراجعة</span>
+                    <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- التذييل (Footer) -->
+    <footer class="bg-white border-t border-slate-200 mt-auto">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p class="text-slate-500 font-medium">
+                بوابة التوجيه الفني للفيزياء &copy; تم دمج النماذج التفاعلية لتجربة مستخدم أفضل.
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

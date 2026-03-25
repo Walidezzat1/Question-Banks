@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بنك أسئلة الفيزياء - الصف الثاني عشر (الفصل الثاني)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+        /* تنسيق خاص للأرقام والوحدات لتظهر بالشكل المطلوب: الرقم بين قوسين وعلى يمينه الوحدة */
+        .math-val { direction: ltr; display: inline-block; unicode-bidi: embed; font-family: Arial, sans-serif; margin: 0 4px; font-weight: bold; color: #1d4ed8; }
+        .q-grid-btn.answered { background-color: #10b981; color: white; border-color: #10b981; }
+        .q-grid-btn.current { box-shadow: 0 0 0 3px #3b82f6; border-color: #3b82f6; }
+        .option-label { transition: all 0.2s ease; }
+        input[type="radio"]:checked + .option-label { background-color: #eff6ff; border-color: #3b82f6; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-gray-800 h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-800 text-white shadow-md p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">بنك أسئلة الفيزياء التفاعلي</h1>
+                <p class="text-sm text-blue-200">الصف الثاني عشر العلمي - الفصل الدراسي الثاني (دولة الكويت)</p>
+                <p class="text-xs text-yellow-300 mt-1 font-medium">إعداد الموجه الفني للفيزياء أ/ وليد عزت</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="resetProgress()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition shadow">مسح التقدم والبدء من جديد</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-4 flex flex-col md:flex-row gap-6 overflow-hidden">
+        
+        <!-- Sidebar (Question Grid) -->
+        <aside class="w-full md:w-1/3 lg:w-1/4 bg-white rounded-lg shadow-md p-4 flex flex-col h-64 md:h-full">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">خريطة الأسئلة</h2>
+            <div class="flex justify-between text-xs text-gray-500 mb-4">
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-green-500 ml-1"></span>محلول</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full border border-gray-300 ml-1"></span>غير محلول</span>
+            </div>
+            <div id="questionGrid" class="flex-grow overflow-y-auto grid grid-cols-5 gap-2 pr-2">
+                <!-- الأزرار ستضاف هنا عبر الجافاسكربت -->
+            </div>
+            <div class="mt-4 pt-4 border-t">
+                <button onclick="finishQuiz()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg">إنهاء وعرض النتيجة</button>
+            </div>
+        </aside>
+
+        <!-- Question Area -->
+        <section class="w-full md:w-2/3 lg:w-3/4 bg-white rounded-lg shadow-md p-6 flex flex-col md:h-full overflow-y-auto relative" id="questionContainer">
+            
+            <div class="flex justify-between items-center mb-6">
+                <span class="bg-blue-100 text-blue-800 text-sm font-bold px-3 py-1 rounded-full" id="qNumberBadge">سؤال 1 من 100</span>
+                <span class="text-sm text-gray-500" id="qCategory">الفصل: الحث الكهرومغناطيسي</span>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-xl leading-relaxed font-semibold text-gray-800" id="questionText">نص السؤال يظهر هنا...</h3>
+            </div>
+
+            <div class="space-y-3 flex-grow" id="optionsContainer">
+                <!-- الخيارات ستضاف هنا -->
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex justify-between mt-8 pt-4 border-t">
+                <button onclick="prevQuestion()" id="prevBtn" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded transition disabled:opacity-50 disabled:cursor-not-allowed">السابق</button>
+                <button onclick="nextQuestion()" id="nextBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition disabled:opacity-50 disabled:cursor-not-allowed">التالي</button>
+            </div>
+
+            <!-- Result Overlay (Hidden initially) -->
+            <div id="resultOverlay" class="absolute inset-0 bg-white/95 z-10 flex flex-col justify-center items-center hidden p-8 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">اكتمل الاختبار!</h2>
+                <div class="w-48 h-48 rounded-full border-8 border-blue-500 flex items-center justify-center mb-6">
+                    <span class="text-5xl font-bold text-blue-600" id="scoreText">0%</span>
+                </div>
+                <p class="text-lg text-gray-600 mb-8" id="resultMessage">أحسنت! يمكنك مراجعة إجاباتك.</p>
+                <div class="flex gap-4">
+                    <button onclick="hideResult()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-bold transition">مراجعة الإجابات</button>
+                    <button onclick="resetProgress()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition">إعادة الاختبار</button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // تعريف الوحدة النمطية للأرقام المعقدة لتسهيل الكتابة
+        const val = (num, unit) => `<span class="math-val">(${num}) ${unit}</span>`;
+
+        // بنك الأسئلة (100 سؤال)
+        const questionsData = [
+            // --- الحث الكهرومغناطيسي (1 - 25) ---
+            { cat: "الحث الكهرومغناطيسي", q: "وحدة قياس التدفق المغناطيسي بحسب النظام الدولي هي الويبر وتكافئ:", options: [val("T.m", ""), val("T.m<sup>2</sup>", ""), val("T/m<sup>2</sup>", ""), val("T.m/s", "")], answer: 1 },
+            { cat: "الحث الكهرومغناطيسي", q: "إذا وضع سطح مساحته " + val("50", "cm<sup>2</sup>") + " موازياً لمجال مغناطيسي منتظم شدته " + val("0.01", "T") + "، فإن التدفق المغناطيسي الذي يجتازه يساوي:", options: [val("5 &times; 10<sup>-4</sup>", "Wb"), val("0.5", "Wb"), val("50 &times; 10<sup>-3</sup>", "Wb"), val("0", "Wb")], answer: 3 },
+            { cat: "الحث الكهرومغناطيسي", q: "وضعت حلقة معدنية مساحتها (A) بحيث يميل مستواها بزاوية (30&deg;) على اتجاه مجال مغناطيسي شدته (B). فإن التدفق المغناطيسي الذي يجتاز الحلقة يساوي:", options: ["BA", "BA/2", "BA(&radic;3/2)", "صفر"], answer: 1 },
+            { cat: "الحث الكهرومغناطيسي", q: "التيار الكهربائي التأثيري المتولد في ملف يسري باتجاه بحيث يولد مجالاً مغناطيسياً يعاكس التغير في التدفق المولد له. هذا نص:", options: ["قانون فاراداي", "قانون أوم", "قانون لنز", "قانون أمبير"], answer: 2 },
+            { cat: "الحث الكهرومغناطيسي", q: "تزداد صعوبة دفع مغناطيس في ملف متصل بمقاومة خارجية كلما:", options: ["قلت عدد لفات الملف", "كانت الحركة النسبية أبطأ", "زادت عدد لفات الملف", "توقفت الحركة النسبية"], answer: 2 },
+            { cat: "الحث الكهرومغناطيسي", q: "إذا كان التغير في التدفق المغناطيسي الذي يجتاز ملف مكون من لفة واحدة " + val("5 &times; 10<sup>-3</sup>", "Wb") + " في زمن قدره " + val("0.1", "s") + "، فإن مقدار القوة الدافعة الكهربائية المتولدة في الملف تساوي:", options: [val("0.05", "V"), val("0.5", "V"), val("0.03", "V"), val("5", "V")], answer: 0 },
+            { cat: "الحث الكهرومغناطيسي", q: "عندما يكون مستوى سطح ملف عمودياً على اتجاه المجال المغناطيسي، فإن مقدار التدفق المغناطيسي يكون:", options: ["صفر", "قيمة عظمى", "نصف القيمة العظمى", "سالب القيمة العظمى"], answer: 1 },
+            { cat: "الحث الكهرومغناطيسي", q: "حلقة دائرية يقطعها تدفق مغناطيسي قدره " + val("7 &times; 10<sup>-3</sup>", "Wb") + " فإذا تلاشى هذا التدفق في زمن قدره " + val("0.03", "s") + "، فإن مقدار القوة الدافعة الحثية المتولدة في الحلقة:", options: [val("0.233", "V"), val("0.021", "V"), val("2.33", "V"), val("0.7", "V")], answer: 0 },
+            { cat: "الحث الكهرومغناطيسي", q: "مقدار القوة الدافعة الكهربائية التأثيرية المتولدة في ملف تتناسب طردياً مع حاصل ضرب عدد اللفات ومعدل التغير في التدفق المغناطيسي. يعبر هذا عن:", options: ["قانون لنز", "قانون فاراداي", "قاعدة اليد اليمنى", "قانون كيرشوف"], answer: 1 },
+            { cat: "الحث الكهرومغناطيسي", q: "عند إبعاد القطب الشمالي لمغناطيس عن وجه ملف، فإن وجه الملف المقابل للمغناطيس يصبح:", options: ["قطباً شمالياً", "قطباً جنوبياً", "متعادلاً", "موجب الشحنة"], answer: 1 },
+            { cat: "الحث الكهرومغناطيسي", q: "لزيادة مقدار القوة الدافعة الحثية المتولدة في ملف عند تحريك مغناطيس داخله، يجب:", options: ["تقليل سرعة المغناطيس", "استخدام مغناطيس أضعف", "زيادة عدد لفات الملف", "زيادة مقاومة الملف"], answer: 2 },
+            { cat: "الحث الكهرومغناطيسي", q: "توضع إشارة سالبة في قانون فاراداي للدلالة على أن اتجاه القوة الدافعة التأثيرية يعاكس التغير في التدفق المغناطيسي، وذلك تطبيقاً لقانون:", options: ["أوم", "لنز", "كولوم", "نيوتن"], answer: 1 },
+            { cat: "المولدات والمحركات", q: "جهاز يحول جزء من الطاقة الميكانيكية المبذولة لتحريك الملف في المجال المغناطيسي إلى طاقة كهربائية:", options: ["المحرك الكهربائي", "المحول الكهربائي", "المولد الكهربائي", "المكثف الكهربائي"], answer: 2 },
+            { cat: "المولدات والمحركات", q: "تكون القوة الدافعة الكهربائية التأثيرية المتولدة في ملف المولد الكهربائي قيمة عظمى موجبة عندما يكون مستوى الملف:", options: ["عمودياً على خطوط المجال", "موازياً لخطوط المجال", "يصنع زاوية 45 مع المجال", "يصنع زاوية 60 مع المجال"], answer: 1 },
+            { cat: "المولدات والمحركات", q: "عندما يكون متجه مساحة ملف المولد الكهربائي عمودياً على اتجاه خطوط المجال المغناطيسي (الزاوية 90)، فإن القوة الدافعة الحثية تساوي:", options: ["قيمة عظمى", "صفر", "نصف القيمة العظمى", "سالب القيمة العظمى"], answer: 0 },
+            { cat: "المولدات والمحركات", q: "يستمر دوران ملف المحرك الكهربائي بعد ربع الدورة الأولى عند انعدام مرور التيار الكهربائي فيه بفعل:", options: ["الحث المتبادل", "القصور الذاتي", "الحث الذاتي", "التيار المتردد"], answer: 1 },
+            { cat: "المولدات والمحركات", q: "مولد تيار متردد يتكون ملفه من 100 لفة مساحة كل منها " + val("0.05", "m<sup>2</sup>") + " يدور في مجال مغناطيسي شدته " + val("0.1", "T") + " لتتولد قوة دافعة عظمى " + val("157", "V") + ". السرعة الزاوية للملف:", options: [val("314", "rad/s"), val("50", "rad/s"), val("157", "rad/s"), val("628", "rad/s")], answer: 0 },
+            { cat: "المولدات والمحركات", q: "إذا زاد عدد لفات ملف المولد الكهربائي إلى الضعف وقلت سرعته الزاوية للنصف، فإن القوة الدافعة العظمى:", options: ["تزداد للضعف", "تقل للنصف", "لا تتغير", "تزداد لأربعة أمثالها"], answer: 2 },
+            { cat: "المولدات والمحركات", q: "القوة المغناطيسية المؤثرة على شحنة متحركة داخل مجال مغناطيسي تكون عظمى عندما تتحرك الشحنة:", options: ["موازية للمجال", "بزاوية 45 مع المجال", "بزاوية 30 مع المجال", "عمودية على المجال"], answer: 3 },
+            { cat: "المولدات والمحركات", q: "يتحرك إلكترون شحنته " + val("1.6 &times; 10<sup>-19</sup>", "C") + " بسرعة موازية لخطوط مجال مغناطيسي شدته " + val("0.8", "T") + "، القوة المغناطيسية المؤثرة عليه تساوي:", options: [val("1.28 &times; 10<sup>-19</sup>", "N"), val("0", "N"), val("0.8", "N"), val("1.6 &times; 10<sup>-19</sup>", "N")], answer: 1 },
+            { cat: "المولدات والمحركات", q: "سلك طوله " + val("2", "m") + " عمودي على مجال مغناطيسي شدته " + val("0.4", "T") + "، يمر به تيار " + val("5", "A") + "، القوة الكهرومغناطيسية المؤثرة عليه:", options: [val("2", "N"), val("4", "N"), val("10", "N"), val("0.8", "N")], answer: 1 },
+            { cat: "المولدات والمحركات", q: "القوة الكهرومغناطيسية المؤثرة على سلك يمر به تيار موضوع عمودياً على مجال مغناطيسي تكون اتجاهها:", options: ["في نفس اتجاه التيار", "موازية للمجال", "عمودية على كل من التيار والمجال", "عكس اتجاه التيار"], answer: 2 },
+            { cat: "المولدات والمحركات", q: "تنعدم القوة الكهرومغناطيسية المؤثرة على سلك يمر به تيار موضوع في مجال مغناطيسي عندما يكون السلك:", options: ["عمودياً على المجال المغناطيسي", "يصنع زاوية 45 مع المجال", "موازياً لخطوط المجال المغناطيسي", "يصنع زاوية 60 مع المجال"], answer: 2 },
+            { cat: "المولدات والمحركات", q: "يكون التدفق المغناطيسي الذي يخترق ملف المولد الكهربائي في قيمته العظمى عندما تكون الزاوية بين خطوط المجال ومتجه مساحة السطح مساوية:", options: ["90&deg;", "180&deg;", "45&deg;", "صفر"], answer: 3 },
+            { cat: "المولدات والمحركات", q: "يسري تيار مقداره " + val("7.2", "A") + " في سلك مستقيم موضوع عمودياً على مجال مغناطيسي منتظم " + val("8.9 &times; 10<sup>-3</sup>", "T") + "، فإن طول السلك الذي يتأثر بقوة " + val("2.1", "N") + " يساوي:", options: [val("32.7", "m"), val("3.1", "m"), val("2.6 &times; 10<sup>-3</sup>", "m"), val("1.3 &times; 10<sup>-3</sup>", "m")], answer: 0 },
+            
+            // --- التيار المتردد (26 - 55) ---
+            { cat: "التيار المتردد", q: "تيار يتغير اتجاهه كل نصف دورة ومعدل مقدار شدته يساوي صفراً في الدورة الواحدة:", options: ["التيار المستمر", "التيار التأثيري اللحظي", "التيار المتردد", "التيار المقوم"], answer: 2 },
+            { cat: "التيار المتردد", q: "الشدة الفعالة لتيار متردد تتناسب مع شدته العظمى تناسباً:", options: ["عكسياً", "طردياً", "تربيعياً", "لا توجد علاقة"], answer: 1 },
+            { cat: "التيار المتردد", q: "التيار المتردد الذي قيمته الفعالة " + val("10", "A") + " تكون قيمته العظمى:", options: [val("10", "A"), val("10&radic;2", "A"), val("5&radic;2", "A"), val("20", "A")], answer: 1 },
+            { cat: "التيار المتردد", q: "تيار متردد شدته اللحظية i = 3 sin(200t)، القيمة الفعالة له تساوي:", options: [val("3", "A"), val("3&radic;2", "A"), val("3/&radic;2", "A"), val("6", "A")], answer: 2 },
+            { cat: "التيار المتردد", q: "الأجهزة المستخدمة لقياس شدة التيار المتردد والجهد (الأميتر والفولتميتر) تقيس:", options: ["القيم اللحظية", "القيم العظمى", "القيم الفعالة", "متوسط القيم"], answer: 2 },
+            { cat: "التيار المتردد", q: "في دائرة تيار متردد تحتوي على مقاومة أومية (صرفة) فقط، يكون الجهد والتيار:", options: ["الجهد يسبق التيار", "التيار يسبق الجهد", "متفقين في الطور", "متعاكسين في الطور"], answer: 2 },
+            { cat: "التيار المتردد", q: "إذا زاد تردد التيار المتردد في دائرة تحتوي على مقاومة أومية صرفة، فإن مقدار المقاومة:", options: ["يزداد", "يقل", "يتغير جيبيّاً", "لا يتغير"], answer: 3 },
+            { cat: "التيار المتردد", q: "الممانعة التي يبديها الملف لمرور التيار المتردد خلاله تسمى:", options: ["المقاومة الأومية", "الممانعة السعوية", "الممانعة الحثية", "الحث الذاتي"], answer: 2 },
+            { cat: "التيار المتردد", q: "في دائرة تيار متردد تحوي ملفاً حثياً نقياً، فإن فرق الجهد:", options: ["يسبق التيار بربع دورة", "يتأخر عن التيار بربع دورة", "يتفق مع التيار في الطور", "يسبق التيار بنصف دورة"], answer: 0 },
+            { cat: "التيار المتردد", q: "تنعدم الممانعة الحثية للملف عند مرور تيار مستمر فيه لأن:", options: ["جهده صفر", "مقاومته الأومية كبيرة", "تردد التيار المستمر يساوي صفر", "طوله صغير"], answer: 2 },
+            { cat: "التيار المتردد", q: "تتناسب الممانعة الحثية للملف (X_L) مع تردد التيار (f):", options: ["عكسياً", "طردياً", "تربيعياً", "لا تعتمد عليه"], answer: 1 },
+            { cat: "التيار المتردد", q: "الممانعة التي يبديها المكثف لمرور التيار المتردد خلاله تسمى:", options: ["السعة الكهربائية", "الممانعة السعوية", "الممانعة الحثية", "المقاومة الأومية"], answer: 1 },
+            { cat: "التيار المتردد", q: "في دائرة تيار متردد تحوي مكثفاً فقط، فإن الجهد الكهربائي:", options: ["يسبق التيار بربع دورة", "يتأخر عن التيار بربع دورة", "يتفق في الطور مع التيار", "يتأخر بنصف دورة"], answer: 1 },
+            { cat: "التيار المتردد", q: "يعتبر المكثف دائرة مفتوحة للتيار المستمر لأن:", options: ["تردد التيار المستمر صفر فتكون ممانعته السعوية لانهائية", "لأن سعته تنعدم", "لأنه يستهلك الطاقة", "لأن ممانعته السعوية تصبح صفراً"], answer: 0 },
+            { cat: "التيار المتردد", q: "إذا ازداد تردد التيار المار في دائرة مكثف، فإن ممانعته السعوية:", options: ["تزداد", "تقل", "لا تتغير", "تنعدم"], answer: 1 },
+            { cat: "التيار المتردد", q: "تستخدم الملفات الحثية في فصل التيارات:", options: ["منخفضة التردد لتمريرها ومنع عالية التردد", "عالية التردد لتمريرها ومنع منخفضة التردد", "المستمرة فقط", "المترددة فقط"], answer: 0 },
+            { cat: "التيار المتردد", q: "يستخدم المكثف لفصل التيارات:", options: ["منخفضة التردد لتمريرها", "عالية التردد لتمريرها ومنع منخفضة التردد", "لزيادة المقاومة الأومية", "كمصدر للطاقة"], answer: 1 },
+            { cat: "التيار المتردد", q: "دائرة تيار متردد تحتوي على ملف حثي ومكثف ومقاومة، تكون في حالة رنين عندما:", options: ["X_L > X_C", "X_C > X_L", "X_L = X_C", "R = 0"], answer: 2 },
+            { cat: "التيار المتردد", q: "في حالة الرنين الكهربائي، تكون المقاومة الكلية للدائرة (Z):", options: ["أكبر ما يمكن", "تساوي X_L", "أقل ما يمكن وتساوي R", "صفر"], answer: 2 },
+            { cat: "التيار المتردد", q: "في حالة الرنين، تكون شدة التيار المار في الدائرة:", options: ["أقل ما يمكن", "صفر", "أكبر ما يمكن", "متغيرة"], answer: 2 },
+            { cat: "التيار المتردد", q: "إذا تغيرت سعة المكثف في دائرة رنين من C إلى C/4، فإن تردد الرنين:", options: ["يقل للنصف", "يزداد للضعف", "يزداد لـ 4 أمثال", "لا يتغير"], answer: 1 },
+            { cat: "التيار المتردد", q: "مكثف ممانعته السعوية " + val("16", "&Omega;") + " وملف ممانعته الحثية " + val("16", "&Omega;") + " ومقاومة " + val("5", "&Omega;") + " على التوالي. الممانعة الكلية:", options: [val("37", "&Omega;"), val("16", "&Omega;"), val("5", "&Omega;"), val("0", "&Omega;")], answer: 2 },
+            { cat: "التيار المتردد", q: "لحساب الممانعة الكلية (Z) لدائرة توالي (R-L-C) نستخدم العلاقة:", options: ["Z = R + X_L + X_C", "Z = &radic;(R^2 + (X_L - X_C)^2)", "Z = &radic;(R + X_L - X_C)", "Z = R^2 + X_L^2"], answer: 1 },
+            { cat: "التيار المتردد", q: "عندما يكون تردد الدائرة أقل من تردد الرنين، فإن الدائرة تكون لها خواص:", options: ["سعوية (الجهد يتأخر)", "حثية (الجهد يتقدم)", "أومية", "مغناطيسية"], answer: 0 },
+            { cat: "التيار المتردد", q: "عندما يكون تردد الدائرة أكبر من تردد الرنين، فإن الدائرة تكون لها خواص:", options: ["سعوية", "حثية (الجهد يتقدم)", "أومية", "عازلة"], answer: 1 },
+            { cat: "التيار المتردد", q: "دائرة تحوي مقاومة صرفة " + val("1.2", "&Omega;") + " يمر بها تيار قيمته العظمى " + val("5&radic;2", "A") + "، القدرة الحرارية المستهلكة:", options: [val("60", "W"), val("30", "W"), val("6", "W"), val("0", "W")], answer: 1 },
+            { cat: "التيار المتردد", q: "في الدائرة المهتزة (الرنين)، الطاقة الكهربائية تتبادل بين:", options: ["المقاومة والملف", "المكثف والمقاومة", "المجال المغناطيسي للملف والمجال الكهربائي للمكثف", "البطارية والمقاومة"], answer: 2 },
+            { cat: "التيار المتردد", q: "مصدر تيار متردد تردده f يتصل بملف حثي نقي. إذا زاد التردد لـ 2f فإن الممانعة الحثية:", options: ["تقل للنصف", "تتضاعف", "لا تتغير", "تزداد 4 أمثال"], answer: 1 },
+            { cat: "التيار المتردد", q: "مصدر تيار متردد تردده f يتصل بمكثف. إذا زاد التردد لـ 2f فإن الممانعة السعوية:", options: ["تتضاعف", "لا تتغير", "تقل للنصف", "تقل للربع"], answer: 2 },
+            { cat: "التيار المتردد", q: "لزيادة شدة إضاءة مصباح متصل على التوالي مع ملف ومكثف (تحت حالة الرنين)، إذا أردنا إبقاء الإضاءة عظمى يجب:", options: ["إبقاء X_L = X_C", "زيادة X_L فقط", "إنقاص X_C فقط", "زيادة R"], answer: 0 },
+
+            // --- الإلكترونيات (56 - 85) ---
+            { cat: "الإلكترونيات", q: "في الوصلة الثنائية، تتكون منطقة خالية من حاملات الشحنة تسمى:", options: ["منطقة التوصيل", "منطقة التكافؤ", "منطقة الاستنزاف (النضوب)", "القاعدة"], answer: 2 },
+            { cat: "الإلكترونيات", q: "عند توصيل الوصلة الثنائية بالانحياز الأمامي (الموجب بالبلورة P والسالب بـ N)، فإن اتساع منطقة الاستنزاف:", options: ["يزداد", "يقل", "لا يتغير", "يصبح لانهائياً"], answer: 1 },
+            { cat: "الإلكترونيات", q: "في التوصيل العكسي للوصلة الثنائية، مقاومة الوصلة تكون:", options: ["صغيرة جداً", "متوسطة", "كبيرة جداً فتمنع مرور التيار", "سالبه"], answer: 2 },
+            { cat: "الإلكترونيات", q: "في حالة الانحياز العكسي، اتجاه المجال الكهربائي الخارجي يكون:", options: ["عكس المجال الداخلي", "بنفس اتجاه المجال الداخلي", "عمودياً عليه", "يصنع زاوية 45"], answer: 1 },
+            { cat: "الإلكترونيات", q: "المواد التي يكون فيها اتساع فجوة الطاقة المحظورة منعدماً (صفراً) تقريباً هي:", options: ["المواد العازلة", "المواد الموصلة", "أشباه الموصلات", "الوصلة الثنائية"], answer: 1 },
+            { cat: "الإلكترونيات", q: "الحالة التي تصل إليها الوصلة الثنائية عندما يمنع المجال الداخلي أي زيادة في عدد حاملات الشحنة من الانتشار عبر منطقة الاستنزاف تسمى:", options: ["التوصيل الأمامي", "الانحياز العكسي", "حالة التوازن الكهربائي", "الجهد الحاجز"], answer: 2 },
+            { cat: "الإلكترونيات", q: "شبه موصل من النوع السالب ملتحم بشبه موصل من النوع الموجب ويطلى السطحان الخارجيان بمادة موصلة:", options: ["المكثف", "الوصلة الثنائية (الدايود)", "محول الجهد", "المقاومة الأومية"], answer: 1 },
+            { cat: "الإلكترونيات", q: "عند منطقة التحام البلورة (P) مع البلورة (N) لتكوين وصلة ثنائية، تنتقل بعض:", options: ["الإلكترونات من البلورة P إلى N", "الإلكترونات من البلورة N إلى P", "الفجوات من N إلى P", "الشوائب من N إلى P"], answer: 1 },
+            { cat: "الإلكترونيات", q: "في وصلة ثنائية، إذا كان اتساع منطقة الاستنزاف " + val("2 &times; 10<sup>-4</sup>", "m") + " وفرق الجهد " + val("0.8", "V") + "، فإن شدة المجال الكهربائي الداخلي تساوي:", options: [val("4000", "V/m"), val("400", "V/m"), val("200", "V/m"), val("1600", "V/m")], answer: 0 },
+            { cat: "الإلكترونيات", q: "بلورة شبه الموصل من النوع السالب (N-Type) متعادلة كهربائياً لأن:", options: ["عدد الإلكترونات يساوي عدد الثقوب", "أثناء التطعيم لم يحدث فقد أو اكتساب للإلكترونات الكلية", "جهدها صفر", "شحنة الإلكترون تلغي شحنة النواة"], answer: 1 },
+            { cat: "الإلكترونيات", q: "تزداد مقاومة الوصلة الثنائية بشكل كبير عند توصيلها بالانحياز العكسي لأن:", options: ["المجال الخارجي يعاكس المجال الداخلي", "منطقة الاستنزاف تضيق", "المجال الخارجي بنفس اتجاه المجال الداخلي فتتسع منطقة الاستنزاف", "حاملات الشحنة تتسارع بقوة"], answer: 2 },
+            { cat: "الإلكترونيات", q: "تسمح الوصلة الثنائية بمرور التيار في حالة التوصيل الأمامي لأن:", options: ["المجال الخارجي معاكس للداخلي فتضيق منطقة الاستنزاف", "المجال الخارجي بنفس اتجاه الداخلي", "تزداد مقاومة الوصلة", "تتوقف الإلكترونات عن الحركة"], answer: 0 },
+            { cat: "الإلكترونيات", q: "تعتبر الوصلة الثنائية مفتاحاً كهربائياً في الدوائر لأنها:", options: ["تخزن الطاقة الكهربائية", "تسمح بمرور التيار في اتجاه الانحياز الأمامي وتمنعه في العكسي", "تكبر الجهد الكهربائي", "تولد تياراً متردداً"], answer: 1 },
+            { cat: "الإلكترونيات", q: "يكون عدد الإلكترونات الحرة مساوياً تماماً لعدد الثقوب الموجبة في:", options: ["شبه الموصل من النوع السالب", "شبه الموصل من النوع الموجب", "الوصلة الثنائية", "بلورة شبه الموصل النقي"], answer: 3 },
+            { cat: "الإلكترونيات", q: "عند تطعيم بلورة سيليكون نقية بذرات من المجموعة الخامسة (كالزرنيخ)، فإن حاملات الشحنة الأقلية هي:", options: ["الإلكترونات", "الثقوب الموجبة", "الفوتونات", "الأيونات السالبة"], answer: 1 },
+            { cat: "الإلكترونيات", q: "شبه موصل يحتوي على " + val("1 &times; 10^{14}", "e") + " طعم بـ " + val("6 &times; 10^{20}", "ذرة بورون") + "، يصبح العدد الكلي تقريباً:", options: [val("6 &times; 10^{20}", ""), val("1 &times; 10^{14}", ""), val("7 &times; 10^{34}", ""), val("0", "")], answer: 0 },
+            { cat: "الإلكترونيات", q: "حاملات الشحنة المسؤولة عن مرور التيار الكهربائي في أشباه الموصلات هي:", options: ["الإلكترونات الحرة فقط", "الثقوب الموجبة فقط", "الإلكترونات الحرة والثقوب الموجبة معاً", "الأيونات الموجبة والسالبة"], answer: 2 },
+
+            // --- الفيزياء الحديثة والنووية (86 - 100) ---
+            { cat: "الفيزياء الحديثة", q: "انبعاث إلكترونات من أسطح فلزات معينة عند سقوط ضوء ذو تردد مناسب يسمى:", options: ["التأثير الكهروضوئي", "الانشطار النووي", "الحث الكهرومغناطيسي", "أطياف الانبعاث"], answer: 0 },
+            { cat: "الفيزياء الحديثة", q: "أقل مقدار للطاقة اللازمة لتحرير الإلكترون من سطح فلز يسمى:", options: ["طاقة الفوتون", "دالة الشغل (&Phi;)", "طاقة الحركة", "طاقة السكون"], answer: 1 },
+            { cat: "الفيزياء الحديثة", q: "طاقة الفوتون الساقط تتناسب طردياً مع:", options: ["طوله الموجي", "سرعته", "تردده (f)", "كتلته السكونية"], answer: 2 },
+            { cat: "الفيزياء الحديثة", q: "لا تتحرر إلكترونات من سطح الفلز إذا كان تردد الضوء الساقط:", options: ["أكبر من تردد العتبة", "يساوي تردد العتبة", "أصغر من تردد العتبة", "عالي الشدة"], answer: 2 },
+            { cat: "الفيزياء الحديثة", q: "حسب معادلة أينشتاين، طاقة الحركة للإلكترون المنبعث تعتمد على:", options: ["شدة الضوء فقط", "تردد الضوء ونوع مادة الفلز", "زمن التعرض للضوء", "مساحة سطح الفلز"], answer: 1 },
+            { cat: "الفيزياء الحديثة", q: "الجهد العكسي اللازم لإيقاف أسرع الإلكترونات الضوئية يسمى:", options: ["جهد القطع (الإيقاف)", "دالة الشغل", "جهد الانحياز", "الجهد الفعال"], answer: 0 },
+            { cat: "الفيزياء الحديثة", q: "زيادة شدة الضوء الساقط (بتردد أكبر من تردد العتبة) تؤدي إلى:", options: ["زيادة طاقة الحركة للإلكترونات", "زيادة جهد القطع", "زيادة عدد الإلكترونات المنبعثة", "نقصان دالة الشغل"], answer: 2 },
+            { cat: "الفيزياء النووية", q: "يطلق على البروتونات والنيوترونات معاً داخل النواة اسم:", options: ["الإلكترونات", "الفوتونات", "النيوكليونات", "النظائر"], answer: 2 },
+            { cat: "الفيزياء النووية", q: "مجموع عدد البروتونات والنيوترونات في النواة يمثل:", options: ["العدد الذري (Z)", "العدد الكتلي (A)", "رقم النظير", "شحنة النواة"], answer: 1 },
+            { cat: "الفيزياء النووية", q: "ذرات العنصر الواحد التي تتساوى في العدد الذري وتختلف في العدد الكتلي تسمى:", options: ["الأيونات", "الفوتونات", "النظائر", "النيوكليونات"], answer: 2 },
+            { cat: "الفيزياء النووية", q: "القوة النووية التي تربط النيوكليونات معاً داخل النواة تتميز بأنها قوة:", options: ["قصيرة المدى جداً", "طويلة المدى", "أضعف من القوة الكهربائية", "تنافرية دائماً"], answer: 0 },
+            { cat: "الفيزياء النووية", q: "النقص في كتلة النواة يتحول إلى طاقة تعمل على تماسك مكوناتها تسمى:", options: ["طاقة السكون", "طاقة الربط النووية", "دالة الشغل", "طاقة التأين"], answer: 1 },
+            { cat: "الفيزياء النووية", q: "يعتمد مدى استقرار النواة على:", options: ["العدد الذري فقط", "طاقة الربط النووية الكلية", "طاقة الربط النووية لكل نيوكليون", "عدد الإلكترونات"], answer: 2 },
+            { cat: "الفيزياء النووية", q: "الأنوية المتوسطة الكتلة (مثل الحديد والنيكل) تعتبر:", options: ["الأقل استقراراً وتميل للانشطار", "الأكثر استقراراً", "الأقل استقراراً وتميل للاندماج", "مشعة طبيعياً دائماً"], answer: 1 },
+            { cat: "الفيزياء النووية", q: "تميل أنوية العناصر الثقيلة للوصول إلى الاستقرار عبر عملية:", options: ["الاندماج النووي", "الانشطار النووي", "التأثير الكهروضوئي", "التوصيل العكسي"], answer: 1 }
+        ];
+
+        // تهيئة المتغيرات
+        let currentIndex = 0;
+        let userAnswers = new Array(questionsData.length).fill(null);
+
+        // عناصر DOM
+        const gridContainer = document.getElementById('questionGrid');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const qNumberBadge = document.getElementById('qNumberBadge');
+        const qCategory = document.getElementById('qCategory');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resultOverlay = document.getElementById('resultOverlay');
+
+        // تحميل التقدم إن وجد
+        function loadProgress() {
+            const saved = localStorage.getItem('physics12_progress');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if(parsed.length === questionsData.length) {
+                    userAnswers = parsed;
+                }
+            }
+            const savedIndex = localStorage.getItem('physics12_currentIndex');
+            if (savedIndex !== null && parseInt(savedIndex) < questionsData.length) {
+                currentIndex = parseInt(savedIndex);
+            }
+        }
+
+        // حفظ التقدم
+        function saveProgress() {
+            localStorage.setItem('physics12_progress', JSON.stringify(userAnswers));
+            localStorage.setItem('physics12_currentIndex', currentIndex);
+        }
+
+        // بناء شبكة الأزرار
+        function renderGrid() {
+            gridContainer.innerHTML = '';
+            questionsData.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `q-grid-btn w-full py-2 rounded font-semibold text-sm border transition ${userAnswers[idx] !== null ? 'answered' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'} ${idx === currentIndex ? 'current' : ''}`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => goToQuestion(idx);
+                gridContainer.appendChild(btn);
+            });
+        }
+
+        // عرض السؤال الحالي
+        function renderQuestion() {
+            const qData = questionsData[currentIndex];
+            qNumberBadge.innerText = `سؤال ${currentIndex + 1} من ${questionsData.length}`;
+            qCategory.innerText = `الفصل: ${qData.cat}`;
+            questionText.innerHTML = qData.q;
+
+            optionsContainer.innerHTML = '';
+            qData.options.forEach((opt, optIdx) => {
+                const isSelected = userAnswers[currentIndex] === optIdx;
+                const optHtml = `
+                    <label class="block cursor-pointer relative">
+                        <input type="radio" name="q_option" value="${optIdx}" class="peer sr-only" onchange="selectOption(${optIdx})" ${isSelected ? 'checked' : ''}>
+                        <div class="option-label w-full p-4 rounded-lg border-2 border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center justify-between">
+                            <span class="text-lg leading-relaxed">${opt}</span>
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500 flex items-center justify-center">
+                                <div class="w-2 h-2 rounded-full bg-white opacity-0 transition-opacity peer-checked:opacity-100"></div>
+                            </div>
+                        </div>
+                    </label>
+                `;
+                optionsContainer.insertAdjacentHTML('beforeend', optHtml);
+            });
+
+            // تحديث حالة الأزرار
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.innerText = currentIndex === questionsData.length - 1 ? 'إنهاء' : 'التالي';
+            
+            // تحديث تصميم الخيار المحدد في الـ CSS
+            const checkedInputs = document.querySelectorAll('input[name="q_option"]:checked');
+            checkedInputs.forEach(input => {
+                input.nextElementSibling.querySelector('div>div').style.opacity = '1';
+                input.nextElementSibling.classList.add('border-blue-500', 'bg-blue-50');
+            });
+
+            renderGrid();
+            saveProgress();
+            
+            // Scroll grid to active button
+            const activeBtn = gridContainer.children[currentIndex];
+            if(activeBtn) {
+                activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // اختيار إجابة
+        function selectOption(optIdx) {
+            userAnswers[currentIndex] = optIdx;
+            saveProgress();
+            renderGrid();
+            
+            // تحديث التنسيق البصري للخيارات فوراً
+            document.querySelectorAll('.option-label').forEach(el => {
+                el.classList.remove('border-blue-500', 'bg-blue-50');
+                el.querySelector('div>div').style.opacity = '0';
+            });
+            const selectedLabel = document.querySelector(`input[value="${optIdx}"]`).nextElementSibling;
+            selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
+            selectedLabel.querySelector('div>div').style.opacity = '1';
+        }
+
+        // التنقل
+        function nextQuestion() {
+            if (currentIndex < questionsData.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function goToQuestion(idx) {
+            currentIndex = idx;
+            renderQuestion();
+        }
+
+        // إنهاء الاختبار
+        function finishQuiz() {
+            let score = 0;
+            let answeredCount = 0;
+            
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    answeredCount++;
+                    if (ans === questionsData[idx].answer) {
+                        score++;
+                    }
+                }
+            });
+
+            const percentage = Math.round((score / questionsData.length) * 100);
+            document.getElementById('scoreText').innerText = `${percentage}%`;
+            
+            let message = "";
+            if (percentage >= 90) message = "ممتاز جداً! أداء استثنائي في الفيزياء.";
+            else if (percentage >= 75) message = "جيد جداً! لديك فهم رائع للمفاهيم.";
+            else if (percentage >= 60) message = "جيد، لكن يمكنك تحسين النتيجة بالمراجعة.";
+            else message = "تحتاج إلى مراجعة الدروس مرة أخرى. لا تستسلم!";
+
+            document.getElementById('resultMessage').innerText = message;
+            resultOverlay.classList.remove('hidden');
+        }
+
+        // إخفاء النتيجة للمراجعة
+        function hideResult() {
+            resultOverlay.classList.add('hidden');
+        }
+
+        // إعادة الضبط
+        function resetProgress() {
+            userAnswers = new Array(questionsData.length).fill(null);
+            currentIndex = 0;
+            localStorage.removeItem('physics12_progress');
+            localStorage.removeItem('physics12_currentIndex');
+            resultOverlay.classList.add('hidden');
+            renderQuestion();
+        }
+
+        // تهيئة التطبيق عند التحميل
+        window.onload = () => {
+            loadProgress();
+            renderQuestion();
+        };
+
+        // السماح بالتنقل بالأسهم
+        document.addEventListener('keydown', (e) => {
+            if (resultOverlay.classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft') {
+                    nextQuestion(); // يسار للتالي (لأن الاتجاه RTL)
+                } else if (e.key === 'ArrowRight') {
+                    prevQuestion(); // يمين للسابق
+                }
+            }
+        });
+    </script>
+</body>
+</html>
