@@ -3,216 +3,584 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بنك أسئلة الفيزياء - إعداد أ/ وليد عزت</title>
-    <!-- استدعاء مكتبات React و Tailwind عبر CDN -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>المنصة التفاعلية - فيزياء الصف الثاني عشر</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Neutrals with Kuwaiti Blue Accents (Slate-50, Slate-800, Blue-600, Sky-500, Amber-400) -->
+    
+    <!-- Application Structure Plan: The SPA is structured as an interactive educational dashboard divided into three main thematic sections: 1. "نظرة عامة" (Overview) providing a statistical breakdown of the curriculum using a Donut Chart. 2. "مفاهيم تفاعلية" (Interactive Concepts) which acts as a virtual lab translating static graphs from the report (AC circuits, Photoelectric effect, Nuclear Binding Energy) into dynamic, user-controllable Chart.js visualizations. 3. "المختبر المعرفي" (Knowledge Lab) presenting a filterable, interactive database of the crucial "علل" (Give Reason) questions. -->
+    
+    <!-- Visualization & Content Choices: 
+    1. Curriculum Breakdown -> Inform -> Donut Chart (Chart.js) -> Hover interactions -> Justification: Shows the weight of each chapter clearly. No SVG used.
+    2. AC Circuits (V & I Phase Shifts) -> Change/Compare -> Dynamic Line Chart (Chart.js) -> User toggles between Resistor, Inductor, and Capacitor to see phase shifts -> Justification: Translates static textbook graphs into a dynamic learning tool to visualize wave phase differences. No SVG used.
+    3. Photoelectric Effect (KE vs f) -> Relationships -> Multi-line Chart (Chart.js) -> Hover to see threshold frequencies -> Justification: Explains Einstein's equation visually for different metals. No SVG used.
+    4. Nuclear Binding Energy -> Relationships -> Line/Scatter Chart (Chart.js) -> Highlights regions of stability, fission, and fusion -> Justification: Crucial graph in the report, made explorable. No SVG used.
+    5. Question Bank -> Organize -> Filterable HTML List -> Click category to filter -> Justification: Makes studying 100 questions manageable. No SVG used. 
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
-        .math-num { font-family: 'Courier New', Courier, monospace; font-weight: bold; direction: ltr; display: inline-block; margin: 0 4px;}
-        .completed-bg { background-color: #d1fae5; border-color: #10b981; }
-        .active-bg { background-color: #3b82f6; color: white; border-color: #2563eb; }
-        .default-bg { background-color: white; border-color: #d1d5db; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            scroll-behavior: smooth;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 450px;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+                padding: 0.5rem;
+            }
+        }
+
+        .tab-btn.active {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .filter-btn.active {
+            background-color: #0ea5e9;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+        }
+
+        /* Custom Scrollbar for the questions list */
+        #questions-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #questions-list::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 8px;
+        }
+        #questions-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 8px;
+        }
+        #questions-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="antialiased selection:bg-blue-200 selection:text-blue-900">
 
-    <script type="text/babel">
-        const questionsData = [
-            // --- وحدة الحث الكهرومغناطيسي (1-25) ---
-            { id: 1, q: "يتولد تيار حثي في ملف عند تقريب مغناطيس منه.", a: "بسبب حدوث تغير في التدفق المغناطيسي الذي يجتاز لفات الملف خلال فترة زمنية." },
-            { id: 2, q: "تنعدم القوة الدافعة الكهربائية الحثية في سلك مستقيم يتحرك موازياً لخطوط المجال المغناطيسي.", a: "لأن السلك لا يقطع خطوط المجال المغناطيسي، فتكون الزاوية <span class='math-num'>( 0 )</span> درجة وجيبها صفراً." },
-            { id: 3, q: "تتولد قوة دافعة حثية عند تحريك موصل بحيث يقطع خطوط مجال مغناطيسي.", a: "بسبب تأثير القوة المغناطيسية على الشحنات الحرة في الموصل مما يؤدي لانزياحها وتجمعها عند الأطراف مولدة فرق جهد." },
-            { id: 4, q: "عند تقريب القطب الشمالي لمغناطيس من ملف، يصبح وجه الملف قطباً شمالياً.", a: "لتوليد قوة تنافر مغناطيسية تقاوم حركة تقريب المغناطيس (المسبب للتيار) تطبيقاً لـ قانون لنز." },
-            { id: 5, q: "لا يتولد تيار حثي في حلقة معدنية مقفلة تتحرك بالكامل داخل مجال مغناطيسي منتظم.", a: "لأن التدفق المغناطيسي الذي يجتاز الحلقة يبقى ثابتاً ولا يحدث فيه أي تغير <span class='math-num'>( ΔΦ = 0 )</span>." },
-            { id: 6, q: "تُلف أسلاك المقاومات القياسية لفاً مزدوجاً.", a: "لتلافي تأثير الحث الذاتي، حيث يمر التيار في اتجاهين متعاكسين فيلغي كل منهما المجال المغناطيسي للآخر وتصبح الممانعة الحثية صفراً." },
-            { id: 7, q: "القوة الدافعة الحثية المتولدة في المولد الكهربائي (الدينامو) متغيرة المقدار والاتجاه.", a: "بسبب التغير المستمر في الزاوية <span class='math-num'>( θ )</span> بين متجه مساحة الملف وخطوط المجال أثناء دوران الملف." },
-            { id: 8, q: "ينمو التيار الكهربائي تدريجياً ولا يصل لقيمته العظمى فوراً عند غلق دائرة ملف حثي.", a: "بسبب تولد قوة دافعة كهربائية حثية عكسية ناتجة عن الحث الذاتي تقاوم نمو التيار الأصلي حسب قانون لنز." },
-            { id: 9, q: "تنعدم القوة الدافعة الحثية في المولد عندما يكون مستوى الملف عمودياً على خطوط المجال.", a: "لأن معدل تغير التدفق المغناطيسي بالنسبة للزمن <span class='math-num'>( dΦ/dt )</span> في هذا الوضع يساوي صفراً." },
-            { id: 10, q: "يتأخر التيار الكهربائي عن الجهد في الملف الحثي النقي.", a: "بسبب الممانعة الحثية وتولد القوة الدافعة العكسية التي تعيق مرور التيار في البداية." },
-            { id: 11, q: "تزداد القوة الدافعة الحثية المتولدة في ملف بزيادة عدد لفاته <span class='math-num'>( N )</span>.", a: "لأنها تتناسب طردياً مع عدد اللفات التي يجتازها التدفق المغناطيسي حسب قانون فاراداي." },
-            { id: 12, q: "تزداد القوة الدافعة الحثية عند وضع قلب من الحديد المطاوع داخل الملف.", a: "لأن الحديد يزيد من النفاذية المغناطيسية مما يزيد من تركيز التدفق ومعدل تغيره." },
-            { id: 13, q: "تزداد القوة الدافعة الحثية المتولدة بزيادة سرعة حركة المغناطيس بالنسبة للملف.", a: "لأن زيادة السرعة تزيد من معدل تغير التدفق المغناطيسي <span class='math-num'>( dΦ/dt )</span> الذي يجتاز الملف خلال وحدة الزمن." },
-            { id: 14, q: "يُبذل شغل ميكانيكي عند تحريك مغناطيس داخل ملف متصل بمقاومة.", a: "للتغلب على قوى التنافر أو التجاذب الناشئة عن التيار الحثي، ويتحول هذا الشغل لطاقة كهربائية حرارية (حفظ الطاقة)." },
-            { id: 15, q: "ينعدم التدفق المغناطيسي الذي يجتاز سطحاً عندما يكون مستوى السطح موازياً للمجال.", a: "لأن الزاوية بين متجه المساحة والمجال تكون <span class='math-num'>( 90 )</span> درجة، وقيمة <span class='math-num'>( cos 90 = 0 )</span>." },
-            { id: 16, q: "تزداد قيمة معامل الحث الذاتي للملف بزيادة عدد لفاته.", a: "لأن معامل الحث الذاتي يتناسب طردياً مع مربع عدد اللفات <span class='math-num'>( N<sup>2</sup> )</span> حسب أبعاد الملف الهندسية." },
-            { id: 17, q: "ظهور شرارة كهربائية عند فتح دائرة تيار مستمر تحتوي على ملف حثي كبير.", a: "بسبب تولد قوة دافعة كهربائية حثية طردية كبيرة جداً تحاول منع انهيار التيار المفاجئ وتؤين الهواء." },
-            { id: 18, q: "تعتمد القوة الدافعة الحثية في سلك مستقيم على طول السلك.", a: "لأن زيادة الطول تزيد من عدد الشحنات الحرة التي تتأثر بالقوة المغناطيسية، وتتناسب القوة الدافعة طردياً مع الطول <span class='math-num'>( L )</span>." },
-            { id: 19, q: "استخدام قانون لنز لتحديد اتجاه التيار الحثي.", a: "لأن القانون ينص على أن التيار الحثي يعاكس التغير في التدفق المسبب له، وهو ما يتفق مع مبدأ حفظ الطاقة." },
-            { id: 20, q: "لا تتولد قوة دافعة حثية في حلقة إذا تحركت موازية لمجال مغناطيسي منتظم.", a: "لعدم حدوث تغير في عدد خطوط التدفق المغناطيسي التي تخترق الحلقة أثناء الحركة." },
-            { id: 21, q: "يُعد معامل الحث الذاتي مقياساً للقصور الذاتي الكهربائي.", a: "لأنه يمثل ممانعة الملف لأي تغير مفاجئ في شدة التيار المار فيه سواء بالزيادة أو النقصان." },
-            { id: 22, q: "تغيير مساحة الحلقة داخل مجال مغناطيسي يولد تياراً حثياً.", a: "لأن تغير المساحة <span class='math-num'>( ΔA )</span> يؤدي لتغير التدفق المغناطيسي <span class='math-num'>( ΔΦ )</span> المخترق لها حسب العلاقة <span class='math-num'>( Φ = B A cos θ )</span>." },
-            { id: 23, q: "عند إبعاد القطب الشمالي لمغناطيس من وجه ملف، يتولد فيه قطب جنوبي حثي.", a: "لتوليد قوة تجاذب مغناطيسية تقاوم حركة الإبعاد المسببة للتيار الحثي تطبيقاً لقانون لنز." },
-            { id: 24, q: "تخزن الطاقة في الملف الحثي عند مرور تيار فيه.", a: "لأن التيار يبذل شغلاً للتغلب على القوة الدافعة الحثية العكسية، وتخزن هذه الطاقة في صورة مجال مغناطيسي." },
-            { id: 25, q: "ينهار التيار في ملف الحث بسرعة أكبر من نموه عند فتح الدائرة.", a: "لأن مقاومة الهواء عند فتح المفتاح كبيرة جداً، مما يجعل معدل التغير في التيار كبيراً جداً." },
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">⚛️</span>
+                    <span class="font-bold text-xl text-slate-800">فيزياء 12</span>
+                </div>
+                <div class="hidden md:flex space-x-8 space-x-reverse">
+                    <a href="#overview" class="text-slate-600 hover:text-blue-600 font-medium transition-colors">نظرة عامة</a>
+                    <a href="#interactive-graphs" class="text-slate-600 hover:text-blue-600 font-medium transition-colors">مفاهيم تفاعلية</a>
+                    <a href="#question-bank" class="text-slate-600 hover:text-blue-600 font-medium transition-colors">بنك التعليلات (100 سؤال)</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-            // --- وحدة التيار المتردد (26-50) ---
-            { id: 26, q: "متوسط شدة التيار المتردد الجيبي خلال دورة كاملة يساوي صفراً.", a: "لأن مقدار التيار في النصف الموجب للدورة يساوي تماماً مقداره في النصف السالب ويضاده في الاتجاه." },
-            { id: 27, q: "يغير التيار المتردد الجيبي اتجاهه كل نصف دورة.", a: "بسبب دوران ملف المولد وتغير قطبية الجهد المتولد كل <span class='math-num'>( 180 )</span> درجة من الدوران." },
-            { id: 28, q: "شدة التيار الفعالة <span class='math-num'>( I_rms )</span> تكون دائماً أقل من القيمة العظمى <span class='math-num'>( I_max )</span>.", a: "لأنها تساوي العظمى مقسومة على <span class='math-num'>( &radic;<span style=\"text-decoration:overline;\">2</span> )</span>، أي حوالي <span class='math-num'>( 0.707 )</span> منها." },
-            { id: 29, q: "يسبق الجهد الكلي التيار في دائرة تيار متردد تحتوي ملف حثي ومقاومة <span class='math-num'>( RL )</span>.", a: "بسبب وجود الممانعة الحثية للملف التي تؤخر نمو التيار بينما يظهر الجهد عبر الملف فوراً." },
-            { id: 30, q: "يسلك المكثف سلوك دائرة مغلقة (موصل) عند الترددات العالية جداً للتيار المتردد.", a: "لأن الممانعة السعوية <span class='math-num'>( X_C )</span> تتناسب عكسياً مع التردد <span class='math-num'>( f )</span>، فتقترب من الصفر عند الترددات العالية." },
-            { id: 31, q: "المقاومة الأومية لا تتأثر بتردد التيار المتردد المار فيها.", a: "لأنها تعتمد على خصائص الموصل المادية (طول، مساحة، نوع) ولا تعتمد على سرعة تغير اتجاه التيار." },
-            { id: 32, q: "تقل شدة التيار في دائرة بها ملف حثي بزيادة تردد المصدر <span class='math-num'>( f )</span>.", a: "لأن الممانعة الحثية <span class='math-num'>( X_L = 2πfL )</span> تزداد بزيادة التردد مما يعيق مرور التيار." },
-            { id: 33, q: "يعمل الملف الحثي كقطع للدائرة (دائرة مفتوحة) في الترددات العالية جداً.", a: "لأن ممانعته الحثية تصبح كبيرة جداً وتمنع مرور التيار بشكل شبه كامل." },
-            { id: 34, q: "الملف الحثي المثالي لا يبدي ممانعة لمرور التيار المستمر.", a: "لأن تردد التيار المستمر يساوي <span class='math-num'>( 0 ) Hz</span> فتكون الممانعة الحثية صفراً." },
-            { id: 35, q: "يتقدم التيار على الجهد في دائرة مكثف نقي بمقدار ربع دورة.", a: "لأن التيار يبدأ بشحن المكثف أولاً ثم يتولد فرق الجهد بين لوحيه تدريجياً نتيجة تراكم الشحنات." },
-            { id: 36, q: "يمنع المكثف مرور التيار المستمر في الدائرة بعد تمام شحنه.", a: "لأنه يتولد جهد عكسي بين لوحيه مساوٍ لجهد المصدر فيتوقف تدفق الشحنات وتصبح المقاومة الكلية مالانهاية." },
-            { id: 37, q: "يسمح المكثف بمرور التيار المتردد في دائرته.", a: "بسبب عمليات الشحن والتفريغ المستمرة والمتكررة الناتجة عن التغير المستمر في مقدار واتجاه جهد المصدر." },
-            { id: 38, q: "تزداد شدة التيار في دائرة مكثف بزيادة تردد المصدر.", a: "لأن الممانعة السعوية <span class='math-num'>( X_C )</span> تتناسب عكسياً مع التردد، فبزيادته تقل الممانعة ويزداد التيار." },
-            { id: 39, q: "المكثف يمرر الترددات العالية جداً بسهولة فائقة.", a: "لأن ممانعته السعوية تصبح صغيرة جداً تقترب من الصفر عند الترددات العالية جداً." },
-            { id: 40, q: "تكون المقاومة الأومية <span class='math-num'>( R )</span> هي المقاومة الكلية للدائرة وتساوي أقل قيمة لها في حالة الرنين.", a: "لأن الممانعة الحثية تلغي الممانعة السعوية <span class='math-num'>( X_L = X_C )</span> في الدائرة، وتتبقى المقاومة الأومية فقط." },
-            { id: 41, q: "تكون شدة التيار أكبر ما يمكن في دائرة <span class='math-num'>( RLC )</span> عند حالة الرنين.", a: "لأن المقاومة الأومية <span class='math-num'>( R )</span> تكون هي المقاومة الكلية للدائرة وتساوي أدنى قيمة لها مما يسمح بمرور أقصى تيار." },
-            { id: 42, q: "لا تستهلك قدرة حقيقية (حرارية) في الملف الحثي النقي.", a: "لأن الطاقة تخزن كمجال مغناطيسي في ربع دورة وتعاد للمصدر دورياً دون فقد حراري." },
-            { id: 43, q: "تستهلك الطاقة الكهربائية فقط في المقاومة الأومية في دوائر التيار المتردد.", a: "لأنها المكون الوحيد الذي يحول الطاقة الكهربائية لطاقة حرارية غير مستردة للمصدر." },
-            { id: 44, q: "تُعد القيمة الفعالة للتيار المتردد هي القيمة التي تُعاير على أساسها أجهزة القياس.", a: "لأنها تمثل شدة التيار المستمر الذي يولد نفس معدل الطاقة الحرارية في نفس المقاومة." },
-            { id: 45, q: "لا تُجمع فروق الجهد جمعاً جبرياً في دوائر التيار المتردد للحصول على الجهد الكلي.", a: "بسبب وجود فرق في الطور (زوايا طور) بين متجهات الجهد، لذا تُجمع جمعاً اتجاهياً." },
-            { id: 46, q: "يزداد تردد الرنين <span class='math-num'>( f_0 )</span> في دائرة <span class='math-num'>( RLC )</span> بنقصان سعة المكثف <span class='math-num'>( C )</span>.", a: "لأن تردد الرنين يتناسب عكسياً مع الجذر التربيعي لسعة المكثف حسب العلاقة <span class='math-num'>( f_0 = 1 / [ 2π &radic;<span style=\"text-decoration:overline;\">LC</span> ] )</span>." },
-            { id: 47, q: "التيار والجهد متفقان في الطور في المقاومة الأومية الصرفة.", a: "لعدم وجود تأثير سعوي أو حثي يؤخر أياً منهما عن الآخر فينموان ويتلاشيان معاً." },
-            { id: 48, q: "لا يتغير تردد الرنين في دائرة <span class='math-num'>( RLC )</span> عند تغير قيمة المقاومة الأومية <span class='math-num'>( R )</span>.", a: "لأن تردد الرنين يتوقف فقط على معامل الحث الذاتي للملف <span class='math-num'>( L )</span> وسعة المكثف <span class='math-num'>( C )</span>." },
-            { id: 49, q: "زاوية الطور في دائرة الرنين تساوي صفراً.", a: "لأن الجهد عبر الملف يلغي الجهد عبر المكثف تماماً، فيكون الجهد الكلي منطبقاً على التيار." },
-            { id: 50, q: "لا تخزن المقاومة الأومية طاقة كهربائية بل تبددها.", a: "لأنها تحول الطاقة الكهربائية بالكامل وبشكل لحظي إلى طاقة حرارية تتسرب خارج الدائرة." },
+    <header class="bg-slate-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">المنصة التفاعلية لفيزياء الثاني عشر</h1>
+            <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                استكشف الرسوم البيانية الديناميكية، واختبر فهمك للظواهر الفيزيائية من خلال 100 سؤال تعليل علمي متكامل.
+            </p>
+        </div>
+    </header>
 
-            // --- وحدة الفيزياء الحديثة والنووية (51-100) ---
-            { id: 51, q: "تعتبر دالة الشغل <span class='math-num'>( Φ )</span> لسطح الفلز صفة مميزة لنوع مادته.", a: "لأنها تمثل الحد الأدنى من الطاقة اللازمة لتحرير الإلكترون من سطح هذا الفلز تحديداً، وتتوقف فقط على نوع المادة." },
-            { id: 52, q: "تختلف الخواص الفيزيائية لنظائر العنصر الواحد عن بعضها البعض.", a: "بسبب اختلافها في عدد النيوترونات داخل أنويتها، مما يؤدي لاختلاف العدد الكتلي والكتلة الذرية لكل نظير." },
-            { id: 53, q: "بقاء النواة متماسكة رغم وجود قوى تنافر كهربائي كبيرة بين البروتونات.", a: "بسبب وجود القوة النووية القوية التي تعمل بين النيوكليونات المتجاورة وتتغلب على قوى التنافر الكهربائي." },
-            { id: 54, q: "لا تؤثر شحنة النيوكليون (بروتون أو نيوترون) على مقدار القوة النووية القوية.", a: "لأن القوة النووية قوة عامة لا تميز بين الشحنات، فهي متساوية المقدار بين <span class='math-num'>( p-p )</span> و <span class='math-num'>( n-n )</span> و <span class='math-num'>( p-n )</span>." },
-            { id: 55, q: "تسمى ذرات العنصر نفسه التي تتساوى في العدد الذري وتختلف في الكتلي بالنظائر.", a: "لأنها تحتوي على نفس عدد البروتونات ولكنها تختلف في عدد النيوترونات داخل أنويتها." },
-            { id: 56, q: "تزداد طاقة الربط النووية للنواة بزيادة عدد النيوكليونات <span class='math-num'>( A )</span> فيها.", a: "لأن زيادة عدد الجسيمات تزيد من إجمالي الروابط النووية القوية داخل النواة." },
-            { id: 57, q: "معظم حجم الذرة عبارة عن فراغ هائل.", a: "لأن كتلة الذرة تتركز في حيز صغير جداً هو النواة، بينما تدور الإلكترونات في مدارات بعيدة جداً عن المركز." },
-            { id: 58, q: "لا تتأثر دالة الشغل <span class='math-num'>( Φ )</span> لفلز معين بتغير شدة الضوء الساقط عليه.", a: "لأن دالة الشغل خاصية تعتمد فقط على نوع مادة الفلز، ولا علاقة لها بعدد الفوتونات الساقطة." },
-            { id: 59, q: "توصف القوة النووية القوية بأنها قوة قصيرة المدى جداً.", a: "لأن تأثيرها ينعدم تماماً إذا زادت المسافة بين النيوكليونات عن قطر النواة تقريباً <span class='math-num'>( 10<sup>-15</sup> ) m</span>." },
-            { id: 60, q: "تخلص النواة من طاقة الإثارة الزائدة يؤدي لزيادة استقرارها.", a: "لأن ذلك يجعل النواة تنتقل من مستوى طاقة مرتفع (حالة مثارة) إلى مستوى طاقة أدنى وأكثر تماسكاً واستقراراً." },
-            { id: 61, q: "تميل الأنوية المتوسطة الكتلة (مثل الحديد) إلى أن تكون الأكثر استقراراً.", a: "لأن طاقة الربط النووية لكل نيوكليون فيها تبلغ أقصى قيمة لها وهي <span class='math-num'>( 8.8 ) MeV</span>." },
-            { id: 62, q: "تمتلك الأنوية ذات طاقة الربط لكل نيوكليون المرتفعة استقراراً كبيراً.", a: "لأن هذا يعني الحاجة لبذل شغل كبير جداً لانتزاع نيوكليون واحد من داخل النواة." },
-            { id: 63, q: "ميل الأنوية الخفيفة جداً إلى الاندماج لتصبح أكثر استقراراً.", a: "لأن ذلك يؤدي لزيادة نصيب النيوكليون الواحد من طاقة الربط واقترابها من منطقة الاستقرار." },
-            { id: 64, q: "ميل الأنوية الثقيلة جداً إلى الانشطار لزيادة استقرارها.", a: "لأن ذلك يجزئها إلى أنوية متوسطة الكتلة تمتلك طاقة ربط لكل نيوكليون أعلى، فتصبح أكثر تماسكاً." },
-            { id: 65, q: "كتلة النواة الفعلية والمستقرة دائماً أقل من مجموع كتل مكوناتها وهي حرة.", a: "بسبب تحول جزء من كتلة المكونات إلى طاقة ربط نووية عند تكوين النواة طبقاً لمعادلة أينشتاين." },
-            { id: 66, q: "تتركز كتلة الذرة بالكامل تقريباً في النواة المركزية.", a: "لأن كتل البروتونات والنيوترونات أكبر بكثير من كتلة الإلكترونات المحيطة." },
-            { id: 67, q: "النواة دائماً موجبة الشحنة الكهربائية.", a: "لاحتوائها على بروتونات موجبة الشحنة ونيوترونات متعادلة كهربائياً." },
-            { id: 68, q: "تعتبر طاقة الربط النووية لكل نيوكليون هي المقياس الحقيقي لاستقرار النواة.", a: "لأنها تمثل الشغل اللازم لانتزاع نيوكليون واحد من داخل النواة وتفكيك ارتباطها." },
-            { id: 69, q: "تصل القوة النووية إلى حالة التشبع في الأنوية الكبيرة.", a: "لأن كل نيوكليون يتفاعل نووياً مع جيرانه الملاصقين له فقط وليس مع كل مكونات النواة." },
-            { id: 70, q: "طاقة الربط النووية لكل نيوكليون لنواة الحديد أعلى منها لنواة اليورانيوم.", a: "لأن نواة الحديد تنتمي للأنوية متوسطة الكتلة الأكثر استقراراً، بينما اليورانيوم نواة ثقيلة أقل استقراراً." },
-            { id: 71, q: "طاقة الربط النووية الكلية تزداد بشكل عام بزيادة عدد النيوكليونات.", a: "لأن زيادة عدد الجسيمات تزيد من إجمالي الروابط النووية القوية داخل النواة." },
-            { id: 72, q: "تزداد نسبة عدد النيوترونات إلى عدد البروتونات <span class='math-num'>( N / Z )</span> في الأنوية الثقيلة المستقرة.", a: "للتغلب على قوى التنافر الكهربائي الكبيرة بين البروتونات الكثيرة، ولتوفير قوى تجاذب نووي إضافية تحافظ على التماسك." },
-            { id: 73, q: "كثافة المادة النووية ثابتة تقريباً لجميع الأنوية مهما اختلف حجمها.", a: "لأن حجم النواة يتناسب طردياً مع عدد النيوكليونات <span class='math-num'>( A )</span>، مما يجعل نسبة الكتلة إلى الحجم ثابتة." },
-            { id: 74, q: "تعمل النيوترونات على المحافظة على التماسك النووي.", a: "لأنها توفر قوى تجاذب نووية قوية إضافية دون زيادة في قوى التنافر الكهربائية، مما يعمل كغراء يربط المكونات." },
-            { id: 75, q: "استقرار النواة يتطلب توازناً دقيقاً بين عدد البروتونات والنيوترونات.", a: "لضمان تفوق قوى التجاذب النووية على قوى التنافر الكهربائية والحفاظ على بنية النواة." },
-            { id: 76, q: "تعتبر النواة هي المسؤولة عن معظم كتلة الذرة الكلية.", a: "لأنها تحتوي على البروتونات والنيوترونات، وكتلة كل منهما تزيد عن كتلة الإلكترون بحوالي <span class='math-num'>( 1836 )</span> مرة." },
-            { id: 77, q: "لا نلاحظ الخواص الموجية للأجسام المتحركة الكبيرة في حياتنا اليومية.", a: "لأن كتلتها كبيرة جداً، فيكون طول موجة دي برولي المصاحب لها متناهي الصغر ولا يمكن قياسه." },
-            { id: 78, q: "تكون طاقة الربط النووية مساوية لصفر في نواة الهيدروجين العادي (البروتيوم).", a: "لأن نواتها تتكون من بروتون واحد فقط، فلا توجد نيوكليونات أخرى لترتبط معها." },
-            { id: 79, q: "ثبات قيمة النسبة بين عدد النيوترونات والبروتونات في الأنوية المستقرة الخفيفة.", a: "لأن قوى التنافر الكهربائي تكون ضعيفة، فتكفي القوى النووية لربط عدد متساوٍ من البروتونات والنيوترونات." },
-            { id: 80, q: "تزداد نسبة النيوترونات إلى البروتونات في الأنوية الثقيلة المستقرة.", a: "للتغلب على قوى التنافر الكهربائي المتزايدة بين البروتونات ولتوفير قوى تجاذب نووي إضافية للتماسك." },
-            { id: 81, q: "يؤدي النقص في الكتلة <span class='math-num'>( Δm )</span> إلى استقرار النواة.", a: "لأن هذا النقص يتحول بالكامل إلى طاقة ربط نووية تعمل على تجميع وربط مكونات النواة معاً." },
-            { id: 82, q: "تعتبر القوة النووية القوية أقوى القوى الأساسية المعروفة في الطبيعة.", a: "لقدرتها على ربط البروتونات الموجبة معاً في حيز متناهي الصغر رغم قوى التنافر الكهربائي الهائلة." },
-            { id: 83, q: "تساوي طاقة الربط النووية الشغل اللازم لتفكيك النواة بالكامل.", a: "لأنها الطاقة التي تم تحريرها عند تكوين النواة، وبذل نفس المقدار يعيد المكونات لحالتها الحرة." },
-            { id: 84, q: "ارتباط استقرار النواة بطاقة الربط لكل نيوكليون وليس الطاقة الكلية للربط.", a: "لأن الاستقرار يعتمد على مدى قوة ارتباط الجسيم الواحد داخل النواة ومدى صعوبة نزعه منها." },
-            { id: 85, q: "استخدام وحدة الكتل الذرية <span class='math-num'>( amu )</span> لقياس كتل الأنوية والجسيمات.", a: "لأن الكيلوجرام وحدة كبيرة جداً وغير عملية للتعامل مع كتل الجسيمات المتناهية الصغر." },
-            { id: 86, q: "تستخدم وحدة الإلكترون فولت <span class='math-num'>( eV )</span> لقياس الطاقة في الفيزياء الذرية.", a: "لأن الجول وحدة كبيرة جداً تعطي قيماً بأسس سالبة مربكة في هذا المقياس الذري الصغير." },
-            { id: 87, q: "تشابه الخواص الكيميائية لنظائر العنصر الواحد بشكل تام.", a: "بسبب تساوي عدد البروتونات وبالتالي تساوي عدد الإلكترونات وترتيبها في المستويات الخارجية." },
-            { id: 88, q: "العلاقة بين الكتلة والطاقة علاقة تكافؤ حسب معادلة أينشتاين.", a: "لأن المادة والطاقة وجهان لعملة واحدة، حيث يمكن للمادة أن تتحول إلى طاقة وبالعكس." },
-            { id: 89, q: "تعتمد طاقة الفوتون الواحد على تردده فقط.", a: "حسب علاقة بلانك <span class='math-num'>( E = hf )</span>، حيث ثابت بلانك مقدار ثابت كوني." },
-            { id: 90, q: "التيار الكهروضوئي ينعدم فور انقطاع الضوء.", a: "لأن الانبعاث ناتج عن تصادم لحظي مباشر بين الفوتونات والإلكترونات." },
-            { id: 91, q: "لا تستهلك قدرة حقيقية في المكثف النقي في دوائر التيار المتردد.", a: "لأن الطاقة تُخزن في صورة مجال كهربائي خلال ربع دورة، ثم تعاد بالكامل إلى المصدر خلال الربع التالي دون أي تحول لطاقة حرارية." },
-            { id: 92, q: "الملف الحثي يمنع التغير المفاجئ في شدة التيار.", a: "بسبب خاصية القصور الذاتي الكهربائي المتولدة عن الحث الذاتي والقوة الدافعة العكسية." },
-            { id: 93, q: "تغير تردد المصدر في دائرة تيار متردد لا يغير المقاومة الأومية.", a: "لأن المقاومة الأومية تعتمد على نوع المادة وأبعاد الموصل ودرجة حرارته فقط." },
-            { id: 94, q: "زيادة السعة الكهربائية للمكثف تزيد من شدة التيار المتردد.", a: "لأن زيادة السعة <span class='math-num'>( C )</span> تقلل الممانعة السعوية <span class='math-num'>( X_C )</span> فيزداد التيار." },
-            { id: 95, q: "الجمع الاتجاهي هو الطريقة الصحيحة لجمع الجهود في دوائر التيار المتردد.", a: "بسبب وجود فرق في الطور (زوايا طور) بين متجهات الجهد المختلفة." },
-            { id: 96, q: "عند حالة الرنين تتلاشى الممانعات ويتبقى أثر المقاومة الأومية فقط.", a: "لأن الممانعة الحثية <span class='math-num'>( X_L )</span> تتساوى مع الممانعة السعوية <span class='math-num'>( X_C )</span> وتعاكسها في الطور." },
-            { id: 97, q: "تزداد طاقة الحركة العظمى للإلكترونات بزيادة تردد الضوء.", a: "لأن الفوتون الساقط يمتلك طاقة أكبر، والفرق بين طاقته ودالة الشغل يذهب كطاقة حركة." },
-            { id: 98, q: "استخدام أسلاك سميكة في دوائر التيار المتردد الكبيرة.", a: "لتقليل المقاومة الأومية للأسلاك وتقليل الطاقة المفقودة في صورة حرارة." },
-            { id: 99, q: "القوة النووية القوية تمنع انهيار النواة.", a: "بسبب قدرتها الفائقة على جذب النيوكليونات لبعضها والتغلب على قوى التنافر الكهربائي الشديدة." },
-            { id: 100, q: "تمثل طاقة الربط لكل نيوكليون المقياس الحقيقي لاستقرار النواة وليس طاقة الربط النووية الكلية.", a: "لأن الاستقرار يعتمد على مدى قوة ارتباط الجسيم الواحد داخل النواة وصعوبة فصله، وهو ما تحدده طاقة الربط لكل نيوكليون." }
-        ];
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
 
-        function App() {
-            const [currentIndex, setCurrentIndex] = React.useState(0);
-            const [userAnswers, setUserAnswers] = React.useState({});
-            const [completedQuestions, setCompletedQuestions] = React.useState({});
-            const [showAnswer, setShowAnswer] = React.useState(false);
+        <section id="overview" class="scroll-mt-20">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">نظرة عامة على المنهج</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto">
+                    يقدم هذا القسم تحليلاً لتوزيع الفصول الدراسية بناءً على كثافة المعلومات والأسئلة. الرسم البياني التفاعلي أدناه يوضح الوزن النسبي لكل وحدة دراسية.
+                </p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-12 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                <div class="w-full md:w-1/2">
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="curriculumChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-bold text-slate-800 border-b border-slate-200 pb-2">فصول الفترة الدراسية الثانية</h3>
+                    <ul class="space-y-3 text-slate-700">
+                        <li class="flex items-center gap-3"><span class="text-xl">🧲</span> <strong>التدفق المغناطيسي:</strong> قانون فاراداي، لنز، المولدات والمحركات.</li>
+                        <li class="flex items-center gap-3"><span class="text-xl">⚡</span> <strong>التيار المتردد:</strong> تحليل دوائر المقاومة والملف والمكثف وحالة الرنين.</li>
+                        <li class="flex items-center gap-3"><span class="text-xl">💻</span> <strong>أشباه الموصلات:</strong> بلورات P و N، الوصلة الثنائية والانحياز.</li>
+                        <li class="flex items-center gap-3"><span class="text-xl">💡</span> <strong>الفيزياء الذرية:</strong> التأثير الكهروضوئي، الفوتونات ومعادلة أينشتاين.</li>
+                        <li class="flex items-center gap-3"><span class="text-xl">☢️</span> <strong>الفيزياء النووية:</strong> النظائر، طاقة الربط النووية، الاندماج والانشطار.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
 
-            const handleNext = () => { if (currentIndex < questionsData.length - 1) { setCurrentIndex(prev => prev + 1); setShowAnswer(false); } };
-            const handlePrev = () => { if (currentIndex > 0) { setCurrentIndex(prev => prev - 1); setShowAnswer(false); } };
-            const jumpToQuestion = (index) => { setCurrentIndex(index); setShowAnswer(false); };
-            const handleTextChange = (e) => { setUserAnswers({ ...userAnswers, [questionsData[currentIndex].id]: e.target.value }); };
-            const toggleComplete = () => { const currentId = questionsData[currentIndex].id; setCompletedQuestions({ ...completedQuestions, [currentId]: !completedQuestions[currentId] }); };
+        <section id="interactive-graphs" class="scroll-mt-20">
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">المختبر الافتراضي للمفاهيم</h2>
+                <p class="text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                    تفاعل مع المتغيرات لمراقبة التغيرات في الطور في دوائر التيار المتردد، وفهم العلاقة بين طاقة الحركة وتردد الضوء الساقط، واستكشاف منحنى الاستقرار النووي بشكل ديناميكي.
+                </p>
+            </div>
 
-            const currentQ = questionsData[currentIndex];
-            const isCompleted = completedQuestions[currentQ.id] || false;
-            const currentAnswerText = userAnswers[currentQ.id] || "";
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="text-blue-600">⚡</span> زاوية فرق الطور (التيار المتردد)
+                    </h3>
+                    <p class="text-sm text-slate-500 mb-6">اضغط على الأزرار لتغيير نوع الدائرة ومراقبة الطور بين الجهد (V) والتيار (I).</p>
+                    
+                    <div class="flex justify-center gap-2 mb-6">
+                        <button onclick="updateACChart('R')" id="btn-R" class="tab-btn active px-4 py-2 rounded-lg border border-slate-300 font-medium transition-colors">مقاومة (R)</button>
+                        <button onclick="updateACChart('L')" id="btn-L" class="tab-btn px-4 py-2 rounded-lg border border-slate-300 font-medium transition-colors">ملف حثي (L)</button>
+                        <button onclick="updateACChart('C')" id="btn-C" class="tab-btn px-4 py-2 rounded-lg border border-slate-300 font-medium transition-colors">مكثف (C)</button>
+                    </div>
+                    
+                    <div class="chart-container flex-grow">
+                        <canvas id="acChart"></canvas>
+                    </div>
+                    
+                    <div id="ac-explanation" class="mt-4 p-4 bg-blue-50 text-blue-900 rounded-lg text-sm font-medium text-center transition-all duration-300">
+                        في المقاومة الأومية الصرفة، يتفق الجهد والتيار في الطور (زاوية فرق الطور = صفر).
+                    </div>
+                </div>
 
-            return (
-                <div className="max-w-4xl mx-auto min-h-screen pb-12">
-                    <header className="bg-blue-800 text-white p-6 shadow-md rounded-b-xl mb-6 text-center">
-                        <h1 className="text-3xl font-bold mb-2">بنك الفيزياء (12) - 100 سؤال علل</h1>
-                        <p className="text-blue-200 mb-1">الفصل الدراسي الثاني - شامل ومنقح بالكامل (دولة الكويت)</p>
-                        <p className="text-blue-100 font-medium italic">إعداد الموجه الفني للفيزياء أ/ وليد عزت</p>
-                    </header>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="text-amber-500">💡</span> التأثير الكهروضوئي (الفيزياء الذرية)
+                    </h3>
+                    <p class="text-sm text-slate-500 mb-6">العلاقة بين أقصى طاقة حركية للإلكترونات المنبعثة وتردد الضوء الساقط لمعادن مختلفة.</p>
+                    
+                    <div class="chart-container flex-grow">
+                        <canvas id="photoelectricChart"></canvas>
+                    </div>
 
-                    <div className="flex flex-col md:flex-row gap-6 px-4">
-                        <div className="w-full md:w-1/3 bg-white p-4 rounded-xl shadow-sm border border-gray-200 h-[65vh] overflow-y-auto scrollbar-hide">
-                            <h2 className="text-lg font-bold mb-4 text-gray-700 border-b pb-2">فهرس الأسئلة</h2>
-                            <div className="grid grid-cols-5 gap-2">
-                                {questionsData.map((q, idx) => (
-                                    <button 
-                                        key={q.id} 
-                                        onClick={() => jumpToQuestion(idx)}
-                                        className={`w-full aspect-square flex items-center justify-center rounded-lg text-xs font-semibold border transition-all ${idx === currentIndex ? 'active-bg shadow-md scale-105' : completedQuestions[q.id] ? 'completed-bg text-emerald-800' : 'default-bg text-gray-600 hover:bg-gray-50'}`}
-                                    >
-                                        {q.id}
-                                    </button>
-                                ))}
-                            </div>
+                    <div class="mt-4 p-4 bg-amber-50 text-amber-900 rounded-lg text-sm font-medium leading-relaxed">
+                        <strong>الملاحظات:</strong> الخطوط متوازية لأن ميلها يمثل ثابت بلانك (h). النقطة التي يتقاطع فيها الخط مع المحور الأفقي تمثل تردد العتبة (f₀) المميز لكل معدن.
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col lg:col-span-2">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="text-emerald-600">☢️</span> منحنى طاقة الربط النووية لكل نيوكليون
+                    </h3>
+                    <p class="text-sm text-slate-500 mb-6">يوضح المنحنى مدى استقرار الأنوية بناءً على العدد الكتلي (A). استكشف مناطق الاندماج والانشطار.</p>
+                    
+                    <div class="chart-container w-full" style="max-width: 1000px; height: 450px;">
+                        <canvas id="nuclearChart"></canvas>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100 hover:shadow-md transition-shadow cursor-default">
+                            <h4 class="font-bold text-emerald-800 mb-1">الأنوية الخفيفة</h4>
+                            <p class="text-sm text-emerald-700">طاقة ربط صغيرة. تميل لتفاعلات <strong>الاندماج النووي</strong> للوصول لحالة استقرار أعلى.</p>
                         </div>
-
-                        <div className="w-full md:w-2/3 flex flex-col gap-4">
-                            <div className="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-gray-200">
-                                <span className="font-bold text-gray-700">السؤال: <span className="text-blue-600 text-xl">{currentQ.id}</span></span>
-                                <label className="flex items-center gap-2 cursor-pointer bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
-                                    <input type="checkbox" checked={isCompleted} onChange={toggleComplete} className="w-5 h-5 text-emerald-600 rounded border-gray-300 cursor-pointer" />
-                                    <span className="font-medium text-gray-700">تم الحل</span>
-                                </label>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 min-h-[140px]">
-                                <h3 className="text-xl font-bold text-red-600 mb-2">علل لما يأتي:</h3>
-                                <p className="text-lg text-gray-800 leading-relaxed" dangerouslySetInnerHTML={{ __html: currentQ.q }}></p>
-                            </div>
-
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                                <label className="font-bold text-gray-700 mb-2 block">مساحة لكتابة إجابتك:</label>
-                                <textarea className="w-full border border-gray-300 rounded-lg p-3 min-h-[120px] focus:ring-2 focus:ring-blue-500 outline-none text-lg" placeholder="اكتب إجابتك هنا للمراجعة الشخصية..." value={currentAnswerText} onChange={handleTextChange}></textarea>
-                            </div>
-
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                                <div className="p-4 bg-gray-50 flex justify-between items-center border-b">
-                                    <span className="font-bold text-gray-700">الإجابة النموذجية</span>
-                                    <button onClick={() => setShowAnswer(!showAnswer)} className="bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-1 px-4 rounded-lg transition-colors">{showAnswer ? "إخفاء" : "عرض"}</button>
-                                </div>
-                                {showAnswer && (
-                                    <div className="p-6 bg-blue-50/50">
-                                        <p className="text-lg text-blue-900 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: currentQ.a }}></p>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex justify-between mt-2">
-                                <button onClick={handlePrev} disabled={currentIndex === 0} className={`px-8 py-3 rounded-xl font-bold flex items-center gap-2 ${currentIndex === 0 ? 'bg-gray-200 text-gray-400' : 'bg-gray-800 hover:bg-gray-700 text-white'}`}>السابق</button>
-                                <button onClick={handleNext} disabled={currentIndex === questionsData.length - 1} className={`px-8 py-3 rounded-xl font-bold flex items-center gap-2 ${currentIndex === questionsData.length - 1 ? 'bg-gray-200 text-gray-400' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}>التالي</button>
-                            </div>
+                        <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100 hover:shadow-md transition-shadow cursor-default">
+                            <h4 class="font-bold text-emerald-800 mb-1">الأنوية المتوسطة</h4>
+                            <p class="text-sm text-emerald-700">تقع في قمة المنحنى (مثل النيكل والحديد). تمتلك أكبر طاقة ربط لكل نيوكليون، وهي <strong>الأكثر استقراراً</strong>.</p>
+                        </div>
+                        <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100 hover:shadow-md transition-shadow cursor-default">
+                            <h4 class="font-bold text-emerald-800 mb-1">الأنوية الثقيلة</h4>
+                            <p class="text-sm text-emerald-700">طاقة ربط منخفضة نسبياً بسبب التنافر. تميل لتفاعلات <strong>الانشطار النووي</strong> لزيادة استقرارها.</p>
                         </div>
                     </div>
                 </div>
-            );
-        }
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+
+            </div>
+        </section>
+
+        <section id="question-bank" class="scroll-mt-20 mb-24">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">بنك التعليلات العلمية المكتمل (100 سؤال)</h2>
+                <p class="text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                    يحتوي هذا القسم على 100 سؤال "علل" شاملة تغطي كافة أجزاء المنهج. استخدم الأزرار لتصفية الأسئلة حسب الفصل الدراسي لمراجعة مركزة.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-2 justify-center sticky top-0 z-10" id="filter-container">
+                    <button onclick="filterQuestions('all')" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">الكل (100)</button>
+                    <button onclick="filterQuestions('induction')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">التدفق المغناطيسي</button>
+                    <button onclick="filterQuestions('ac')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">التيار المتردد</button>
+                    <button onclick="filterQuestions('semi')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">أشباه الموصلات</button>
+                    <button onclick="filterQuestions('atomic')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">الفيزياء الذرية</button>
+                    <button onclick="filterQuestions('nuclear')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">الفيزياء النووية</button>
+                </div>
+                
+                <div id="questions-list" class="divide-y divide-slate-100 max-h-[700px] overflow-y-auto p-4 space-y-4 bg-slate-50">
+                    <!-- Questions will be injected here via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center border-t border-slate-800">
+        <p class="text-sm">تم تصميم هذه المنصة التفاعلية لتبسيط مراجعة مادة الفيزياء - الصف الثاني عشر.</p>
+    </footer>
+
+    <script>
+        // Data generator for AC circuits
+        const acDataGenerator = (type) => {
+            const labels = [];
+            const vData = [];
+            const iData = [];
+            for (let i = 0; i <= 360; i += 5) {
+                let rad = i * (Math.PI / 180);
+                labels.push(i + '°');
+                vData.push(Math.sin(rad));
+                
+                if (type === 'R') {
+                    iData.push(0.8 * Math.sin(rad));
+                } else if (type === 'L') {
+                    iData.push(0.8 * Math.sin(rad - Math.PI / 2));
+                } else if (type === 'C') {
+                    iData.push(0.8 * Math.sin(rad + Math.PI / 2));
+                }
+            }
+            return { labels, vData, iData };
+        };
+
+        // Initialize Curriculum Chart
+        const initCurriculumChart = () => {
+            const ctx = document.getElementById('curriculumChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['التدفق المغناطيسي', 'التيار المتردد', 'أشباه الموصلات', 'الفيزياء الذرية', 'الفيزياء النووية'],
+                    datasets: [{
+                        data: [20, 15, 20, 25, 20],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', rtl: true, labels: { font: { family: 'Tajawal', size: 14 } } },
+                        tooltip: { titleFont: { family: 'Tajawal' }, bodyFont: { family: 'Tajawal', size: 14 } }
+                    },
+                    cutout: '65%'
+                }
+            });
+        };
+
+        // Initialize AC Chart
+        let acChartInstance = null;
+        const initACChart = () => {
+            const ctx = document.getElementById('acChart').getContext('2d');
+            const data = acDataGenerator('R');
+            
+            acChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        { label: 'الجهد (V)', data: data.vData, borderColor: '#ef4444', borderWidth: 3, tension: 0.4, pointRadius: 0 },
+                        { label: 'التيار (I)', data: data.iData, borderColor: '#3b82f6', borderWidth: 3, tension: 0.4, borderDash: [5, 5], pointRadius: 0 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { display: false },
+                        y: { display: false, min: -1.2, max: 1.2 }
+                    },
+                    plugins: {
+                        legend: { rtl: true, labels: { font: { family: 'Tajawal', size: 14 } } },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        };
+
+        window.updateACChart = (type) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${type}`).classList.add('active');
+
+            const data = acDataGenerator(type);
+            acChartInstance.data.datasets[1].data = data.iData;
+            acChartInstance.update();
+
+            const textEl = document.getElementById('ac-explanation');
+            if (type === 'R') textEl.textContent = 'في المقاومة الأومية الصرفة، يتفق الجهد والتيار في الطور (زاوية فرق الطور = صفر).';
+            if (type === 'L') textEl.textContent = 'في الملف الحثي النقي، يتقدم الجهد على التيار بزاوية 90 درجة (π/2).';
+            if (type === 'C') textEl.textContent = 'في المكثف، يتأخر الجهد عن التيار بزاوية 90 درجة (π/2).';
+        };
+
+        // Initialize Photoelectric Chart
+        const initPhotoelectricChart = () => {
+            const ctx = document.getElementById('photoelectricChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [0, 2, 4, 6, 8, 10, 12, 14],
+                    datasets: [
+                        { label: 'معدن A', data: [null, null, 0, 2, 4, 6, 8, 10], borderColor: '#10b981', tension: 0, borderWidth: 3, pointBackgroundColor: '#10b981', pointRadius: 5, pointHoverRadius: 7 },
+                        { label: 'معدن B', data: [null, null, null, null, 0, 2, 4, 6], borderColor: '#f59e0b', tension: 0, borderWidth: 3, pointBackgroundColor: '#f59e0b', pointRadius: 5, pointHoverRadius: 7 },
+                        { label: 'معدن C', data: [null, null, null, null, null, null, 0, 2], borderColor: '#ef4444', tension: 0, borderWidth: 3, pointBackgroundColor: '#ef4444', pointRadius: 5, pointHoverRadius: 7 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'التردد f (Hz)', font: { family: 'Tajawal', weight: 'bold', size: 14 } } },
+                        y: { title: { display: true, text: 'الطاقة الحركية العظمى KE', font: { family: 'Tajawal', weight: 'bold', size: 14 } }, min: 0 }
+                    },
+                    plugins: {
+                        legend: { rtl: true, labels: { font: { family: 'Tajawal', size: 14 } } }
+                    }
+                }
+            });
+        };
+
+        // Initialize Nuclear Chart
+        const initNuclearChart = () => {
+            const ctx = document.getElementById('nuclearChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240],
+                    datasets: [{
+                        label: 'طاقة الربط لكل نيوكليون (MeV)',
+                        data: [0, 7.8, 8.5, 8.8, 8.7, 8.5, 8.4, 8.3, 8.1, 7.9, 7.8, 7.7, 7.6],
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: [0, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'العدد الكتلي (A)', font: { family: 'Tajawal', weight: 'bold', size: 14 } } },
+                        y: { title: { display: true, text: 'طاقة الربط Eb/A', font: { family: 'Tajawal', weight: 'bold', size: 14 } }, min: 0, max: 10 }
+                    },
+                    plugins: {
+                        legend: { rtl: true, labels: { font: { family: 'Tajawal', size: 14 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) label += context.parsed.y + ' MeV';
+                                    if (context.dataIndex === 3) label += ' (ذروة الاستقرار - الحديد/النيكل)';
+                                    return label;
+                                }
+                            },
+                            titleFont: { family: 'Tajawal' }, bodyFont: { family: 'Tajawal' }
+                        }
+                    }
+                }
+            });
+        };
+
+        // The FULL 100 Questions Database
+        const questionsData = [
+            // Chapter 1: التدفق المغناطيسي (1-20)
+            { id: 1, category: 'induction', q: 'تزداد صعوبة دفع مغناطيس في ملف متصل بمقاومة خارجية كلما ازدادت عدد لفاته.', a: 'بسبب تولد قوة دافعة كهربائية حثية كبيرة ينتج عنها مجال مغناطيسي كبير فيصبح مغناطيساً أقوى ويزيد من قوة التنافر.' },
+            { id: 2, category: 'induction', q: 'توضع إشارة سالبة في قانون فاراداي.', a: 'لأن اتجاه القوة الدافعة الكهربائية الحثية يعاكس التغير في التدفق المغناطيسي المولد لها (حسب قانون لنز).' },
+            { id: 3, category: 'induction', q: 'إذا كان مستوى سطح ملف موازياً لاتجاه المجال المغناطيسي، فإن مقدار التدفق المغناطيسي يساوي صفر.', a: 'لأن زاوية سقوط المجال (θ = 90)، وبما أن cos(90) = 0 فيصبح التدفق صفراً.' },
+            { id: 4, category: 'induction', q: 'يكون التدفق المغناطيسي أكبر ما يمكن عندما تكون خطوط المجال المغناطيسي عمودية على السطح.', a: 'لأن زاوية سقوط المجال في هذه الحالة تساوى صفر (θ = 0)، و cos(0) = 1.' },
+            { id: 5, category: 'induction', q: 'ينعدم التدفق المغناطيسي عندما تكون خطوط المجال المغناطيسي موازية للسطح.', a: 'لأن متجه مساحة السطح يكون عمودياً على خطوط المجال (θ = 90)، و cos(90) = 0.' },
+            { id: 6, category: 'induction', q: 'بزيادة مساحة السطح الذي تخترقه خطوط المجال المغناطيسي يزداد التدفق المغناطيسي.', a: 'بسبب وجود تناسب طردي بين مساحة السطح والتدفق المغناطيسي عند ثبات شدة المجال وزاوية السقوط.' },
+            { id: 7, category: 'induction', q: 'يتولد تيار تأثيري في ملف موضوع في مجال مغناطيسي عندما يتحرك المغناطيس والملف بسرعة نسبية.', a: 'نتيجة حدوث تغير في التدفق المغناطيسي الذي يجتاز لفات الملف بالنسبة للزمن.' },
+            { id: 8, category: 'induction', q: 'اتجاه التيار التأثيري المتولد نتيجة اقتراب المغناطيس يعاكس اتجاهه عند ابتعاد المغناطيس.', a: 'تطبيقاً لقانون لنز، حيث ينشأ تيار يقاوم التغير في التدفق (بالتنافر عند الاقتراب وبالتجاذب عند الابتعاد).' },
+            { id: 9, category: 'induction', q: 'يستمر ملف المحرك في الدوران رغم انقطاع التيار عنه (عدم اتصال نصفي الحلقة بالفرشتين).', a: 'بسبب القصور الذاتي الدوراني للملف.' },
+            { id: 10, category: 'induction', q: 'القوة المغناطيسية المؤثرة على شحنة متحركة في مجال مغناطيسي تعمل على تغيير اتجاه سرعتها فقط.', a: 'لأنها تؤثر دائماً بشكل عمودي على اتجاه حركة الشحنة ولا تبذل شغلاً يغير من مقدار السرعة.' },
+            { id: 11, category: 'induction', q: 'يسلك الجسيم المشحون مساراً دائرياً عند دخوله مجالاً مغناطيسياً منتظماً بسرعة عمودية.', a: 'لأن القوة المغناطيسية تكون دائماً عمودية على اتجاه السرعة فتعمل كقوة جاذبة مركزية تغير اتجاه الحركة.' },
+            { id: 12, category: 'induction', q: 'ينحرف مسار جسيم مشحون يتحرك في خط مستقيم عندما يدخل عمودياً على مجال مغناطيسي.', a: 'لتأثره بقوة مغناطيسية تعمل على تغيير مساره وتجعله يسلك مساراً دائرياً.' },
+            { id: 13, category: 'induction', q: 'يستمر النيوترون بحركته في خط مستقيم وبنفس السرعة عند دخوله مجالاً مغناطيسياً.', a: 'لأنه جسيم متعادل (غير مشحون) فلا يتأثر بأي قوة مغناطيسية (q = 0).' },
+            { id: 14, category: 'induction', q: 'تنعدم القوة المغناطيسية المؤثرة على شحنة كهربائية ساكنة داخل مجال مغناطيسي.', a: 'لأن سرعة الشحنة تساوي صفر (v=0)، والقوة تتناسب طردياً مع السرعة.' },
+            { id: 15, category: 'induction', q: 'يستمر إلكترون في حركته دون أن ينحرف إذا قذف بسرعة موازية لخطوط المجال المغناطيسي.', a: 'لأنه لا يتأثر بقوة مغناطيسية، حيث الزاوية بين اتجاه حركته والمجال تساوي صفر، و sin(0) = 0.' },
+            { id: 16, category: 'induction', q: 'يتحرك سلك يسري به تيار كهربائي عند وضعه عمودياً في مجال مغناطيسي.', a: 'لتأثره بقوة كهرومغناطيسية (قوة لورنتز) تعمل على تحريكه.' },
+            { id: 17, category: 'induction', q: 'القوة الدافعة الكهربائية في المولد تبلغ قيمتها العظمى عندما يكون مستوى الملف موازياً لخطوط المجال.', a: 'لأنه في هذه اللحظة يكون معدل التغير الزمني في التدفق المغناطيسي أكبر ما يمكن.' },
+            { id: 18, category: 'induction', q: 'ينعدم التدفق المغناطيسي في ملف المولد عندما تكون القوة الدافعة الكهربائية الحثية قيمة عظمى.', a: 'لأن مستوى الملف يكون موازياً للمجال المغناطيسي.' },
+            { id: 19, category: 'induction', q: 'المحرك الكهربائي يقوم بعكس الوظيفة التي يؤديها المولد الكهربائي.', a: 'لأن المحرك يحول الطاقة الكهربائية إلى طاقة ميكانيكية، بينما المولد يحول الطاقة الميكانيكية إلى كهربائية.' },
+            { id: 20, category: 'induction', q: 'تكون القوة الدافعة الكهربائية التأثيرية في ملف المولد تساوي صفر عندما يكون مستواه عمودياً على المجال.', a: 'لأن معدل التغير في التدفق المغناطيسي في تلك اللحظة يساوي صفراً.' },
+
+            // Chapter 2: التيار المتردد (21-35)
+            { id: 21, category: 'ac', q: 'تنعدم الممانعة الحثية للملف في دوائر التيار المستمر.', a: 'لأن تردد التيار المستمر يساوي صفر، فتصبح الممانعة الحثية تساوى صفر.' },
+            { id: 22, category: 'ac', q: 'يسمح المكثف بمرور التيار المتردد.', a: 'لأن المكثف يحدث فيه عمليتي شحن وتفريغ في كل دورة وبشكل متعاقب استجابة لتغيرات التيار المتردد.' },
+            { id: 23, category: 'ac', q: 'لا يسمح المكثف بمرور التيار المستمر.', a: 'في حالة التيار المستمر يكون التردد صفراً وعليه تصبح ممانعة المكثف لانهائية القيمة (دائرة مفتوحة).' },
+            { id: 24, category: 'ac', q: 'يستخدم الملف الحثي في فصل التيارات المنخفضة التردد عن تلك المرتفعة التردد.', a: 'لأن الممانعة الحثية للملف تتناسب طردياً مع التردد فتكون صغيرة للترددات المنخفضة فتسمح بمرورها.' },
+            { id: 25, category: 'ac', q: 'يستخدم المكثف في فصل التيارات المنخفضة التردد عن تلك العالية التردد.', a: 'لأن الممانعة السعوية تتناسب عكسياً مع التردد فتكون صغيرة للترددات العالية فتسمح بمرورها.' },
+            { id: 26, category: 'ac', q: 'تسمى الشدة الفعالة للتيار المتردد بهذا الاسم.', a: 'لأنها تمثل شدة التيار المستمر الذي يولد كمية الحرارة نفسها التي ينتجها التيار المتردد في نفس المقاومة والزمن.' },
+            { id: 27, category: 'ac', q: 'الأجهزة المستخدمة لقياس التيار المتردد (الأميتر والفولتميتر) تقيس القيم الفعالة وليس العظمى.', a: 'لأن التيار المتردد يتغير في الشدة والاتجاه لحظياً، والقيمة الفعالة هي التي تعبر عن التأثير الحراري الفعلي له.' },
+            { id: 28, category: 'ac', q: 'في دائرة تحتوي ملف حثي نقي ومقاومة أومية، يتقدم الجهد على التيار.', a: 'بسبب الحث الذاتي للملف الذي يولد قوة دافعة كهربائية عكسية تقاوم نمو التيار، فيتأخر التيار.' },
+            { id: 29, category: 'ac', q: 'في دائرة التيار المتردد التي تحوي مكثفاً ومقاومة، يتأخر الجهد عن التيار.', a: 'لأن المكثف يحتاج إلى زمن حتى يُشحن بالكامل ويتشكل فرق جهد عظمى بين لوحيه.' },
+            { id: 30, category: 'ac', q: 'قيمة المقاومة الأومية الصرفة لا تتغير بتغير تردد التيار المتردد.', a: 'لأن المقاومة الأومية تعتمد على نوع المادة وأبعادها ودرجة حرارتها فقط، ولا تعتمد على التردد.' },
+            { id: 31, category: 'ac', q: 'تزداد إضاءة المصباح في دائرة تيار متردد (RLC) عند جعل الممانعة الحثية تساوى الممانعة السعوية.', a: 'لأن الدائرة تصبح في حالة رنين، فتكون المقاومة الكلية أقل ما يمكن ويمر أكبر تيار.' },
+            { id: 32, category: 'ac', q: 'تقل قراءة الأميتر عند إبعاد الدائرة عن حالة الرنين بزيادة التردد أو إنقاصه.', a: 'لأنه لا تعود XL تساوي XC، مما يؤدي إلى زيادة الممانعة الكلية للدائرة فتقل شدة التيار المار.' },
+            { id: 33, category: 'ac', q: 'المقاومة الكهربائية الأومية تحول الطاقة الكهربائية بأكملها إلى طاقة حرارية.', a: 'بسبب تصادم الإلكترونات الحرة مع ذرات الموصل واحتكاكها أثناء مرورها، وليس لديها أي تأثير حثي ذاتي.' },
+            { id: 34, category: 'ac', q: 'يتفق الجهد الكهربائي مع التيار الكهربائي في الطور عندما يكون تردد الدائرة مساوياً لتردد الرنين.', a: 'لتساوي الممانعة الحثية مع الممانعة السعوية فيلغي كل منهما الآخر، وتعمل الدائرة كأن بها مقاومة أومية فقط.' },
+            { id: 35, category: 'ac', q: 'عند زيادة معامل الحث الذاتي لملف في دائرة رنين (RLC)، تقل إضاءة المصباح (قراءة الأميتر).', a: 'لأن ذلك يؤدي إلى خروج الدائرة من حالة الرنين، حيث تزداد الممانعة الحثية فتزداد الممانعة الكلية.' },
+
+            // Chapter 3: أشباه الموصلات (36-55)
+            { id: 36, category: 'semi', q: 'بلورة شبه الموصل من النوع السالب (N) متعادلة كهربائياً.', a: 'لأنه أثناء التطعيم لم يحدث فقد أو اكتساب للإلكترونات، ومجموع الشحنات الموجبة يساوي مجموع السالبة.' },
+            { id: 37, category: 'semi', q: 'تزداد مقاومة الوصلة الثنائية بشكل كبير عند توصيلها بطريقة الانحياز العكسي.', a: 'لأنه ينشأ مجال كهربائي خارجي بنفس اتجاه الداخلي فيزداد اتساع منطقة الاستنزاف فتزداد المقاومة.' },
+            { id: 38, category: 'semi', q: 'عند توصيل الوصلة الثنائية توصيلاً عكسياً في دائرة تيار مستمر فإنه ينقطع مرور التيار الكهربائي فيها.', a: 'لزيادة اتساع منطقة الاستنزاف، فتعمل الوصلة كعازل.' },
+            { id: 39, category: 'semi', q: 'تسمى الذرة المضافة في شبه الموصل من النوع الموجب (P) بذرة متقبلة.', a: 'لأنه عند إضافة ذرة ثلاثية تتكون 3 روابط وتبقى رابطة غير مكتملة (ثقب) يستقبل إلكتروناً من البلورة.' },
+            { id: 40, category: 'semi', q: 'تزداد مقدرة السيليكون على التوصيل الكهربائي عند تطعيمها بالزرنيخ (خماسي التكافؤ).', a: 'لأن التطعيم يوفر إلكترون خامس حر لكل ذرة شائبة، مما يزيد من عدد الإلكترونات الحرة.' },
+            { id: 41, category: 'semi', q: 'تسمح الوصلة الثنائية بمرور التيار في حالة التوصيل الأمامي.', a: 'لأنه ينشأ مجال خارجي معاكس للداخلي فتضيق منطقة الاستنزاف وتقل مقاومتها وتسمح بالتيار.' },
+            { id: 42, category: 'semi', q: 'لا تسمح الوصلة الثنائية بمرور التيار في حالة التوصيل العكسي (تعتبر عازلة).', a: 'لأنه ينشأ مجال خارجي بنفس اتجاه الداخلي فيزداد اتساع منطقة الاستنزاف وتزداد المقاومة وتمنع التيار.' },
+            { id: 43, category: 'semi', q: 'الوصلة الثنائية تعمل كمفتاح كهربائي.', a: 'لأنها تسمح بمرور التيار في الانحياز الأمامي (مفتاح مغلق) وتمنع التيار في العكسي (مفتاح مفتوح).' },
+            { id: 44, category: 'semi', q: 'في المواد العازلة يستحيل قفز الإلكترونات من نطاق التكافؤ إلى نطاق التوصيل.', a: 'لأن اتساع فجوة الطاقة المحظورة كبير جداً، ويصعب على الإلكترونات اجتيازها.' },
+            { id: 45, category: 'semi', q: 'تكون البلورة شبه الموصلة النقية عازلة تماماً للتيار عند درجة الصفر المطلق.', a: 'لأن نطاق التوصيل يكون خالياً تماماً من الإلكترونات الحرة وتكون مرتبطة بقوة في نطاق التكافؤ.' },
+            { id: 46, category: 'semi', q: 'تزداد درجة توصيل أشباه الموصلات النقية للكهرباء بارتفاع درجة حرارتها.', a: 'لإن الحرارة تكسب الإلكترونات طاقة كافية للقفز لنطاق التوصيل مكونة أزواج (إلكترون-ثقب).' },
+            { id: 47, category: 'semi', q: 'تسمى ذرات الشوائب خماسية التكافؤ كالزرنيخ "ذرات مانحة".', a: 'لأنها تنشئ أربع روابط تساهمية ويبقى الإلكترون الخامس حراً تمنحه للبلورة ليساهم في التوصيل.' },
+            { id: 48, category: 'semi', q: 'تكتسب البلورة (N) جهداً موجباً والبلورة (P) جهداً سالباً عند منطقة الالتحام.', a: 'بسبب هجرة الإلكترونات من N إلى P تاركة أيونات موجبة، وهجرة الثقوب من P إلى N تاركة أيونات سالبة.' },
+            { id: 49, category: 'semi', q: 'تتكون منطقة استنزاف خالية من حاملات الشحنة في الوصلة الثنائية.', a: 'نتيجة التحام البلورتين وهجرة الإلكترونات والثقوب باتجاه بعضها واتحادها في منطقة التلامس.' },
+            { id: 50, category: 'semi', q: 'تستخدم الوصلة الثنائية في تقويم التيار المتردد (تقويم نصف موجي).', a: 'لأنها تسمح بمرور نصف موجة التيار عندما تكون في انحياز أمامي، وتمنع النصف الآخر في الانحياز العكسي.' },
+            { id: 51, category: 'semi', q: 'في الانحياز الأمامي، يوصل القطب الموجب للبطارية بالبلورة P والقطب السالب بالبلورة N.', a: 'لكي يكون اتجاه المجال الخارجي معاكساً للمجال الداخلي ويسمح للتيار بالمرور.' },
+            { id: 52, category: 'semi', q: 'يعتبر مرور التيار في أشباه الموصلات من النوع السالب (N) معتمداً على الإلكترونات.', a: 'لأن الإلكترونات هي حاملات الشحنة الأكثرية الناتجة عن تطعيم البلورة بذرات خماسية التكافؤ.' },
+            { id: 53, category: 'semi', q: 'يعتبر مرور التيار في أشباه الموصلات من النوع الموجب (P) معتمداً على الثقوب.', a: 'لأن الثقوب هي حاملات الشحنة الأكثرية الناتجة عن تطعيم البلورة بذرات ثلاثية التكافؤ.' },
+            { id: 54, category: 'semi', q: 'المواد الموصلة ينعدم فيها اتساع فجوة الطاقة المحظورة.', a: 'لتداخل نطاق التكافؤ مع نطاق التوصيل، مما يتيح للإلكترونات الحركة بحرية تامة.' },
+            { id: 55, category: 'semi', q: 'يقل اتساع منطقة الاستنزاف في الوصلة الثنائية عند التوصيل الأمامي.', a: 'لأن المجال الخارجي المعاكس يضعف المجال الداخلي ويدفع الإلكترونات والثقوب نحو منطقة الالتحام.' },
+
+            // Chapter 4: الفيزياء الذرية (56-75)
+            { id: 56, category: 'atomic', q: 'طاقة حركة الإلكترونات المنبعثة يعتمد على تردد الضوء وليس شدته.', a: 'لأن الفوتون يعطي طاقته الكاملة التي تتناسب مع تردده للإلكترون، بينما الشدة تؤثر على عدد الإلكترونات فقط.' },
+            { id: 57, category: 'atomic', q: 'تزداد الطاقة الحركية للإلكترونات الضوئية بزيادة تردد الضوء الساقط عليه.', a: 'لأنه بزيادة التردد تزداد طاقة الفوتونات، فيُستَهلك جزء منها للتغلب على دالة الشغل، والفائض يزيد طاقة الحركة.' },
+            { id: 58, category: 'atomic', q: 'يستطيع الضوء الازرق الخافت تحرير الكترونات من فلز حساس بينما لا يستطيع أحمر ساطع ذلك.', a: 'لأن التحرر يتوقف على التردد وليس الشدة، وتردد الضوء الأزرق أكبر من تردد العتبة فينجح في التحرير.' },
+            { id: 59, category: 'atomic', q: 'يبعث الضوء الساطع الكترونات أكثر من ضوء خافت له نفس التردد.', a: 'لأن الضوء الساطع يحتوي على فوتونات أكثر، وكل فوتون يحرر إلكتروناً واحداً.' },
+            { id: 60, category: 'atomic', q: 'لا يستطيع الضوء تحرير الكترونات إذا كان تردده اقل من تردد العتبة.', a: 'لأن طاقة فوتوناته تكون أقل من دالة الشغل للفلز، فلا تستطيع انتزاع الإلكترونات مهما زادت الشدة.' },
+            { id: 61, category: 'atomic', q: 'لا يشترط حدوث انبعاث كهروضوئي بمجرد سقوط أي ضوء على سطح الفلز.', a: 'لأن الانبعاث مشروط بأن يكون تردد الضوء مساوياً أو أكبر من تردد العتبة للفلز.' },
+            { id: 62, category: 'atomic', q: 'يسمى الجهد العكسي الذي يمنع وصول الإلكترونات للمجمع باسم "جهد القطع".', a: 'لأنه يولد مجال كهربائي يعاكس حركة أسرع الإلكترونات ويبذل شغلاً سالباً حتى تتوقف ويمنع التيار.' },
+            { id: 63, category: 'atomic', q: 'اعتبر بلانك أن الإشعاع لا ينبعث بشكل متصل بل على هيئة كمات متقطعة.', a: 'لتفسير منحنيات إشعاع الجسم الأسود التي فشلت الفيزياء الكلاسيكية في تفسيرها.' },
+            { id: 64, category: 'atomic', q: 'طاقة الفوتون تتناسب طردياً مع تردده وعكسياً مع طوله الموجي.', a: 'وفقاً لعلاقة بلانك (E = hf)، ولأن التردد يتناسب عكسياً مع الطول الموجي (f = c/λ).' },
+            { id: 65, category: 'atomic', q: 'عند انتقال إلكترون من مستوى طاقة أدنى إلى مستوى طاقة أعلى، يجب أن تمتص الذرة طاقة.', a: 'لتعويض الفارق الموجب في الطاقة بين المستويين لكي يقفز بعيداً عن جذب النواة.' },
+            { id: 66, category: 'atomic', q: 'ينبعث فوتون عند انتقال إلكترون من مستوى طاقة أعلى إلى أدنى.', a: 'لتتخلص الذرة المثارة من الطاقة الزائدة للعودة لحالة استقرار وتكون طاقته مساوية للفرق بين المستويين.' },
+            { id: 67, category: 'atomic', q: 'تعتبر دالة الشغل أو تردد العتبة من الخواص المميزة للفلز.', a: 'لأنها قيمة ثابتة تعتمد على نوع مادة الفلز وطبيعة تركيبه البلوري فقط.' },
+            { id: 68, category: 'atomic', q: 'تزداد الطاقة الحركية للإلكترونات بإنقاص الطول الموجي للضوء الساقط.', a: 'لأن نقصان الطول الموجي يعني زيادة تردده، وبالتالي زيادة طاقة الفوتون الساقط.' },
+            { id: 69, category: 'atomic', q: 'زيادة شدة الضوء لا تزيد من طاقة الحركة العظمى للإلكترونات.', a: 'لأن طاقة الحركة تعتمد فقط على طاقة الفوتون الواحد (تردده)، وزيادة الشدة تزيد عدد الفوتونات فقط.' },
+            { id: 70, category: 'atomic', q: 'تتحرر الإلكترونات دون طاقة حركة إذا كان تردد الضوء يساوي تردد العتبة تماماً.', a: 'لأن طاقة الفوتون تستهلك بالكامل في التغلب على دالة الشغل ولا يتبقى جزء ليتحول لطاقة حركية.' },
+            { id: 71, category: 'atomic', q: 'يزداد مقدار جهد القطع بزيادة تردد الضوء الساقط.', a: 'لأنه بزيادة التردد تزداد الطاقة الحركية للإلكترونات المنبعثة، فيلزم جهد إيقاف أكبر لإيقافها.' },
+            { id: 72, category: 'atomic', q: 'لا يتأثر مقدار جهد القطع بتغير شدة الضوء الساقط.', a: 'لأن جهد القطع يعتمد فقط على الطاقة الحركية العظمى، والتي تعتمد على التردد ولا تتأثر بالشدة.' },
+            { id: 73, category: 'atomic', q: 'تبطئ سرعة الإلكترونات عند عكس أقطاب البطارية على الباعث والمجمع.', a: 'لأنه ينشأ مجال كهربائي عكسي يتنافر مع الإلكترونات ويبطئ سرعتها ويقلل طاقتها حتى تتوقف.' },
+            { id: 74, category: 'atomic', q: 'تتحرك الفوتونات دائماً بسرعة ثابتة في الفراغ.', a: 'لأن الفوتونات هي كمات من الطاقة الإشعاعية وجميع الموجات الكهرومغناطيسية تنتقل في الفراغ بسرعة الضوء.' },
+            { id: 75, category: 'atomic', q: 'سرعة الفوتون لا تتغير إذا زادت طاقته.', a: 'لأن سرعة الفوتونات مقدار ثابت كوني، والزيادة في الطاقة تؤدي فقط لزيادة التردد ونقصان الطول الموجي.' },
+
+            // Chapter 5: الفيزياء النووية (76-100)
+            { id: 76, category: 'nuclear', q: 'الذرة متعادلة كهربائياً.', a: 'لأن عدد البروتونات الموجبة داخل النواة يساوي تماماً عدد الإلكترونات السالبة التي تدور حولها.' },
+            { id: 77, category: 'nuclear', q: 'كتلة الذرة تساوي عملياً كتلة النواة.', a: 'لأن كتلة الإلكترونات صغيرة جداً جداً ومهملة مقارنة بكتلة النيوكليونات داخل النواة.' },
+            { id: 78, category: 'nuclear', q: 'تختلف النظائر في العدد الكتلي.', a: 'لأنها تتشابه في العدد الذري (البروتونات) وتختلف في عدد النيوترونات، مما يؤدي لاختلاف العدد الكتلي.' },
+            { id: 79, category: 'nuclear', q: 'تتشابه النظائر في الخواص الكيميائية وتختلف في الفيزيائية.', a: 'لتساوي عدد البروتونات (والإلكترونات) فتتشابه كيميائياً، وتختلف في النيوترونات فتختلف فيزائياً.' },
+            { id: 80, category: 'nuclear', q: 'في العمليات النووية يعبر عن كتلة الجسم بكمية الطاقة المكافئة.', a: 'لأن الكتلة غير محفوظة بل يتحول جزء منها لطاقة، بناءً على معادلة آينشتاين (E=mc²).' },
+            { id: 81, category: 'nuclear', q: 'الكتلة غير محفوظة في الكثير من التفاعلات النووية.', a: 'لأنه يختفي جزء من الكتلة أثناء التفاعل ويتحول إلى طاقة هائلة تنطلق من النواة.' },
+            { id: 82, category: 'nuclear', q: 'بزيادة عدد النيوترونات يزداد استقرار النواة (الخفيفة والمتوسطة).', a: 'لأن وجود النيوترونات يزيد قوى التجاذب النووية القوية على حساب التنافر الكهربائي ويحفظها من التفكك.' },
+            { id: 83, category: 'nuclear', q: 'كتلة نواة الذرة أقل من مجموع كتل النيوكليونات المكونة لها منفردة.', a: 'لأن النقص في الكتلة يتحول إلى طاقة ربط نووية تعمل على إبقاء النيوكليونات مترابطة.' },
+            { id: 84, category: 'nuclear', q: 'الأنوية ذات العدد الكتلى المتوسط تكون أكثر استقراراً في الطبيعة.', a: 'لأن طاقة الربط النووية لكل نيوكليون لها تكون قيمتها كبيرة جداً (في قمة المنحنى).' },
+            { id: 85, category: 'nuclear', q: 'الأنوية مترابطة ومتماسكة رغم قوى التنافر بين بروتوناتها.', a: 'لأن الفرق في الكتلة تحول لطاقة ربط نووية هائلة تتغلب على قوى التنافر.' },
+            { id: 86, category: 'nuclear', q: 'في الأنوية الثقيلة جداً، بزيادة عدد النيوترونات لا تستقر النواة.', a: 'لأن التنافر الكهربائي يصبح بعيد المدى وكبيراً جداً فلا تستطيع القوة النووية قصيرة المدى تعويضه.' },
+            { id: 87, category: 'nuclear', q: 'انحراف الأنوية المستقرة عن الخط (N=Z) لتكوين وادي الاستقرار.', a: 'لزيادة التنافر بزيادة البروتونات، فتحتاج الأنوية لنيوترونات أكثر لزيادة القوة الجاذبة والمحافظة على استقرارها.' },
+            { id: 88, category: 'nuclear', q: 'العدد الذري هو الذي يحدد الخواص الكيميائية للذرة.', a: 'لأنه يمثل عدد البروتونات (والذي يساوي عدد الإلكترونات)، وترتيب الإلكترونات مسؤول عن التفاعلات.' },
+            { id: 89, category: 'nuclear', q: 'طاقة الربط النووية للهيدروجين العادي تساوى صفر.', a: 'لأن نواته تحتوي على بروتون واحد مفرداً، ولا توجد نيوكليونات أخرى لترتبط معه.' },
+            { id: 90, category: 'nuclear', q: 'نظير النيكل-62 أو الحديد من أكثر الأنوية استقراراً.', a: 'لأن له أكبر قيمة لطاقة الربط النووية لكل نيوكليون تقريباً (حوالي 8.8 MeV).' },
+            { id: 91, category: 'nuclear', q: 'في الأنوية الخفيفة المستقرة يكون (N ≈ Z).', a: 'لأن قوى التنافر الكهربائية تكون ضعيفة، فتكفي أعداد متساوية لتوفير القوة الجاذبة اللازمة.' },
+            { id: 92, category: 'nuclear', q: 'تميل الأنوية الخفيفة لحدوث تفاعلات اندماج نووي.', a: 'لتندمج وتكون أنوية أثقل ذات طاقة ربط أكبر، فتقترب من ذروة المنحنى وتستقر.' },
+            { id: 93, category: 'nuclear', q: 'تميل الأنوية الثقيلة جداً لحدوث انشطار نووي.', a: 'لتنقسم لأنوية متوسطة تمتلك طاقة ربط أعلى، وتتخلص من عدم استقرارها.' },
+            { id: 94, category: 'nuclear', q: 'توصف القوة النووية بأنها قوة قصيرة المدى.', a: 'لأن تأثيرها الجاذب يظهر فقط عندما تكون المسافة بين النيوكليونات صغيرة جداً (تكاد تتلامس).' },
+            { id: 95, category: 'nuclear', q: 'يعبر عن كتل الجسيمات بوحدة الكتل الذرية (a.m.u) وليس الكيلوجرام.', a: 'لأن كتل مكونات الذرة متناهية في الصغر، ومن غير العملي التعامل معها بالكيلوجرام.' },
+            { id: 96, category: 'nuclear', q: 'تنبعث طاقة هائلة (محررة) عند تفاعل اندماج أو انشطار.', a: 'بسبب النقص في الكتلة بين المتفاعلات والنواتج، والذي يتحول لطاقة (E=mc²).' },
+            { id: 97, category: 'nuclear', q: 'لا يعتبر الانبعاث الكهروضوئي ظاهرة ميكانيكية عادية مثل اصطدام كرتين.', a: 'لأنه يخضع لنظرية الكم، حيث يمتص الإلكترون طاقة الفوتون بالكامل دفعة واحدة (كميّة لا تتجزأ).' },
+            { id: 98, category: 'nuclear', q: 'يسمى التردد الذي يبدأ عنده انبعاث الإلكترونات بتردد العتبة.', a: 'لأنه الحد الأدنى لتردد الضوء الذي تمتلك فوتوناته طاقة مساوية لدالة الشغل وتكفي بالكاد لتحرير الإلكترون.' },
+            { id: 99, category: 'nuclear', q: 'استطاع آينشتاين تفسير الظاهرة الكهروضوئية التي عجزت عنها الفيزياء الكلاسيكية.', a: 'لأنه افترض الضوء مكون من فوتونات (E=hf)، وأن التفاعل بين فوتون واحد وإلكترون واحد، وليس موجة متصلة.' },
+            { id: 100, category: 'nuclear', q: 'عند سقوط ضوء على سطحين فلزيين، قد تنبعث إلكترونات من أحدهما ولا تنبعث من الآخر.', a: 'لاختلاف دالة الشغل، فقد تكون طاقة الضوء أكبر من دالة شغل الأول وتحرر الكترونات، وأقل من الثاني فلا تحرر.' }
+        ];
+
+        const renderQuestions = (filter) => {
+            const listContainer = document.getElementById('questions-list');
+            listContainer.innerHTML = '';
+            
+            const filtered = filter === 'all' ? questionsData : questionsData.filter(q => q.category === filter);
+            
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow';
+                div.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1 bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                            ${item.id}
+                        </div>
+                        <div class="w-full">
+                            <h4 class="text-lg font-bold text-slate-800 mb-3 leading-relaxed">
+                                ${item.q}
+                            </h4>
+                            <div class="bg-slate-50 p-4 rounded-lg border-r-4 border-blue-500 text-slate-700 leading-relaxed">
+                                <span class="font-bold text-slate-900 ml-1">السبب:</span> ${item.a}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
+        };
+
+        window.filterQuestions = (category) => {
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(btn => {
+                btn.classList.remove('active', 'bg-sky-500', 'text-white', 'shadow-md');
+                btn.classList.add('bg-slate-200', 'text-slate-700');
+            });
+            
+            const activeBtn = event.currentTarget;
+            activeBtn.classList.remove('bg-slate-200', 'text-slate-700');
+            activeBtn.classList.add('active', 'bg-sky-500', 'text-white', 'shadow-md');
+            
+            renderQuestions(category);
+        };
+
+        window.onload = () => {
+            Chart.defaults.font.family = 'Tajawal';
+            Chart.defaults.color = '#475569';
+            
+            initCurriculumChart();
+            initACChart();
+            initPhotoelectricChart();
+            initNuclearChart();
+            renderQuestions('all');
+            
+            const defaultFilterBtn = document.querySelector('.filter-btn.active');
+            if(defaultFilterBtn) {
+                defaultFilterBtn.classList.add('bg-sky-500', 'text-white');
+                defaultFilterBtn.classList.remove('bg-slate-200', 'text-slate-700');
+            }
+        };
     </script>
 </body>
 </html>
