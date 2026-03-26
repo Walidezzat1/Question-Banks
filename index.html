@@ -63,10 +63,11 @@
     <main class="flex-grow container mx-auto px-4 md:px-6 py-12 -mt-8 relative z-20">
         <div class="text-center mb-10">
             <h2 class="text-2xl font-bold text-slate-700">اختر مسار التدريب للبدء</h2>
-            <p class="text-slate-500 mt-2 text-lg">تحتوي هذه البوابة على ثلاثة أنظمة مختلفة لاختبار مهاراتك</p>
+            <p class="text-slate-500 mt-2 text-lg">تحتوي هذه البوابة على أربعة أنظمة تفاعلية مختلفة لاختبار مهاراتك</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- شبكة 2×2 للبطاقات الأربع -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             
             <!-- البطاقة الأولى: الاختبار الشامل -->
             <a href="بنك أسئلة تفاعلي للصف الثاني عشر.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
@@ -74,7 +75,7 @@
                     <i class="ph-duotone ph-exam text-4xl"></i>
                 </div>
                 <h3 class="text-2xl font-bold mb-3 text-slate-800">الاختبار الشامل</h3>
-                <p class="text-slate-500 mb-8 leading-relaxed h-24">
+                <p class="text-slate-500 mb-8 leading-relaxed h-20">
                     اختبار تفاعلي يضم 105 سؤال اختيار من متعدد. يأتي مع التفسير العلمي بعد كل إجابة وتقييم لنسبتك المئوية في النهاية.
                 </p>
                 <div class="flex items-center text-blue-600 font-bold group-hover:tracking-wide transition-all duration-300">
@@ -89,8 +90,8 @@
                     <i class="ph-duotone ph-squares-four text-4xl"></i>
                 </div>
                 <h3 class="text-2xl font-bold mb-3 text-slate-800">خريطة الأسئلة</h3>
-                <p class="text-slate-500 mb-8 leading-relaxed h-24">
-                    تدريب موجه لـ 100 سؤال يحتوي على لوحة جانبية لتتبع الأسئلة المنجزة والمتبقية، مع خاصية حفظ التقدم.
+                <p class="text-slate-500 mb-8 leading-relaxed h-20">
+                    تدريب موجه لـ 100 سؤال، يحتوي على لوحة جانبية لتتبع الأسئلة المنجزة والمتبقية مع خاصية حفظ التقدم.
                 </p>
                 <div class="flex items-center text-emerald-600 font-bold group-hover:tracking-wide transition-all duration-300">
                     <span>الدخول للتدريب</span>
@@ -104,11 +105,26 @@
                     <i class="ph-duotone ph-pencil-line text-4xl"></i>
                 </div>
                 <h3 class="text-2xl font-bold mb-3 text-slate-800">أسئلة (علل)</h3>
-                <p class="text-slate-500 mb-8 leading-relaxed h-24">
+                <p class="text-slate-500 mb-8 leading-relaxed h-20">
                     تطبيق مصمم خصيصاً لـ 100 سؤال مقالي "علل لما يأتي". يوفر مساحة لكتابة حلك الخاص مع إمكانية عرض الإجابة النموذجية.
                 </p>
                 <div class="flex items-center text-purple-600 font-bold group-hover:tracking-wide transition-all duration-300">
                     <span>الدخول للمراجعة</span>
+                    <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- البطاقة الرابعة: أسئلة ماذا يحدث -->
+            <a href="بنك أسئلة تفاعلي للصف الثاني عشر3.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300">
+                    <i class="ph-duotone ph-lightbulb-filament text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800">أسئلة (ماذا يحدث)</h3>
+                <p class="text-slate-500 mb-8 leading-relaxed h-20">
+                    تطبيق تفاعلي يضم 100 سؤال "ماذا يحدث" مزود بخاصية التقييم الذكي لإجاباتك ومقارنتها بالإجابة النموذجية مع التوجيه.
+                </p>
+                <div class="flex items-center text-amber-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                    <span>الدخول للتطبيق</span>
                     <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
                 </div>
             </a>

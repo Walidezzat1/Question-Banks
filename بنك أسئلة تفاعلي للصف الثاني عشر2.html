@@ -16,7 +16,7 @@
     2. AC Circuits (V & I Phase Shifts) -> Change/Compare -> Dynamic Line Chart (Chart.js) -> User toggles between Resistor, Inductor, and Capacitor to see phase shifts -> Justification: Translates static textbook graphs into a dynamic learning tool to visualize wave phase differences. No SVG used.
     3. Photoelectric Effect (KE vs f) -> Relationships -> Multi-line Chart (Chart.js) -> Hover to see threshold frequencies -> Justification: Explains Einstein's equation visually for different metals. No SVG used.
     4. Nuclear Binding Energy -> Relationships -> Line/Scatter Chart (Chart.js) -> Highlights regions of stability, fission, and fusion -> Justification: Crucial graph in the report, made explorable. No SVG used.
-    5. Question Bank -> Organize -> Filterable HTML List -> Click category to filter -> Justification: Makes studying 100 questions manageable. No SVG used. 
+    5. Question Bank -> Organize -> Filterable HTML List with interactive evaluation -> User types answer, clicks check, gets evaluation and model answer -> Justification: Transforms reading into active recall and self-assessment. No SVG used. 
     -->
     
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -214,9 +214,9 @@
 
         <section id="question-bank" class="scroll-mt-20 mb-24">
             <div class="mb-8 text-center">
-                <h2 class="text-3xl font-bold text-slate-800 mb-4">بنك التعليلات العلمية المكتمل (100 سؤال)</h2>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">بنك التعليلات والتقييم الذاتي</h2>
                 <p class="text-slate-600 max-w-3xl mx-auto leading-relaxed">
-                    يحتوي هذا القسم على 100 سؤال "علل" شاملة تغطي كافة أجزاء المنهج. استخدم الأزرار لتصفية الأسئلة حسب الفصل الدراسي لمراجعة مركزة.
+                    اختبر معلوماتك! اقرأ السؤال، اكتب إجابتك العلمية في المربع المخصص، ثم اضغط على زر التحقق لمعرفة مدى صحة إجابتك ومقارنتها مع الإجابة النموذجية المعتمدة.
                 </p>
             </div>
 
@@ -239,7 +239,8 @@
     </main>
 
     <footer class="bg-slate-900 text-slate-400 py-8 text-center border-t border-slate-800">
-        <p class="text-sm">تم تصميم هذه المنصة التفاعلية لتبسيط مراجعة مادة الفيزياء - الصف الثاني عشر.</p>
+        <p class="text-sm mb-2">تم تصميم هذه المنصة التفاعلية لتبسيط مراجعة مادة الفيزياء - الصف الثاني عشر.</p>
+        <p class="text-sm font-semibold text-slate-300">إعداد موجه الفيزياء أ/ وليد عزت</p>
     </footer>
 
     <script>
@@ -523,6 +524,61 @@
             { id: 100, category: 'nuclear', q: 'عند سقوط ضوء على سطحين فلزيين، قد تنبعث إلكترونات من أحدهما ولا تنبعث من الآخر.', a: 'لاختلاف دالة الشغل، فقد تكون طاقة الضوء أكبر من دالة شغل الأول وتحرر الكترونات، وأقل من الثاني فلا تحرر.' }
         ];
 
+        // Advanced Logic for evaluating user's answer vs Model Answer
+        window.evaluateAnswer = (id) => {
+            const userAnswer = document.getElementById(`answer-input-${id}`).value.trim();
+            const feedbackArea = document.getElementById(`feedback-area-${id}`);
+            const evalText = document.getElementById(`evaluation-text-${id}`);
+            
+            // Find model answer
+            const questionObj = questionsData.find(q => q.id === id);
+            if (!questionObj) return;
+            const modelAnswer = questionObj.a;
+
+            if (userAnswer === "") {
+                alert("الرجاء كتابة إجابة أولاً قبل التحقق.");
+                return;
+            }
+
+            // Simple evaluation logic: Remove common stop words and check keyword overlap
+            const stopWords = ['في', 'من', 'على', 'إلى', 'الى', 'أن', 'ان', 'لأن', 'لان', 'بسبب', 'هو', 'هي', 'و', 'أو', 'ما', 'لا', 'لم', 'لن', 'مع', 'عن', 'هذا', 'هذه', 'التي', 'الذي'];
+            
+            const normalizeText = (text) => {
+                return text.replace(/[،.؛:()]/g, '')
+                           .split(/\s+/)
+                           .filter(w => w.length > 2 && !stopWords.includes(w));
+            };
+            
+            const userWords = normalizeText(userAnswer);
+            const modelWords = normalizeText(modelAnswer);
+            
+            let matchCount = 0;
+            modelWords.forEach(mw => {
+                if (userWords.some(uw => mw.includes(uw) || uw.includes(mw))) {
+                    matchCount++;
+                }
+            });
+
+            // Calculate ratio
+            const matchRatio = modelWords.length > 0 ? matchCount / modelWords.length : 0;
+            
+            // Show feedback area
+            feedbackArea.classList.remove('hidden');
+            
+            // Apply styles based on match ratio
+            evalText.className = 'p-3 rounded-lg font-medium text-sm border';
+            if (matchRatio >= 0.5) {
+                evalText.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+                evalText.innerHTML = '✅ <strong>تقييم الإجابة:</strong> إجابة ممتازة! لقد قمت بذكر الكلمات المفتاحية الأساسية.';
+            } else if (matchRatio >= 0.25) {
+                evalText.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+                evalText.innerHTML = '⚠️ <strong>تقييم الإجابة:</strong> إجابتك تحتوي على بعض النقاط الصحيحة، لكنها غير مكتملة. راجع الإجابة النموذجية أدناه.';
+            } else {
+                evalText.classList.add('bg-red-50', 'text-red-800', 'border-red-200');
+                evalText.innerHTML = '❌ <strong>تقييم الإجابة:</strong> إجابتك تفتقر إلى المصطلحات العلمية الدقيقة. يرجى مراجعة الإجابة النموذجية جيداً.';
+            }
+        };
+
         const renderQuestions = (filter) => {
             const listContainer = document.getElementById('questions-list');
             listContainer.innerHTML = '';
@@ -531,7 +587,7 @@
             
             filtered.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow';
+                div.className = 'bg-white p-5 rounded-xl border border-slate-200 shadow-sm transition-shadow';
                 div.innerHTML = `
                     <div class="flex items-start gap-3">
                         <div class="flex-shrink-0 mt-1 bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
@@ -541,9 +597,25 @@
                             <h4 class="text-lg font-bold text-slate-800 mb-3 leading-relaxed">
                                 ${item.q}
                             </h4>
-                            <div class="bg-slate-50 p-4 rounded-lg border-r-4 border-blue-500 text-slate-700 leading-relaxed">
-                                <span class="font-bold text-slate-900 ml-1">السبب:</span> ${item.a}
+                            
+                            <!-- User Input Area -->
+                            <div class="mb-3">
+                                <textarea id="answer-input-${item.id}" rows="2" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all resize-none text-slate-700" placeholder="اكتب إجابتك هنا..."></textarea>
                             </div>
+                            
+                            <!-- Check Button -->
+                            <button onclick="evaluateAnswer(${item.id})" class="bg-slate-800 hover:bg-sky-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm shadow-sm">
+                                تحقق من الإجابة
+                            </button>
+                            
+                            <!-- Feedback & Model Answer Area (Hidden initially) -->
+                            <div id="feedback-area-${item.id}" class="hidden mt-4 space-y-3 transition-all duration-300">
+                                <div id="evaluation-text-${item.id}"></div>
+                                <div class="bg-slate-50 p-4 rounded-lg border-r-4 border-sky-500 text-slate-700 leading-relaxed shadow-inner">
+                                    <span class="font-bold text-slate-900 ml-1">الإجابة النموذجية المعتمدة:</span> ${item.a}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 `;
