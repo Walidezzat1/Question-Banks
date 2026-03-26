@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بنك أسئلة الفيزياء - الصف الثاني عشر</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+        .math-container { direction: ltr; display: inline-block; }
+    </style>
+
+    <!-- MathJax for rendering formulas -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']] },
+            startup: { typeset: false }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.firebaseModules = { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, getFirestore, doc, setDoc, getDoc };
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Question Bank Data (Massive Sample from PDF) ---
+        const questionBank = {
+            term: {
+                title: "المصطلح العلمي",
+                questions: [
+                    { id: "term1", q: "عدد خطوط المجال المغناطيسي التي تخترق سطحا ما مساحته \\( (A) \\) بشكل عمودي.", a: "التدفق المغناطيسي" },
+                    { id: "term2", q: "عدد خطوط المجال المغناطيسي التي تخترق وحدة المساحات من السطح بشكل عمودي.", a: "شدة المجال المغناطيسي" },
+                    { id: "term3", q: "ظاهرة توليد القوة الدافعة الكهربائية الحثية في موصل نتيجة تغير التدفق المغناطيسي الذي يجتاز الموصل.", a: "الحث الكهرومغناطيسي" },
+                    { id: "term4", q: "التيار الكهربائي التأثيري المتولد في ملف يسرى باتجاه بحيث يولد مجالاً مغناطيسي يعاكس التغير في التدفق المغناطيسي المولد له.", a: "قانون لنز" },
+                    { id: "term5", q: "جهاز يحول جزء من الطاقة الميكانيكية المبذولة لتحريك الملف في المجال المغناطيسي الى طاقة كهربائية.", a: "المولد الكهربائي" },
+                    { id: "term6", q: "جهاز يحول جزء من الطاقة الكهربائية الى طاقة ميكانيكية في وجود مجال مغناطيسي بعد تزويده بتيار كهربائي مناسب.", a: "المحرك الكهربائي" },
+                    { id: "term7", q: "تيار يتغير اتجاهه كل نصف دورة وأن معدل مقدار شدته يساوي صفراً في الدورة الواحدة.", a: "التيار المتردد" },
+                    { id: "term8", q: "شدة التيار المستمر الذي يولد كمية الحرارة نفسها الذي ينتجها التيار المتردد في مقاومة أوميه لها نفس القيمة خلال الفترة الزمنية نفسها.", a: "الشدة الفعالة للتيار المتردد" },
+                    { id: "term9", q: "الملف الذي له تأثير حثي حيث إن معامل حثه الذاتي L كبير ومقاومته الأومية معدومة.", a: "الملف الحثي النقي" },
+                    { id: "term10", q: "الممانعة التي يبديها المكثف لمرور التيار المتردد خلاله.", a: "الممانعة السعوية للمكثف" },
+                    { id: "term11", q: "انبعاث الإلكترونات من فلزات معينة، نتيجة سقوط ضوء له تردد مناسب.", a: "التأثير الكهروضوئي" },
+                    { id: "term12", q: "أقل مقدار للطاقة اللازمة لتحرير الإلكترون من سطح فلز.", a: "دالة الشغل" },
+                    { id: "term13", q: "عدد البروتونات في نواة الذرة.", a: "العدد الذري Z" },
+                    { id: "term14", q: "مجموع كتل عدد البروتونات وعدد النيوترونات في النواة.", a: "العدد الكتلي A" },
+                    { id: "term15", q: "أنوية أو ذرات لها العدد الذري نفسه وتختلف في العدد الكتلي.", a: "نظائر العنصر" },
+                    { id: "term16", q: "طاقة الجسيم المكافئة لكتلته.", a: "طاقة السكون" },
+                    { id: "term17", q: "الطاقة الكلية اللازمة لكسر النواة وفصل نيوكليوناتها فصلا تاماً.", a: "طاقة الربط النووية" }
+                ]
+            },
+            fillBlank: {
+                title: "أكمل الفراغ",
+                questions: [
+                    { id: "fill1", q: "وحدة التدفق المغناطيسي بحسب النظام الدولي للوحدات هي Wb وتكافئ ....... .", a: "T.m²" },
+                    { id: "fill2", q: "بزيادة زاوية سقوط المجال المغناطيسي على السطح ....... التدفق المغناطيسي.", a: "يقل" },
+                    { id: "fill3", q: "ينعدم التدفق المغناطيسي عندما تكون خطوط المجال المغناطيسي ....... للسطح.", a: "موازية" },
+                    { id: "fill4", q: "مقدار القوة الدافعة الكهربائية المتولدة في ملف بالحث يتناسب طردياً مع معدل التغير في ....... الذي يجتاز هذه اللفات.", a: "التدفق المغناطيسي" },
+                    { id: "fill5", q: "الجهاز الذي يعمل على توليد الطاقة الكهربائية من الطاقة الميكانيكية هو ....... .", a: "المولد الكهربائي" },
+                    { id: "fill6", q: "يكون التيار التأثيري المتولد في ملف المولد الكهربائي في قيمته العظمى عندما يكون مستوى الملف ....... لخطوط المجال المغناطيسي.", a: "موازيا" },
+                    { id: "fill7", q: "التيار الذي يسري في المقاومة R والذي يتغير جيبياً بالنسبة إلى الزمن يسمى تيار متردد ....... .", a: "لحظي أو آني" },
+                    { id: "fill8", q: "التيار المتردد الذي قيمته الفعالة \\( (10) \\) A تكون قيمته العظمى ....... أمبير.", a: "10\\sqrt{2}" },
+                    { id: "fill9", q: "تيار متردد شدته اللحظية تعطى من العلاقة \\( (i(t) = 5 \\sin 100t) \\) ، فتكون القيمة الفعالة لشدة هذا التيار بوحدة الأمبير تساوي ....... .", a: "3.53" },
+                    { id: "fill10", q: "في دائرة تيار متردد تحوي ملفا حثيا نقيا ومقاومة أومية نلاحظ أن الجهد الكهربائي ....... على التيار الكهربائي.", a: "يتقدم" },
+                    { id: "fill11", q: "جميع الأجهزة التي تعمل على التيار المتردد تسجل عليها القيمة ....... للتيار المتردد.", a: "الفعالة" },
+                    { id: "fill12", q: "بلورات أشباه الموصلات تكون عازلة تماما للتيار الكهربائي إذا كانت في درجة حرارة ....... .", a: "الصفر المطلق" },
+                    { id: "fill13", q: "إذا احتوت بلورة جرمانيوم على شوائب من عنصر من المجموعة الثالثة تصبح بلورة شبه الموصل من النوع ....... .", a: "الموجب P" },
+                    { id: "fill14", q: "ينتقل التيار الكهربي في أشباه الموصلات من النوع السالب بواسطة ....... .", a: "الإلكترونات" },
+                    { id: "fill15", q: "تستخدم الوصلة الثنائية في ....... التيار المتردد.", a: "تقويم" },
+                    { id: "fill16", q: "فوتون طاقته \\( (3) \\) eV فإن طوله الموجي يساوي بوحدة المتر ....... .", a: "4.12 \\times 10^{-7}" },
+                    { id: "fill17", q: "يطلق على البروتونات والنيوترونات في النواة تسمية ....... .", a: "النيوكليونات" },
+                    { id: "fill18", q: "تختلف نظائر العنصر الواحد في العدد ....... .", a: "الكتلي" }
+                ]
+            },
+            trueFalse: {
+                title: "صح و خطأ",
+                questions: [
+                    { id: "tf1", q: "إذا وضع سطح مساحته \\( (0.5) \\) \\( m^{2} \\) في مستوى عموديا على مجال مغناطيسي منتظم شدته \\( (0.01) \\) T, فإن التدفق المغناطيسي الذي يجتازه يساوى صفر ويبر.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf2", q: "شدة المجال المغناطيسي كمية عددية تمثل بعدد خطوط المجال المغناطيسي التي تخترق سطح ما.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf3", q: "تنشأ القوة الدافعة الكهربائية المتولدة في ملف نتيجة حدوث تغير في التدفق المغناطيسي الذي يجتاز الملف.", options: ["صح", "خطأ"], a: "صح" },
+                    { id: "tf4", q: "يكون التدفق المغناطيسي الذى يجتاز ملف المولد الكهربائي قيمة عظمى عندما يكون مستوى الملف عمودي على اتجاه خطوط المجال المغناطيسي.", options: ["صح", "خطأ"], a: "صح" },
+                    { id: "tf5", q: "المحرك جهاز يؤدي عكس الوظيفة التي يؤديها المولد الكهربائي.", options: ["صح", "خطأ"], a: "صح" },
+                    { id: "tf6", q: "القوة المغناطيسية المؤثرة على شحنة كهربائية متحركة في مجال مغناطيسي تعمل على تغيير مقدار سرعة الشحنة.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf7", q: "الشدة الفعالة للتيار المتردد تتناسب عكسياً مع شدته العظمى.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf8", q: "قراءة الأجهزة المستخدمة لقياس شدة التيار المتردد او مقدار الجهد المتردد تعبر دائما عن القيم اللحظية.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf9", q: "قيمة المقاومة الصرفة لا تتغير بتغير نوع التيار الكهربائي أو تردده.", options: ["صح", "خطأ"], a: "صح" },
+                    { id: "tf10", q: "في دائرة التيار المتردد التي تحوي مكثف ومقاومة أومية نجد أن التيار الكهربائي يتأخر على الجهد الكهربائي بربع دورة.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf11", q: "تستخدم المكثفات في فصل التيارات منخفضة التردد عن تلك المرتفعة التردد.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf12", q: "في الوصلة الثنائية تكتسب البلورة الموجبة جهداً موجباً والبلورة السالبة جهداً سالباً.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf13", q: "طاقة الفوتون تتناسب عكسياً مع تردده.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf14", q: "تتحرك الفوتونات بسرعة ثابتة هي سرعة الضوء.", options: ["صح", "خطأ"], a: "صح" },
+                    { id: "tf15", q: "النيوترونات لا شحنة لها.", options: ["صح", "خطأ"], a: "صح" },
+                    { id: "tf16", q: "نظائر العنصر الواحد تختلف فيما بينها في عدد البروتونات.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf17", q: "أقل الأنوية استقرارا هي نواة النيكل.", options: ["صح", "خطأ"], a: "خطأ" },
+                    { id: "tf18", q: "كتلة مكونات النواة من النيوكليونات أكبر من كتلة النواة.", options: ["صح", "خطأ"], a: "صح" }
+                ]
+            },
+            mcq: {
+                title: "اختيار من متعدد",
+                questions: [
+                    { id: "mcq1", q: "إذا وضع سطح مساحته \\( (50) \\) \\( m^{2} \\) موازياً لمجال مغناطيسي منتظم شدته \\( (0.01) \\) T، فإن التدفق المغناطيسي الذي يجتازه بوحدة (wb) يساوي:", options: ["0", "0.5", "\\( 5 \\times 10^{-3} \\)", "\\( 5 \\times 10^{-4} \\)"], a: "0" },
+                    { id: "mcq2", q: "تزداد صعوبة دفع مغناطيس في ملف متصل بمقاومة خارجية كلما :", options: ["قلت عدد لفات الملف", "زادت عدد لفات الملف", "كانت الحركة أبطأ", "توقف الحركة"], a: "زادت عدد لفات الملف" },
+                    { id: "mcq3", q: "عندما تكون الزاوية بين اتجاه متجه مساحة ملف المولد الكهربائي التي يصنعها مع اتجاه خطوط المجال المغناطيسي مساوية \\( (270^{\\circ}) \\) ، فإن قيمة القوة الدافعة تساوى :", options: ["عظمي موجبة", "عظمى سالبة", "صفر", "أعلى من الصفر"], a: "عظمى سالبة" },
+                    { id: "mcq4", q: "عزم الازدواج المؤثر على ملف المحرك الكهربائي يساوى صفر عندما يكون مستوى الملف:", options: ["موازياً لخطوط المجال", "عمودياً على خطوط المجال المغناطيسي", "يميل بزاوية 30", "يميل بزاوية 60"], a: "عمودياً على خطوط المجال المغناطيسي" },
+                    { id: "mcq5", q: "يستمر دوران ملف المحرك الكهربائي بعد ربع الدورة الأولى عند انعدام مرور التيار في الملف بفعل :", options: ["الحث المتبادل", "الحث الذاتي", "القصور الذاتي", "التيار المتردد"], a: "القصور الذاتي" },
+                    { id: "mcq6", q: "تنعدم القوة الكهرومغناطيسية المؤثرة على سلك يمر به تيار كهربائي موضوع في مجال مغناطيسي عندما يكون السلك :", options: ["عمودياً على خطوط المجال", "يصنع زاوية 30", "موازياً مع خطوط المجال المغناطيسي", "يصنع زاوية 60"], a: "موازياً مع خطوط المجال المغناطيسي" },
+                    { id: "mcq7", q: "عند مرور تيار متردد شدته العظمى \\( (5\\sqrt{2}) \\) A في مقاومة أومية مقدارها \\( (1.2) \\) \\( \\Omega \\), فإن القدرة الكهربائية المستهلكة بالوات تساوى :", options: ["60", "30", "6", "0"], a: "30" },
+                    { id: "mcq8", q: "دائرة التيار المتردد التي يكون بها الجهد متقدما على التيار الكهربائي هي الدائرة التي تحوي :", options: ["مقاومتين أوميتين", "مكثف ومقاومة", "ملفا حثيا نقيا ومقاومة أومية", "مكثف وملفا ومقاومة"], a: "ملفا حثيا نقيا ومقاومة أومية" },
+                    { id: "mcq9", q: "عندما تصل دائرة (RLC) الى حالة رنين فان الممانعة الكلية للدائرة تساوي:", options: ["المقاومة الأومية", "الممانعة الحثية", "الممانعة السعوية", "صفر"], a: "المقاومة الأومية" },
+                    { id: "mcq10", q: "ذرات الزرنيخ خماسية التكافؤ المضافة لبلورة شبه الموصل النقي تسمى ذرة :", options: ["متقبلة", "مانحة", "متأينة", "مثارة"], a: "مانحة" },
+                    { id: "mcq11", q: "ينتقل التيار الكهربائي في أشباه الموصلات السالبة (N) بواسطة:", options: ["الفجوات", "الأيونات الموجبة", "الإلكترونات", "البروتونات"], a: "الإلكترونات" },
+                    { id: "mcq12", q: "مقاومة الوصلة الثنائية للتيار الكهربائي في حالة التوصيل الأمامي تكون:", options: ["كبيرة", "صغيرة", "معدومة", "لا نهائية"], a: "صغيرة" },
+                    { id: "mcq13", q: "فوتونان A و B طاقتهما على الترتيب \\( (E_{A} = 2 E_{B}) \\) فإن :", options: ["\\( (f_{A} = f_{B}) \\)", "\\( (2f_{A} = f_{B}) \\)", "\\( (\\lambda_{A} = \\lambda_{B}) \\)", "\\( (2\\lambda_{A} = \\lambda_{B}) \\)"], a: "\\( (2\\lambda_{A} = \\lambda_{B}) \\)" },
+                    { id: "mcq14", q: "في الظاهرة الكهروضوئية تكون النسبة بين طاقة الفوتون الساقط وطاقة حركة الإلكترون المتحرر:", options: ["أقل من الواحد الصحيح", "أكبر من الواحد الصحيح", "تساوي الواحد الصحيح", "غير محددة"], a: "أكبر من الواحد الصحيح" },
+                    { id: "mcq15", q: "طاقة حركة الإلكترونات المنبعثة من سطح الفلز تعتمد على:", options: ["شدة الضوء الساقط فقط", "تردد الضوء الساقط ونوع الفلز", "مدة سقوط الضوء فقط", "لا تتأثر بأي منهما"], a: "تردد الضوء الساقط ونوع الفلز" },
+                    { id: "mcq16", q: "دالة الشغل لسطح فلز بعاث للإلكترونات الضوئية يعتمد على:", options: ["تردد الأشعة الساقطة", "طاقة الأشعة الساقطة", "الطول الموجي للأشعة", "نوع مادة السطح (نوع الفلز)"], a: "نوع مادة السطح (نوع الفلز)" },
+                    { id: "mcq17", q: "نظائر العنصر الواحد تختلف في:", options: ["العدد الذري", "عدد الالكترونات", "عدد البروتونات", "العدد الكتلي"], a: "العدد الكتلي" },
+                    { id: "mcq18", q: "العدد الكتلي للنواة يساوي مجموع عدد:", options: ["البروتونات", "النيوترونات", "النيوكليونات", "الالكترونات"], a: "النيوكليونات" },
+                    { id: "mcq19", q: "تنتج طاقة الربط النووية عن:", options: ["القوة الكهروستاتيكيه بين البروتونات", "نقص في كتلة النواة عن مجموع كتل مكوناتها", "نقص في مجموع كتل مكونات النواة عن كتلتها", "نقص عدد مكونات النواة"], a: "نقص في كتلة النواة عن مجموع كتل مكوناتها" },
+                    { id: "mcq20", q: "النواة الأكثر استقراراً هي التي يكون لها :", options: ["أكبر طاقة ربط نووية", "أصغر طاقة ربط نووية", "أكبر طاقة ربط لكل نيكليون", "أصغر طاقة ربط لكل نيكليون"], a: "أكبر طاقة ربط لكل نيكليون" }
+                ]
+            },
+            reason: {
+                title: "علل لما يلي",
+                questions: [
+                    { id: "r1", q: "تزداد صعوبة دفع مغناطيس في ملف متصل بمقاومة خارجية كلما ازدت عدد لفاته.", a: "بسبب تولد قوة دافعة كهربائية حثية كبيرة في الملف ينتج عنها مجال مغناطيسي كبير فيصبح مغناطيساً أقوى ويزيد من قوة التنافر." },
+                    { id: "r2", q: "توضع إشارة سالبة في قانون فارداي.", a: "لأن اتجاه القوة الدافعة الكهربائية الحثية يعاكس التغير في التدفق المغناطيسي حسب قانون لنز." },
+                    { id: "r3", q: "يستمر ملف المحرك في الدوران رغم عدم اتصال نصفي الحلقة بالفرشتين (انقطاع التيار عنه).", a: "بسبب القصور الذاتي الدوراني للملف." },
+                    { id: "r4", q: "تنعدم الممانعة الحثية للملف في دوائر التيار المستمر.", a: "لأن تردد التيار المستمر يساوي صفر، وبما أن الممانعة الحثية تتناسب طردياً مع التردد فإنها تساوي صفر." },
+                    { id: "r5", q: "لا يسمح المكثف بمرور التيار المستمر.", a: "لأنه في حالة التيار المستمر التردد يكون صفر، وعليه تصبح ممانعة المكثف لانهائية القيمة أي أن الدائرة مفتوحة." },
+                    { id: "r6", q: "بلورة شبه الموصل من النوع السالب N متعادلة كهربيا.", a: "لأنه أثناء عملية التطعيم لم يحدث فقد أو اكتساب للإلكترونات، ومجموع الشحنات الموجبة يساوي الشحنات السالبة." },
+                    { id: "r7", q: "الوصلة الثنائية تعمل كمفتاح كهربائي.", a: "لأنها تسمح بمرور التيار في حالة الانحياز الأمامي وتمنع مرور التيار في حالة الانحياز العكسي." },
+                    { id: "r8", q: "طاقة حركة الإلكترونات المنبعثة يعتمد على تردد الضوء وليس شدته.", a: "لأن الفوتون الواحد يعطي طاقته الكاملة التي تتناسب مع تردده لإلكترون واحد ليخرج، بينما الشدة تؤثر على عدد الإلكترونات فقط." },
+                    { id: "r9", q: "الذرة متعادلة كهربائيا.", a: "لأن عدد البروتونات الموجبة داخل النواة يساوي عدد الإلكترونات السالبة التي تدور حولها." },
+                    { id: "r10", q: "الكتلة غير محفوظة في الكثير من التفاعلات النووية.", a: "لأنه يتحول جزء من الكتلة إلى طاقة." },
+                    { id: "r11", q: "الأنوية ذات عدد كتلى متوسط تكون أكثر استقرارا.", a: "لأن طاقة الربط لكل نيوكليون بها تكون كبيرة." }
+                ]
+            },
+            whatHappens: {
+                title: "ماذا يحدث",
+                questions: [
+                    { id: "wh1", q: "لملف المحرك الكهربائي بعد انعدام مرور التيار الكهربائي عند انفصال نصفي الحلقة عن الفرشتين؟", a: "يستمر في الدوران بسبب القصور الذاتي الدوراني للملف." },
+                    { id: "wh2", q: "لمسار جسيم مشحون يتحرك في خط مستقيم عندما يدخل عمودياً على مجال مغناطيسي منتظم؟", a: "ينحرف عن مساره (يتأثر بقوة مغناطيسية تغير من اتجاه حركته)." },
+                    { id: "wh3", q: "لحركة نيوترون مقذوف بسرعة ثابتة عمودياً على اتجاه مجال مغناطيسي منتظم؟", a: "يستمر بحركته في خط مستقيم بنفس السرعة (لأنه غير مشحون فلا يتأثر بقوة مغناطيسية)." },
+                    { id: "wh4", q: "لمقدار الطاقة المغناطيسية في الملف الحثي عند زيادة الشدة الفعالة للتيار المتردد في الملف إلى المثلين؟", a: "تزداد الأربعة أمثالها." },
+                    { id: "wh5", q: "للمقاومة الكلية لدائرة تيار متردد تحوي ملف حثي ومكثف ومقاومة عندما تكون الدائرة في حالة الرنين؟", a: "تقل المقاومة الكلية وتصبح مساوية للمقاومة الأومية فقط، وتكون شدة التيار أكبر ما يمكن." },
+                    { id: "wh6", q: "لدرجة التوصيل الكهربائي لأشباه الموصلات النقية بارتفاع درجة حرارتها؟", a: "تزداد." },
+                    { id: "wh7", q: "للتيار المتردد عند توصيل مصدره بدائرة كهربائية تحتوي على وصلة ثنائية؟", a: "نحصل على تيار مقوم تقويم نصف موجي (موحد الاتجاه)." },
+                    { id: "wh8", q: "لتحرر الالكترونات من سطح فلز عند سقوط ضوء ذو تردد أقل من تردد العتبة لهذا الفلز؟", a: "لا تتحرر الإلكترونات." },
+                    { id: "wh9", q: "للقيمة المطلقة لجهد القطع عند زيادة تردد الضوء الساقط على الفلز البعاث؟", a: "تزداد القيمة." },
+                    { id: "wh10", q: "لسرعة الالكترونات الضوئية المنبعثة عند عكس أقطاب البطارية على سطح الباعث والمجمع؟", a: "تتباطأ سرعتها حتى تتوقف بسبب نشوء مجال كهربائي يعاكس حركتها." }
+                ]
+            },
+            compare: {
+                title: "قارن بين",
+                questions: [
+                    { id: "comp1", q: "قارن بين (التدفق المغناطيسي) و (شدة المجال المغناطيسي) من حيث: نوع الكمية الفيزيائية.", a: "التدفق المغناطيسي: كمية عددية. شدة المجال المغناطيسي: كمية متجهة." },
+                    { id: "comp2", q: "قارن بين (المولد الكهربائي) و (المحرك الكهربائي) من حيث: المبدأ الذي يقوم عليه.", a: "المولد: الحث الكهرومغناطيسي. المحرك: عزم الازدواج المغناطيسي." },
+                    { id: "comp3", q: "قارن بين التوصيل بطريقة (الانحياز الأمامي) و (الانحياز العكسي) للوصلة الثنائية من حيث: اتجاه المجال الخارجي.", a: "الأمامي: عكس اتجاه المجال الداخلي. العكسي: بنفس اتجاه المجال الداخلي." },
+                    { id: "comp4", q: "قارن بين (شبه الموصل الموجب P) و (شبه الموصل السالب N) من حيث: حاملات الشحنة الأكثرية.", a: "الموجب P: الثقوب الموجبة. السالب N: الإلكترونات السالبة." },
+                    { id: "comp5", q: "قارن بين (الأنوية الثقيلة) و (الأنوية الخفيفة) من حيث: الأسلوب للوصول للاستقرار.", a: "الأنوية الثقيلة: انشطار نووي. الأنوية الخفيفة: اندماج نووي." }
+                ]
+            },
+            graphs: {
+                title: "علاقات بيانية",
+                questions: [
+                    { id: "g1", q: "وضح شكل العلاقة البيانية بين التدفق المغناطيسي \\( (\\Phi) \\) ومساحة السطح \\( (A) \\) عند ثبات باقي العوامل.", a: "علاقة طردية (خط مستقيم يميل لأعلى ويمر بنقطة الأصل).", graphType: "direct" },
+                    { id: "g2", q: "وضح شكل العلاقة البيانية بين القوة المغناطيسية المؤثرة على شحنة ومقدار الشحنة \\( (q) \\).", a: "علاقة طردية (خط مستقيم يمر بنقطة الأصل).", graphType: "direct" },
+                    { id: "g3", q: "وضح شكل العلاقة البيانية بين الممانعة الحثية للملف \\( (X_{L}) \\) وتردد التيار المتردد \\( (f) \\).", a: "علاقة طردية (خط مستقيم يمر بنقطة الأصل).", graphType: "direct" },
+                    { id: "g4", q: "وضح شكل العلاقة البيانية بين الممانعة السعوية للمكثف \\( (X_{C}) \\) وتردد التيار المتردد \\( (f) \\).", a: "علاقة عكسية (منحنى تناقصي).", graphType: "inverse" },
+                    { id: "g5", q: "وضح شكل العلاقة البيانية بين طاقة الفوتون \\( (E) \\) وطوله الموجي \\( (\\lambda) \\).", a: "علاقة عكسية (منحنى تناقصي).", graphType: "inverse" }
+                ]
+            },
+            problems: {
+                title: "مسائل حسابية",
+                questions: [
+                    { id: "p1", q: "ملف مكون من لفة واحدة يخترقه تدفقاً مغناطيسياً مقداره \\( (8 \\times 10^{-3}) \\) Wb فإذا أصبح هذا التدفق \\( (5 \\times 10^{-3}) \\) Wb في زمن قدرة \\( (0.2) \\) s . احسب مقدار القوة الدافعة الكهربائية الحثية المتولدة في الملف.", a: "\\( (0.015) \\) V" },
+                    { id: "p2", q: "حلقة دائرية يقطعها تدفق مغناطيسي قدره \\( (7 \\times 10^{-3}) \\) Wb فاذا تلاشى هذا التدفق في زمن قدره \\( (0.03) \\) s. احسب مقدار القوة الدافعة الحثية المتولدة في الحلقة.", a: "\\( (0.233) \\) V" },
+                    { id: "p3", q: "سلك طوله \\( (2) \\) m موضوع في مجال مغناطيسي شدته \\( (0.4) \\) T عمودي على اتجاه تيار كهربائي شدته \\( (5) \\) A ، احسب القوة الكهرومغناطيسية المؤثرة على السلك.", a: "\\( (4) \\) N" },
+                    { id: "p4", q: "دائرة رنين تتكون من ملف حثي نقي ومكثف كهربائي متغير السعة، سعته الكهربائية عند لحظة ما تساوى \\( (900) \\) \\( \\mu F \\) ، فإذا تغيرت سعة المكثف الى \\( (25) \\) \\( \\mu F \\) ، فكم يصبح تردد هذه الدائرة؟", a: "يصبح 6 أمثال ما كان عليه." },
+                    { id: "p5", q: "فوتون طاقته \\( (4.4 \\times 10^{-19}) \\) J. احسب تردد الفوتون. علماً بأن \\( (h = 6.6 \\times 10^{-34}) \\)", a: "\\( (6.67 \\times 10^{14}) \\) Hz" },
+                    { id: "p6", q: "إذا علمت أن أقل قدر من الطاقة الإشعاعية يلزم لتحرير الإلكترون من سطح معدن هو \\( (3.6 \\times 10^{-19}) \\) J أضئ هذا السطح بواسطة ضوء أحادي اللون طول موجته \\( (3 \\times 10^{-7}) \\) m. احسب طاقة حركة الإلكترون المنبعث. (علماً بأن \\( h = 6.6 \\times 10^{-34} \\) ، \\( c = 3 \\times 10^8 \\))", a: "\\( (3 \\times 10^{-19}) \\) J" },
+                    { id: "p7", q: "احسب طاقة السكون بوحدة (MeV) لكتلة \\( (1) \\) mg علما ان سرعة الضوء \\( c = (3 \\times 10^{8}) \\) m/s.", a: "\\( (5.625 \\times 10^{26}) \\) MeV" }
+                ]
+            }
+        };
+
+        // --- MathJax Component ---
+        const MathText = ({ text }) => {
+            const spanRef = useRef(null);
+            
+            useEffect(() => {
+                let isMounted = true;
+                const renderMath = async () => {
+                    if (window.MathJax && spanRef.current) {
+                        try {
+                            await window.MathJax.typesetPromise([spanRef.current]);
+                        } catch (e) {
+                            console.error("MathJax error:", e);
+                        }
+                    }
+                };
+                
+                // Small timeout to ensure DOM is ready
+                setTimeout(() => {
+                    if (isMounted) renderMath();
+                }, 50);
+
+                return () => { isMounted = false; };
+            }, [text]);
+
+            return <span ref={spanRef} dangerouslySetInnerHTML={{ __html: text }} className="leading-relaxed" />;
+        };
+
+        // --- Drawing Canvas Component ---
+        const DrawingCanvas = ({ id, value, onChange, disabled }) => {
+            const canvasRef = useRef(null);
+            const isDrawingRef = useRef(false);
+            const pointsRef = useRef([]); // مصفوفة لتخزين إحداثيات النقاط المرسومة
+
+            const drawAxes = (ctx, w, h) => {
+                ctx.strokeStyle = '#94a3b8'; // slate-400
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                // Y axis
+                ctx.moveTo(40, 20);
+                ctx.lineTo(40, h - 30);
+                // X axis
+                ctx.lineTo(w - 20, h - 30);
+                ctx.stroke();
+                
+                // Arrows
+                ctx.beginPath();
+                ctx.moveTo(35, 25);
+                ctx.lineTo(40, 20);
+                ctx.lineTo(45, 25);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(w - 25, h - 35);
+                ctx.lineTo(w - 20, h - 30);
+                ctx.lineTo(w - 25, h - 25);
+                ctx.stroke();
+                
+                // Labels
+                ctx.fillStyle = '#64748b';
+                ctx.font = '16px Arial';
+                ctx.fillText('Y', 15, 30);
+                ctx.fillText('X', w - 30, h - 5);
+            };
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const context = canvas.getContext('2d');
+                
+                // ضبط أبعاد اللوحة بناءً على حجم العنصر الحاوي لتجنب التشويش
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = 250;
+
+                const dataUrl = typeof value === 'object' ? value?.dataUrl : value;
+
+                if (dataUrl) {
+                    const img = new Image();
+                    img.onload = () => {
+                        context.clearRect(0, 0, canvas.width, canvas.height);
+                        context.drawImage(img, 0, 0);
+                    };
+                    img.src = dataUrl;
+                    
+                    // استعادة النقاط إن وجدت لغرض الحفظ
+                    if (typeof value === 'object' && value.points) {
+                        pointsRef.current = value.points;
+                    }
+                } else {
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    drawAxes(context, canvas.width, canvas.height);
+                    pointsRef.current = [];
+                }
+            }, [value]);
+
+            const getCoordinates = (e) => {
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                if (e.touches && e.touches.length > 0) {
+                    return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+                }
+                return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            };
+
+            const startDrawing = (e) => {
+                if (disabled) return;
+                if (e.type.includes('touch')) e.preventDefault(); // منع نزول الشاشة أثناء الرسم باللمس
+                isDrawingRef.current = true;
+                const { x, y } = getCoordinates(e);
+                
+                pointsRef.current.push({ x, y }); // حفظ النقطة
+
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.strokeStyle = '#2563eb'; // blue-600
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            };
+
+            const draw = (e) => {
+                if (!isDrawingRef.current || disabled) return;
+                if (e.type.includes('touch')) e.preventDefault();
+                const { x, y } = getCoordinates(e);
+                
+                pointsRef.current.push({ x, y }); // حفظ نقاط المسار للاستخدام في تحليل الانحدار
+
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            };
+
+            const stopDrawing = () => {
+                if (!isDrawingRef.current || disabled) return;
+                isDrawingRef.current = false;
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.closePath();
+                
+                // حفظ الرسمة والنقاط معاً ككائن
+                const dataUrl = canvasRef.current.toDataURL();
+                onChange({ dataUrl, points: pointsRef.current });
+            };
+
+            const clearCanvas = () => {
+                if (disabled) return;
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawAxes(ctx, canvas.width, canvas.height);
+                pointsRef.current = [];
+                onChange(null); // مسح الإجابة
+            };
+
+            return (
+                <div className="flex flex-col gap-2 w-full mt-2">
+                    <p className="text-sm text-slate-500 mb-1">ارسم الخط الدال على العلاقة البيانية على المحاور أدناه:</p>
+                    <div className="relative border-2 border-slate-300 rounded-lg overflow-hidden bg-white touch-none shadow-inner">
+                        <canvas
+                            ref={canvasRef}
+                            className={`w-full h-[250px] ${disabled ? 'cursor-not-allowed opacity-70 bg-slate-50' : 'cursor-crosshair bg-white'}`}
+                            onMouseDown={startDrawing}
+                            onMouseMove={draw}
+                            onMouseUp={stopDrawing}
+                            onMouseLeave={stopDrawing}
+                            onTouchStart={startDrawing}
+                            onTouchMove={draw}
+                            onTouchEnd={stopDrawing}
+                        />
+                    </div>
+                    {!disabled && (
+                        <button onClick={clearCanvas} className="self-end text-sm text-red-500 hover:text-red-700 font-bold px-2 py-1 transition-colors">
+                            🗑 مسح الرسم وإعادة المحاولة
+                        </button>
+                    )}
+                </div>
+            );
+        };
+
+        // --- Main App Component ---
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [db, setDb] = useState(null);
+            const [appId, setAppId] = useState('default-physics-bank');
+            const [answers, setAnswers] = useState({});
+            const [evaluations, setEvaluations] = useState({}); // لتتبع الإجابات الصحيحة والخاطئة
+            const [currentTab, setCurrentTab] = useState('term');
+            const [loading, setLoading] = useState(true);
+            const [saving, setSaving] = useState(false);
+            const [showAnswers, setShowAnswers] = useState({}); // Track which answers to reveal
+
+            // حساب المجموع الكلي للنقاط (نقطة لكل إجابة صحيحة)
+            const currentScore = Object.values(evaluations).filter(v => v === 'correct').length;
+
+            // خوارزمية الانحدار الخطي (Linear Regression) لتحليل شكل الرسم وتجاهل الاهتزاز
+            const analyzeGraphShape = (points, expectedType) => {
+                if (!points || points.length < 10) return false; // يجب أن يكون هناك مسار رسم كافٍ
+
+                let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+                const n = points.length;
+                const H = 250; // ارتفاع لوحة الرسم
+
+                points.forEach(p => {
+                    const mx = p.x;
+                    const my = H - p.y; // عكس الإحداثي الصادي لأن صفر الـ Canvas يقع في الأعلى
+                    sumX += mx;
+                    sumY += my;
+                    sumXY += mx * my;
+                    sumX2 += mx * mx;
+                });
+
+                const denominator = (n * sumX2) - (sumX * sumX);
+                if (denominator === 0) return false;
+
+                const slope = ((n * sumXY) - (sumX * sumY)) / denominator;
+
+                // الميل الموجب (> 0.2) يعني علاقة طردية
+                // الميل السالب (< -0.2) يعني علاقة عكسية
+                // تم وضع 0.2 لتجاوز الخطوط الأفقية تقريباً الناتجة عن أخطاء الرسم
+                
+                if (expectedType === 'direct') {
+                    return slope > 0.15;
+                } else if (expectedType === 'inverse') {
+                    return slope < -0.15;
+                }
+                
+                return false;
+            };
+
+            // دالة لتنظيف وتوحيد النصوص لتسهيل المقارنة (إزالة التشكيل والمسافات والهمزات)
+            const normalizeText = (text) => {
+                if (!text) return '';
+                return text.toString()
+                    .replace(/[\u064B-\u065F]/g, '') // إزالة التشكيل
+                    .replace(/[أإآ]/g, 'ا') // توحيد الألف
+                    .replace(/ة/g, 'ه') // توحيد التاء المربوطة والهاء
+                    .replace(/ى/g, 'ي') // توحيد الألف المقصورة والياء
+                    .replace(/[^\u0600-\u06FFa-zA-Z0-9]/g, '') // إزالة المسافات والرموز
+                    .toLowerCase();
+            };
+
+            // دالة التحقق من الإجابة
+            const handleCheckAnswer = (qId, correctAnswer, options) => {
+                const userAns = answers[qId];
+                let isCorrect = false;
+
+                if (currentTab === 'graphs') {
+                    const q = questionBank.graphs.questions.find(q => q.id === qId);
+                    if (userAns && userAns.points) {
+                        isCorrect = analyzeGraphShape(userAns.points, q.graphType);
+                    }
+                } else if (options) {
+                    // مطابقة تامة لأسئلة الاختياري والصح/خطأ
+                    isCorrect = (userAns || '') === correctAnswer;
+                } else {
+                    // مطابقة مرنة للأسئلة المقالية والقصيرة
+                    const textAns = userAns || '';
+                    isCorrect = normalizeText(textAns) === normalizeText(correctAnswer);
+                    
+                    // مساعدة للأسئلة المقالية الطويلة (يعتبرها صحيحة إذا طابقت 50% من الكلمات الدلالية)
+                    if (!isCorrect && correctAnswer.length > 20) {
+                        const userWords = normalizeText(textAns).match(/.{1,4}/g) || [];
+                        const correctNormalized = normalizeText(correctAnswer);
+                        const matchCount = userWords.filter(w => correctNormalized.includes(w)).length;
+                        if (matchCount > userWords.length * 0.5 && textAns.length > 3) { 
+                            isCorrect = true;
+                        }
+                    }
+                }
+
+                setEvaluations(prev => ({ ...prev, [qId]: isCorrect ? 'correct' : 'incorrect' }));
+            };
+
+            // Initialize Firebase & Auth
+            useEffect(() => {
+                const initFirebase = async () => {
+                    if (typeof window.firebaseModules === 'undefined') {
+                        setTimeout(initFirebase, 100);
+                        return;
+                    }
+
+                    try {
+                        const { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, getFirestore } = window.firebaseModules;
+                        
+                        let fbConfig = {};
+                        if (typeof __firebase_config !== 'undefined') {
+                            fbConfig = JSON.parse(__firebase_config);
+                        } else {
+                            console.warn("Using mock firebase config for local dev");
+                            setLoading(false); // mock loading finish for pure local dev if needed
+                            return;
+                        }
+
+                        const app = initializeApp(fbConfig);
+                        const auth = getAuth(app);
+                        const firestoreDb = getFirestore(app);
+                        setDb(firestoreDb);
+
+                        if (typeof __app_id !== 'undefined') {
+                            setAppId(__app_id);
+                        }
+
+                        // Authenticate
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+
+                        onAuthStateChanged(auth, (currentUser) => {
+                            setUser(currentUser);
+                        });
+
+                    } catch (error) {
+                        console.error("Firebase initialization error:", error);
+                        setLoading(false);
+                    }
+                };
+                initFirebase();
+            }, []);
+
+            // Fetch Saved Progress
+            useEffect(() => {
+                const fetchProgress = async () => {
+                    if (!user || !db) return;
+                    try {
+                        const { doc, getDoc } = window.firebaseModules;
+                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'physics_bank_v1', 'saved_progress');
+                        const docSnap = await getDoc(docRef);
+                        
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            setAnswers(data.answers || {});
+                            setEvaluations(data.evaluations || {});
+                        }
+                    } catch (error) {
+                        console.error("Error fetching progress:", error);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+
+                if (user) {
+                    fetchProgress();
+                }
+            }, [user, db, appId]);
+
+            // Save Progress to Firestore
+            const handleSaveProgress = async () => {
+                if (!user || !db) {
+                    alert("عذراً، لا يمكن حفظ التقدم حالياً (غير متصل).");
+                    return;
+                }
+                setSaving(true);
+                try {
+                    const { doc, setDoc } = window.firebaseModules;
+                    const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'physics_bank_v1', 'saved_progress');
+                    await setDoc(docRef, { answers, evaluations, lastUpdated: new Date().toISOString() }, { merge: true });
+                    
+                    // Show brief success indicator
+                    setTimeout(() => setSaving(false), 1000);
+                } catch (error) {
+                    console.error("Error saving progress:", error);
+                    setSaving(false);
+                }
+            };
+
+            const handleAnswerChange = (qId, value) => {
+                setAnswers(prev => ({ ...prev, [qId]: value }));
+                
+                // إزالة رسالة الخطأ فور قيام الطالب بمحاولة تعديل إجابته
+                if (evaluations[qId] === 'incorrect') {
+                    setEvaluations(prev => ({ ...prev, [qId]: null }));
+                }
+            };
+
+            const toggleAnswer = (qId) => {
+                setShowAnswers(prev => ({ ...prev, [qId]: !prev[qId] }));
+            };
+
+            // دالة للتحقق مما إذا كان الطالب قد أدخل إجابة
+            const hasAnswered = (qId) => {
+                const val = answers[qId];
+                if (currentTab === 'graphs') {
+                    return !!val && !!val.points && val.points.length > 0;
+                }
+                return !!val && val.trim() !== '';
+            };
+
+            if (loading) {
+                return <div className="min-h-screen flex items-center justify-center text-xl text-blue-600 font-bold">جاري تحميل بنك الأسئلة واستعادة بياناتك...</div>;
+            }
+
+            return (
+                <div className="min-h-screen flex flex-col md:flex-row rtl">
+                    {/* Sidebar */}
+                    <aside className="w-full md:w-64 bg-slate-800 text-white flex flex-col shadow-lg">
+                        <div className="p-4 text-center border-b border-slate-700 bg-slate-900">
+                            <h1 className="text-xl font-bold text-blue-400">بنك أسئلة الفيزياء</h1>
+                            <p className="text-xs text-slate-400 mt-1">الصف الثاني عشر - ف2</p>
+                            
+                            {/* عداد النقاط */}
+                            <div className="mt-4 bg-slate-800 py-3 rounded-lg border border-slate-600 shadow-inner flex flex-col items-center">
+                                <span className="text-sm font-medium text-slate-300">النقاط المكتسبة</span>
+                                <span className="text-3xl font-bold text-green-400 mt-1">{currentScore}</span>
+                            </div>
+                        </div>
+                        <nav className="flex-1 overflow-y-auto p-2">
+                            {Object.entries(questionBank).map(([key, section]) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setCurrentTab(key)}
+                                    className={`w-full text-right px-4 py-3 mb-1 rounded transition-colors ${currentTab === key ? 'bg-blue-600 text-white font-bold' : 'text-slate-300 hover:bg-slate-700'}`}
+                                >
+                                    {section.title}
+                                </button>
+                            ))}
+                        </nav>
+                        <div className="p-4 border-t border-slate-700">
+                            <button 
+                                onClick={handleSaveProgress}
+                                disabled={saving}
+                                className={`w-full py-2 rounded font-bold shadow transition-colors ${saving ? 'bg-green-500 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+                            >
+                                {saving ? 'تم الحفظ بنجاح ✓' : 'حفظ التقدم'}
+                            </button>
+                            <p className="text-xs text-center text-slate-400 mt-2">يمكنك الخروج والعودة لاحقاً للإكمال</p>
+                        </div>
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="flex-1 p-4 md:p-8 bg-slate-50 overflow-y-auto h-screen">
+                        <div className="max-w-4xl mx-auto">
+                            
+                            <div className="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                                <h2 className="text-2xl font-bold text-slate-800 mb-6 pb-2 border-b border-blue-100 flex items-center justify-between">
+                                    <span>{questionBank[currentTab].title}</span>
+                                    <span className="text-sm font-normal text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+                                        عدد الأسئلة: {questionBank[currentTab].questions.length}
+                                    </span>
+                                </h2>
+                                
+                                <div className="space-y-8">
+                                    {questionBank[currentTab].questions.map((q, index) => (
+                                        <div key={q.id} className="bg-slate-50 p-5 rounded-lg border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                                            
+                                            {/* Question Text */}
+                                            <div className="text-lg text-slate-800 mb-4 font-medium flex gap-2">
+                                                <span className="text-blue-600 font-bold">{index + 1}.</span>
+                                                <span><MathText text={q.q} /></span>
+                                            </div>
+
+                                            {/* Input Area */}
+                                            <div className="mb-4">
+                                                {currentTab === 'graphs' ? (
+                                                    <DrawingCanvas 
+                                                        id={q.id}
+                                                        value={answers[q.id]}
+                                                        onChange={(val) => handleAnswerChange(q.id, val)}
+                                                        disabled={evaluations[q.id] === 'correct'}
+                                                    />
+                                                ) : q.options ? (
+                                                    <div className="flex flex-col gap-2">
+                                                        {q.options.map((opt, i) => (
+                                                            <label key={i} className={`flex items-center gap-3 p-3 bg-white border border-slate-200 rounded transition-colors ${evaluations[q.id] === 'correct' ? 'opacity-80 cursor-default' : 'cursor-pointer hover:bg-blue-50'}`}>
+                                                                <input 
+                                                                    type="radio" 
+                                                                    name={q.id}
+                                                                    value={opt}
+                                                                    checked={answers[q.id] === opt}
+                                                                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                                    disabled={evaluations[q.id] === 'correct'}
+                                                                    className="w-4 h-4 text-blue-600 disabled:opacity-50"
+                                                                />
+                                                                <span className="text-slate-700"><MathText text={opt} /></span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <textarea 
+                                                        rows={currentTab === 'reason' || currentTab === 'whatHappens' || currentTab === 'compare' ? 3 : 1}
+                                                        placeholder="اكتب إجابتك هنا..."
+                                                        value={answers[q.id] || ''}
+                                                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                        disabled={evaluations[q.id] === 'correct'}
+                                                        className="w-full p-3 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y disabled:bg-slate-100 disabled:text-slate-500"
+                                                    />
+                                                )}
+                                            </div>
+
+                                            {/* Self Correction */}
+                                            <div className="mt-2 flex flex-col items-start gap-4">
+                                                
+                                                <div className="flex flex-wrap items-center gap-4">
+                                                    {/* زر التحقق من الإجابة */}
+                                                    <button 
+                                                        onClick={() => handleCheckAnswer(q.id, q.a, q.options)}
+                                                        disabled={!hasAnswered(q.id) || evaluations[q.id] === 'correct'}
+                                                        className={`px-4 py-2 rounded-md font-bold text-sm transition-all shadow-sm ${
+                                                            !hasAnswered(q.id) || evaluations[q.id] === 'correct'
+                                                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                                            : 'bg-green-500 hover:bg-green-600 text-white active:scale-95'
+                                                        }`}
+                                                    >
+                                                        {evaluations[q.id] === 'correct' ? 'إجابة مكتملة' : 'تحقق من الإجابة'}
+                                                    </button>
+                                                    
+                                                    {/* زر إظهار الإجابة النموذجية */}
+                                                    <button 
+                                                        onClick={() => hasAnswered(q.id) && toggleAnswer(q.id)}
+                                                        disabled={!hasAnswered(q.id)}
+                                                        className={`text-sm font-medium flex items-center gap-1 transition-colors ${
+                                                            hasAnswered(q.id) 
+                                                                ? 'text-blue-600 hover:text-blue-800 underline cursor-pointer' 
+                                                                : 'text-slate-400 cursor-not-allowed'
+                                                        }`}
+                                                    >
+                                                        {showAnswers[q.id] ? 'إخفاء الإجابة النموذجية' : 'إظهار الإجابة النموذجية للتأكد'}
+                                                    </button>
+                                                </div>
+
+                                                {/* Evaluation Feedback Messages */}
+                                                {evaluations[q.id] === 'correct' && currentTab !== 'graphs' && (
+                                                    <div className="w-full p-3 bg-green-100 border border-green-300 rounded-md text-green-800 font-bold flex items-center gap-2">
+                                                        <span>🎉</span> إجابة صحيحة! تمت إضافة نقطة إلى رصيدك.
+                                                    </div>
+                                                )}
+
+                                                {evaluations[q.id] === 'correct' && currentTab === 'graphs' && (
+                                                    <div className="w-full p-3 bg-green-100 border border-green-300 rounded-md text-green-800 font-bold flex flex-col gap-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span>📈</span> رسم دقيق وصحيح! تعرف النظام على العلاقة {q.graphType === 'direct' ? 'الطردية' : 'العكسية'}.
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {evaluations[q.id] === 'incorrect' && currentTab === 'graphs' && (
+                                                    <div className="w-full p-3 bg-orange-100 border border-orange-300 rounded-md text-orange-800 font-bold flex flex-col gap-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span>💡</span> اتجاه المنحنى غير دقيق!
+                                                        </div>
+                                                        <span className="text-sm font-normal text-orange-700">تأكد من شكل العلاقة المطلوبة ({q.graphType === 'direct' ? 'طردية صاعدة' : 'عكسية هابطة'}) وامسح اللوحة للمحاولة مرة أخرى.</span>
+                                                    </div>
+                                                )}
+
+                                                {evaluations[q.id] === 'incorrect' && currentTab !== 'graphs' && (
+                                                    <div className="w-full p-3 bg-orange-100 border border-orange-300 rounded-md text-orange-800 font-bold flex flex-col gap-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span>💡</span> إجابة غير دقيقة!
+                                                        </div>
+                                                        <span className="text-sm font-normal text-orange-700">لا تستسلم، حاول تصحيح الخطأ والمحاولة مرة أخرى لتحصل على النقطة!</span>
+                                                    </div>
+                                                )}
+                                                
+                                                {!hasAnswered(q.id) && (
+                                                    <span className="text-xs text-red-500 mt-1">يرجى المحاولة وإدخال إجابتك أولاً للتحقق أو لرؤية الإجابة النموذجية.</span>
+                                                )}
+                                                
+                                                {showAnswers[q.id] && hasAnswered(q.id) && (
+                                                    <div className="w-full p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-900 font-medium">
+                                                        <span className="font-bold mr-2 text-blue-700">الإجابة النموذجية:</span>
+                                                        <MathText text={q.a} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

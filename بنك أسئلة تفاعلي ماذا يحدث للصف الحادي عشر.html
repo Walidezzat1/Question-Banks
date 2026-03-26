@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار فيزياء تفاعلي</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for in-browser JSX transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Icons Components (Replacing lucide-react) ---
+        const CheckCircle2 = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+            </svg>
+        );
+
+        const XCircle = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m15 9-6 6"></path>
+                <path d="m9 9 6 6"></path>
+            </svg>
+        );
+
+        const ChevronLeft = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="m15 18-6-6 6-6"></path>
+            </svg>
+        );
+
+        const RotateCcw = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+            </svg>
+        );
+
+        const Award = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+        );
+
+        const BookOpen = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+        );
+
+        // --- Quiz Data ---
+        const quizData = [
+  {
+    "questionNumber": 1,
+    "question": "ماذا يحدث لدرجة حرارة جسمين متلامسين ومختلفين في درجة الحرارة عند وصولهما إلى حالة الاتزان الحراري؟",
+    "answerOptions": [
+      { "text": "تتساوى درجة حرارة الجسمين", "rationale": "عند الاتزان يتوقف انتقال الطاقة وتتساوى درجات الحرارة.", "isCorrect": true },
+      { "text": "ترتفع درجة حرارتهما معاً", "rationale": "لا يوجد مصدر حراري إضافي لرفعهما معاً.", "isCorrect": false },
+      { "text": "تنخفض درجة حرارتهما معاً", "rationale": "الأنظمة المغلقة لا تفقد حرارة من تلقاء نفسها للعدم.", "isCorrect": false },
+      { "text": "تستمر الحرارة بالانتقال بينهما", "rationale": "انتقال الحرارة يتوقف تماماً عند الاتزان.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 2,
+    "question": "ماذا يحدث عند غمر مسمار من الحديد الساخن لدرجة الاحمرار في حوض سباحة به ماء بارد؟",
+    "answerOptions": [
+      { "text": "تنتقل الحرارة من المسمار إلى الماء", "rationale": "الحرارة تنتقل دائماً من الجسم الأعلى في درجة الحرارة إلى الأقل.", "isCorrect": true },
+      { "text": "تنتقل الحرارة من الماء إلى المسمار", "rationale": "الماء أبرد من المسمار فلا يمكن انتقال الحرارة منه للمسمار.", "isCorrect": false },
+      { "text": "لا يحدث انتقال للحرارة لاختلاف الكتلة", "rationale": "انتقال الحرارة يعتمد على فرق درجات الحرارة وليس الكتلة.", "isCorrect": false },
+      { "text": "يتبخر كل ماء الحوض فوراً", "rationale": "كتلة الماء الكبيرة جداً تمنع ارتفاع حرارته بشكل ملحوظ.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 3,
+    "question": "ماذا يحدث لمتوسط طاقة حركة الجزيئات في المادة عند تسخينها؟",
+    "answerOptions": [
+      { "text": "يزداد", "rationale": "التسخين يزيد من سرعة الجزيئات وبالتالي تزداد طاقة حركتها.", "isCorrect": true },
+      { "text": "يقل", "rationale": "التسخين يعطي طاقة ولا يسحبها.", "isCorrect": false },
+      { "text": "يبقى ثابتاً", "rationale": "الطاقة الحرارية المكتسبة تترجم لحركة.", "isCorrect": false },
+      { "text": "ينعدم", "rationale": "ينعدم فقط نظرياً عند الصفر المطلق.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 4,
+    "question": "ماذا يحدث لدرجة حرارة المادة عند تبريدها (سحب طاقة منها)؟",
+    "answerOptions": [
+      { "text": "تنخفض لقلة متوسط طاقة حركة جزيئاتها", "rationale": "سحب الطاقة يقلل من اهتزاز الجزيئات فتنخفض درجة الحرارة.", "isCorrect": true },
+      { "text": "ترتفع لزيادة الروابط", "rationale": "التبريد لا يرفع درجة الحرارة.", "isCorrect": false },
+      { "text": "تبقى ثابتة", "rationale": "إلا إذا كانت المادة تغير حالتها، التبريد يخفض الحرارة.", "isCorrect": false },
+      { "text": "تتذبذب", "rationale": "التبريد يسبب انخفاضاً مستمراً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 5,
+    "question": "ماذا يحدث نظرياً للطاقة الحركية لجزيئات المادة عند الوصول إلى درجة الصفر المطلق؟",
+    "answerOptions": [
+      { "text": "تنعدم تماماً", "rationale": "الصفر المطلق هو الدرجة التي تتوقف عندها حركة الجزيئات نظرياً.", "isCorrect": true },
+      { "text": "تصل لقيمتها القصوى", "rationale": "الصفر المطلق يعني انعدام الحرارة وبالتالي انعدام الحركة.", "isCorrect": false },
+      { "text": "تتساوى مع الطاقة الكامنة", "rationale": "لا توجد طاقة حركية لتتساوى مع غيرها.", "isCorrect": false },
+      { "text": "تصبح سالبة", "rationale": "الطاقة الحركية لا يمكن أن تكون قيمة سالبة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 6,
+    "question": "ماذا يحدث للطاقة الداخلية لجسم ما عند اكتسابه كمية من الحرارة دون تغير حالته؟",
+    "answerOptions": [
+      { "text": "تزداد", "rationale": "الحرارة المكتسبة تزيد من الطاقات الحركية والكامنة للجزيئات.", "isCorrect": true },
+      { "text": "تقل", "rationale": "الجسم يكتسب طاقة ولا يفقدها.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "إضافة طاقة للنظام يجب أن يغير من محتواه الداخلي.", "isCorrect": false },
+      { "text": "تنعدم", "rationale": "الطاقة لا تفنى ولا تستحدث.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 7,
+    "question": "ماذا يحدث لقراءة الترمومتر إذا تم أخذه من سائل ساخن وقراءته فوراً في الهواء البارد؟",
+    "answerOptions": [
+      { "text": "تبدأ بالانخفاض ولا تعطي قراءة دقيقة للسائل", "rationale": "الترمومتر يفقد اتزانه مع السائل ويبدأ بالاتزان مع الهواء.", "isCorrect": true },
+      { "text": "تظل ثابتة على قراءة السائل", "rationale": "الهواء سيبرد الزئبق أو الكحول فتنكمش.", "isCorrect": false },
+      { "text": "ترتفع القراءة قليلاً", "rationale": "الهواء أبرد من السائل.", "isCorrect": false },
+      { "text": "ينكسر الترمومتر", "rationale": "الانخفاض التدريجي للحرارة لا يكسر الترمومتر عادة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 8,
+    "question": "ماذا يحدث لمجموع الطاقة الحركية في إناء به لترين ماء مغلي مقارنة بإناء به لتر واحد ماء مغلي؟",
+    "answerOptions": [
+      { "text": "يكون الضعف في إناء اللترين", "rationale": "مجموع الطاقة يعتمد على كمية المادة (الكتلة) وعدد الجزيئات.", "isCorrect": true },
+      { "text": "متساوي في الإناءين", "rationale": "درجة الحرارة متساوية لكن المجموع الكلي للطاقة يعتمد على الكتلة.", "isCorrect": false },
+      { "text": "النصف في إناء اللترين", "rationale": "زيادة الجزيئات تزيد من المجموع، ولا تنقصه.", "isCorrect": false },
+      { "text": "لا يمكن التنبؤ", "rationale": "يمكن حسابها بناءً على الكتلة ودرجة الحرارة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 9,
+    "question": "ماذا يحدث عند وضع ترمومتر في فم مريض لقياس درجة حرارته؟",
+    "answerOptions": [
+      { "text": "يمتص الترمومتر جزءاً يسيراً من حرارة الفم حتى يصل للاتزان", "rationale": "قياس الحرارة يتطلب حدوث اتزان حراري بين الترمومتر والجسم.", "isCorrect": true },
+      { "text": "يعطي الترمومتر حرارة للفم", "rationale": "الترمومتر أبرد من فم المريض.", "isCorrect": false },
+      { "text": "يظل الترمومتر عند درجة الصفر", "rationale": "السائل داخل الترمومتر سيتمدد باكتساب الحرارة.", "isCorrect": false },
+      { "text": "تنخفض حرارة المريض بشكل كبير", "rationale": "الترمومتر صغير جداً ولن يؤثر تأثيراً ملحوظاً على حرارة المريض.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 10,
+    "question": "ماذا يحدث للسائل داخل الترمومتر عند ملامسته لجسم ساخن؟",
+    "answerOptions": [
+      { "text": "يتمدد السائل ويرتفع في الأنبوب", "rationale": "الحرارة تزيد من طاقة حركة جزيئات السائل فيتمدد.", "isCorrect": true },
+      { "text": "ينكمش السائل ويهبط", "rationale": "الانكماش يحدث عند التبريد وليس التسخين.", "isCorrect": false },
+      { "text": "يتبخر السائل فوراً", "rationale": "السوائل المستخدمة (مثل الزئبق) درجات غليانها عالية.", "isCorrect": false },
+      { "text": "يتجمد السائل", "rationale": "التسخين يناقض التجمد.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 11,
+    "question": "ماذا يحدث لمقدار التغير في درجة حرارة إناء به ماء مقارنة بإناء به نفس الكتلة من الزيت عند إعطائهما نفس القدر من الحرارة؟",
+    "answerOptions": [
+      { "text": "ترتفع درجة حرارة الماء بمقدار أقل من الزيت", "rationale": "السعة الحرارية النوعية للماء أكبر من الزيت، لذا يسخن ببطء.", "isCorrect": true },
+      { "text": "ترتفع درجة حرارة الماء بمقدار أكبر من الزيت", "rationale": "هذا يحدث لو كانت السعة النوعية للماء أقل، وهو غير صحيح.", "isCorrect": false },
+      { "text": "يتساويان في الارتفاع", "rationale": "لاختلاف نوع المادة، تختلف السعة الحرارية النوعية.", "isCorrect": false },
+      { "text": "الماء لا تتغير درجة حرارته", "rationale": "الماء سيكتسب حرارة فترتفع حرارته ولكن ببطء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 12,
+    "question": "ماذا يحدث عند تسخين قطعة من الحديد وكتلة مساوية من الماء بنفس المصدر الحراري ولنفس الزمن؟",
+    "answerOptions": [
+      { "text": "الحديد يسخن أسرع لأن سعته الحرارية النوعية أقل", "rationale": "الحديد يمتلك سعة حرارية نوعية منخفضة فيتأثر بسرعة بالحرارة.", "isCorrect": true },
+      { "text": "الماء يسخن أسرع لأن سعته الحرارية النوعية أكبر", "rationale": "السعة الأكبر تعني بطء في التسخين.", "isCorrect": false },
+      { "text": "ترتفع حرارتهما بنفس المقدار", "rationale": "المادتان مختلفتان في السعة النوعية.", "isCorrect": false },
+      { "text": "الماء يغلي قبل أن يسخن الحديد", "rationale": "الحديد سيكتسب حرارة أسرع بكثير من الماء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 13,
+    "question": "ماذا يحدث لدرجة حرارة المدن الساحلية (القريبة من البحر) مقارنة بالمدن الداخلية (الصحراوية) خلال النهار؟",
+    "answerOptions": [
+      { "text": "تكون معتدلة لأن الماء يمتص الحرارة ببطء", "rationale": "السعة الحرارية النوعية الكبيرة للماء تجعله يلطف الجو ولا يسخن بسرعة.", "isCorrect": true },
+      { "text": "ترتفع بشكل كبير جداً", "rationale": "هذا يحدث في الصحراء حيث سعة اليابسة النوعية صغيرة.", "isCorrect": false },
+      { "text": "تتجمد", "rationale": "الشمس نهاراً ترفع الحرارة.", "isCorrect": false },
+      { "text": "تتساوى تماماً مع الصحراوية", "rationale": "تأثير المسطحات المائية يخلق فرقاً في المناخ.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 14,
+    "question": "ماذا يحدث لدرجات الحرارة في اليابسة مقارنة بالماء عند تعرضهما لنفس الانخفاض في درجة حرارة الجو ليلاً؟",
+    "answerOptions": [
+      { "text": "اليابسة تبرد أسرع من الماء", "rationale": "السعة الحرارية النوعية لليابسة أقل، فتفقد حرارتها بسرعة.", "isCorrect": true },
+      { "text": "الماء يبرد أسرع من اليابسة", "rationale": "الماء يحتفظ بحرارته لفترة طويلة.", "isCorrect": false },
+      { "text": "تبردان بنفس المعدل", "rationale": "اختلاف السعة النوعية يمنع تساويهما في معدل التبريد.", "isCorrect": false },
+      { "text": "حرارتهما ترتفع", "rationale": "الجو بارد ليلاً لذا سيفقدان حرارة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 15,
+    "question": "ماذا يحدث لكمية الحرارة المتبادلة في نظام حراري معزول تماماً؟",
+    "answerOptions": [
+      { "text": "مجموع الحرارة المفقودة والمكتسبة يساوي صفراً", "rationale": "حفظ الطاقة في النظام المعزول يمنع تسرب الحرارة للخارج.", "isCorrect": true },
+      { "text": "تكون كمية الحرارة المكتسبة أكبر", "rationale": "لابد أن تتساوى المكتسبة والمفقودة في النظام المعزول.", "isCorrect": false },
+      { "text": "تكون كمية الحرارة المفقودة أكبر", "rationale": "هذا يعني تسرب الحرارة لوسط خارجي، والنظام معزول.", "isCorrect": false },
+      { "text": "تنعدم الحرارة في النظام", "rationale": "الطاقة تنتقل بين مكونات النظام ولا تنعدم.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 16,
+    "question": "ماذا يحدث لغطاء الألمنيوم والطعام الموجود تحته عند إخراجهما من الفرن معاً؟",
+    "answerOptions": [
+      { "text": "يبرد الغطاء بسرعة بينما يحتفظ الطعام بحرارته", "rationale": "السعة الحرارية النوعية للطعام أكبر بكثير من الغطاء المعدني.", "isCorrect": true },
+      { "text": "يبرد الطعام بسرعة ويبقى الغطاء ساخناً", "rationale": "العكس صحيح لاختلاف السعة الحرارية.", "isCorrect": false },
+      { "text": "يبردان معاً في نفس اللحظة", "rationale": "السعات الحرارية المختلفة تعني سرعات تبريد مختلفة.", "isCorrect": false },
+      { "text": "ترتفع حرارتهما أكثر", "rationale": "تم إخراجهما من مصدر الحرارة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 17,
+    "question": "ماذا يحدث عند مضاعفة كتلة كمية من الماء بالنسبة لسعتها الحرارية النوعية؟",
+    "answerOptions": [
+      { "text": "تظل السعة الحرارية النوعية ثابتة", "rationale": "السعة النوعية خاصية مميزة للمادة لا تعتمد على الكتلة.", "isCorrect": true },
+      { "text": "تتضاعف السعة الحرارية النوعية", "rationale": "السعة الحرارية الكلية هي التي تتضاعف وليست النوعية.", "isCorrect": false },
+      { "text": "تقل للنصف", "rationale": "الكتلة لا تؤثر على السعة الحرارية النوعية.", "isCorrect": false },
+      { "text": "تنعدم", "rationale": "الماء له سعة نوعية ثابتة ومعروفة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 18,
+    "question": "ماذا يحدث للسعة الحرارية لجسم ما إذا زادت كتلته إلى الضعف؟",
+    "answerOptions": [
+      { "text": "تزداد السعة الحرارية للضعف", "rationale": "السعة الحرارية (C) تتناسب طردياً مع كتلة الجسم.", "isCorrect": true },
+      { "text": "تقل للنصف", "rationale": "الكتلة تزيد من قدرة الجسم على تخزين الحرارة.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "هذا ينطبق على السعة النوعية وليس السعة الكلية.", "isCorrect": false },
+      { "text": "تقل للربع", "rationale": "العلاقة طردية خطية.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 19,
+    "question": "ماذا يحدث عند استخدام الماء في أنظمة تبريد محركات السيارات؟",
+    "answerOptions": [
+      { "text": "يمتص كمية كبيرة من الحرارة دون أن ترتفع حرارته كثيراً", "rationale": "بسبب كبر سعته الحرارية النوعية يعتبر مثالياً للتبريد.", "isCorrect": true },
+      { "text": "يغلي بسرعة ويتلف المحرك", "rationale": "سعته العالية تمنعه من الغليان السريع.", "isCorrect": false },
+      { "text": "يزيد من حرارة المحرك", "rationale": "الماء يمتص الحرارة ولا يولدها.", "isCorrect": false },
+      { "text": "يتجمد فوراً", "rationale": "المحرك ساخن جداً فلا يمكن تجمده.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 20,
+    "question": "ماذا يحدث للطاقة الحرارية عند ملامسة جسم ساخن لجسم بارد في نظام معزول؟",
+    "answerOptions": [
+      { "text": "كمية الحرارة التي يفقدها الساخن يكتسبها البارد بالكامل", "rationale": "في النظام المعزول لا يوجد ضياع للطاقة للوسط المحيط.", "isCorrect": true },
+      { "text": "يتسرب جزء منها للهواء", "rationale": "النظام معزول ويمنع التسرب.", "isCorrect": false },
+      { "text": "تتولد طاقة جديدة من التلامس", "rationale": "الطاقة محفوظة ولا تستحدث.", "isCorrect": false },
+      { "text": "تنتقل الحرارة من البارد للساخن", "rationale": "الحرارة تنتقل تلقائياً من الأعلى للأقل.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 21,
+    "question": "ماذا يحدث لحجم الأجسام الصلبة عند تسخينها؟",
+    "answerOptions": [
+      { "text": "يزداد حجمها", "rationale": "الحرارة تزيد سعة الاهتزاز للجزيئات فتتباعد ويتمدد الجسم.", "isCorrect": true },
+      { "text": "يقل حجمها", "rationale": "هذا يحدث عند التبريد (الانكماش).", "isCorrect": false },
+      { "text": "يبقى ثابتاً", "rationale": "تأثير الحرارة يغير المسافات البينية.", "isCorrect": false },
+      { "text": "ينعدم", "rationale": "المادة لا تفنى بتسخينها.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 22,
+    "question": "ماذا يحدث للمزدوجة الحرارية (برونز - حديد) عند تسخينها؟",
+    "answerOptions": [
+      { "text": "تنحني ناحية الحديد", "rationale": "البرونز يتمدد بمقدار أكبر من الحديد فينحني فوقه.", "isCorrect": true },
+      { "text": "تنحني ناحية البرونز", "rationale": "هذا يحدث عند التبريد لأن البرونز ينكمش أكثر.", "isCorrect": false },
+      { "text": "تظل مستقيمة وتزداد في الطول فقط", "rationale": "اختلاف معاملي التمدد يسبب الانحناء حتماً.", "isCorrect": false },
+      { "text": "تتكسر", "rationale": "المعادن تنحني ولا تتكسر من التمدد البسيط.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 23,
+    "question": "ماذا يحدث للمزدوجة الحرارية (برونز - حديد) عند تبريدها (وضع قطعة ثلج عليها)؟",
+    "answerOptions": [
+      { "text": "تنحني ناحية البرونز", "rationale": "معامل تمدد البرونز أكبر، فينكمش بمقدار أكبر من الحديد.", "isCorrect": true },
+      { "text": "تنحني ناحية الحديد", "rationale": "هذا يحدث عند التسخين.", "isCorrect": false },
+      { "text": "لا يحدث لها شيء", "rationale": "البرودة تسبب الانكماش.", "isCorrect": false },
+      { "text": "تنفصل القطعتان عن بعضهما", "rationale": "هما ملتحمتان جيداً لتشكيل المزدوجة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 24,
+    "question": "ماذا يحدث للمسافات البينية لجزيئات المادة عند تبريدها؟",
+    "answerOptions": [
+      { "text": "تتقارب الجزيئات من بعضها", "rationale": "نقصان الطاقة الحركية يقلل سعة الاهتزاز فتتقارب.", "isCorrect": true },
+      { "text": "تتباعد الجزيئات عن بعضها", "rationale": "التباعد يحدث نتيجة التسخين.", "isCorrect": false },
+      { "text": "لا تتغير المسافات", "rationale": "التغير الحراري يؤثر على حركة الجزيئات.", "isCorrect": false },
+      { "text": "تنعدم المسافات", "rationale": "تظل هناك مسافات بينية مهما بردت المادة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 25,
+    "question": "ماذا يحدث لزجاج الأواني المصنوع من زجاج سميك غير مقاوم للحرارة عند سكب ماء ساخن فيه؟",
+    "answerOptions": [
+      { "text": "قد يتكسر", "rationale": "الجزء الداخلي يتمدد أسرع من الخارجي بسبب سوء التوصيل والسماكة.", "isCorrect": true },
+      { "text": "يتقلص حجمه", "rationale": "الحرارة تسبب التمدد وليس التقلص.", "isCorrect": false },
+      { "text": "يصبح أكثر قوة ومرونة", "rationale": "الزجاج العادي هش ويتأثر بالتمدد غير المنتظم.", "isCorrect": false },
+      { "text": "لا يتأثر أبداً", "rationale": "الزجاج الرقيق أو البايركس هو الذي يقاوم الكسر.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 26,
+    "question": "ماذا يحدث لمعامل التمدد الطولي لجسم إذا زاد طوله الأصلي للضعف؟",
+    "answerOptions": [
+      { "text": "يظل ثابتاً", "rationale": "معامل التمدد الطولي يعتمد على نوع المادة فقط.", "isCorrect": true },
+      { "text": "يتضاعف", "rationale": "الذي يتضاعف هو مقدار الزيادة في الطول (التمدد).", "isCorrect": false },
+      { "text": "يقل للنصف", "rationale": "الطول الأصلي لا يغير خاصية المادة.", "isCorrect": false },
+      { "text": "ينعدم", "rationale": "المادة تحتفظ بخصائصها الحرارية.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 27,
+    "question": "ماذا يحدث لمرور كرة معدنية عبر حلقة معدنية (في تجربة الكرة والحلقة) بعد تسخين الكرة تسخيناً كبيراً؟",
+    "answerOptions": [
+      { "text": "يصعب أو يستحيل مرورها", "rationale": "الكرة تتمدد حجمياً وتزداد أبعادها وتصبح أكبر من فتحة الحلقة.", "isCorrect": true },
+      { "text": "تمر بسهولة تامة", "rationale": "التسخين يزيد من حجم الكرة.", "isCorrect": false },
+      { "text": "تنكمش الكرة فتسقط بسرعة", "rationale": "التسخين لا يسبب الانكماش.", "isCorrect": false },
+      { "text": "يصغر حجم الحلقة", "rationale": "الحلقة لم يتم تسخينها أو تبريدها.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 28,
+    "question": "ماذا يحدث عند إنشاء جسور من الصلب دون ترك فواصل تمدد بين أجزائها؟",
+    "answerOptions": [
+      { "text": "تتقوس وتتلف في فصل الصيف", "rationale": "الصلب يتمدد بالحرارة وعدم وجود مساحة يسبب تقوسه وتلفه.", "isCorrect": true },
+      { "text": "تنكمش وتنكسر في الصيف", "rationale": "في الصيف الحرارة تسبب التمدد لا الانكماش.", "isCorrect": false },
+      { "text": "تصبح أكثر متانة", "rationale": "القوى الناتجة عن التمدد قد تدمر البنية.", "isCorrect": false },
+      { "text": "لا تتأثر بالتغيرات المناخية", "rationale": "المعادن تتأثر بدرجات الحرارة دائماً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 29,
+    "question": "ماذا يحدث لمقدار الزيادة في الطول لساق معدنية عند زيادة مقدار الارتفاع في درجة الحرارة للضعف؟",
+    "answerOptions": [
+      { "text": "يتضاعف مقدار التمدد الطولي", "rationale": "مقدار التمدد يتناسب طردياً مع التغير في درجة الحرارة.", "isCorrect": true },
+      { "text": "يقل للنصف", "rationale": "العلاقة طردية وليست عكسية.", "isCorrect": false },
+      { "text": "يبقى ثابتاً", "rationale": "زيادة الحرارة تسبب تمدداً إضافياً.", "isCorrect": false },
+      { "text": "يزداد 4 أمثال", "rationale": "العلاقة خطية (دلتا L تتناسب مع دلتا T).", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 30,
+    "question": "ماذا يحدث لغطاء معدني محكم على زجاجة عند سكب ماء ساخن عليه؟",
+    "answerOptions": [
+      { "text": "يتمدد الغطاء ويسهل فتحه", "rationale": "المعادن تتمدد بشكل ملحوظ بالحرارة فيتسع الغطاء.", "isCorrect": true },
+      { "text": "ينكمش الغطاء ويصعب فتحه", "rationale": "الماء الساخن يسبب التمدد وليس الانكماش.", "isCorrect": false },
+      { "text": "تتكسر الزجاجة فوراً", "rationale": "الماء سُكب على الغطاء المعدني بشكل أساسي.", "isCorrect": false },
+      { "text": "لا يتأثر", "rationale": "الحرارة تؤثر على جميع الأجسام الصلبة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 31,
+    "question": "ماذا يحدث لدرجة حرارة مادة صلبة أثناء عملية انصهارها رغم استمرار التسخين؟",
+    "answerOptions": [
+      { "text": "تظل ثابتة", "rationale": "الطاقة تستخدم لكسر الروابط بين الجزيئات لتغيير الحالة، وليس لرفع الحرارة.", "isCorrect": true },
+      { "text": "ترتفع تدريجياً", "rationale": "الحرارة ترتفع فقط بعد اكتمال الانصهار.", "isCorrect": false },
+      { "text": "تنخفض قليلاً", "rationale": "التسخين المستمر لا يمكن أن يخفض الحرارة.", "isCorrect": false },
+      { "text": "تتذبذب", "rationale": "الحرارة الكامنة تثبت درجة الحرارة تماماً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 32,
+    "question": "ماذا يحدث لدرجة حرارة سائل يغلي عند استمرار تزويده بالطاقة الحرارية؟",
+    "answerOptions": [
+      { "text": "تظل ثابتة حتى يتبخر السائل كله", "rationale": "الطاقة تستهلك في كسر الروابط لتغيير الحالة إلى غاز (حرارة كامنة للتصعيد).", "isCorrect": true },
+      { "text": "تستمر في الارتفاع", "rationale": "درجة الغليان هي الحد الأقصى لحرارة السائل النقي.", "isCorrect": false },
+      { "text": "تنخفض وتبرد المادة", "rationale": "تزويد المادة بالحرارة يمنع برودتها.", "isCorrect": false },
+      { "text": "يتحول السائل إلى صلب", "rationale": "هذا يحدث عند فقد الحرارة (التبريد).", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 33,
+    "question": "ماذا يحدث عند إضافة قطعة من الجليد بدرجة 0 سيليزي إلى كوب من العصير الدافئ؟",
+    "answerOptions": [
+      { "text": "يبرد العصير بفاعلية كبيرة لانصهار الجليد", "rationale": "الجليد يمتص كمية كبيرة من الحرارة (الحرارة الكامنة) لينصهر أولاً.", "isCorrect": true },
+      { "text": "تغلي مكونات العصير", "rationale": "الجليد بارد ويمتص حرارة.", "isCorrect": false },
+      { "text": "لا يتغير شيء", "rationale": "الاختلاف الحراري يسبب انتقالاً للطاقة.", "isCorrect": false },
+      { "text": "تنبعث حرارة من الجليد للعصير", "rationale": "الحرارة تنتقل من الساخن للبارد (من العصير للجليد).", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 34,
+    "question": "ماذا يحدث عند تحول بخار الماء إلى ماء سائل؟",
+    "answerOptions": [
+      { "text": "تنطلق (تفقد) طاقة حرارية من المادة", "rationale": "التكثف عملية طاردة للحرارة لتقليل حركة الجزيئات.", "isCorrect": true },
+      { "text": "تُمتص طاقة حرارية إضافية", "rationale": "الامتصاص يحدث عند التبخر.", "isCorrect": false },
+      { "text": "تظل طاقة المادة ثابتة", "rationale": "تغير الحالة يتطلب تبادلاً حرارياً.", "isCorrect": false },
+      { "text": "ترتفع درجة حرارته", "rationale": "التكثف يحدث عند درجة حرارة ثابتة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 35,
+    "question": "ماذا يحدث للروابط بين الجزيئات أثناء تحول الجليد إلى ماء سائل؟",
+    "answerOptions": [
+      { "text": "تتكسر الروابط وتبتعد الجزيئات", "rationale": "اكتساب الحرارة الكامنة للانصهار يكسر الروابط الصلبة.", "isCorrect": true },
+      { "text": "تزداد الروابط قوة", "rationale": "هذا يحدث عند التجمد.", "isCorrect": false },
+      { "text": "لا تتأثر الروابط", "rationale": "الحالة الفيزيائية تتغير بتغير الروابط.", "isCorrect": false },
+      { "text": "تتحول الروابط إلى روابط نووية", "rationale": "العمليات الحرارية لا تغير التركيب النووي.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 36,
+    "question": "ماذا يحدث لكمية الحرارة اللازمة لتصعيد مادة مقارنة بكمية الحرارة اللازمة لانصهارها لنفس الكتلة؟",
+    "answerOptions": [
+      { "text": "كمية حرارة التصعيد أكبر", "rationale": "طاقة التصعيد أكبر لأن إبعاد الجزيئات لدرجة التبخر يتطلب كسراً تاماً للروابط.", "isCorrect": true },
+      { "text": "كمية حرارة الانصهار أكبر", "rationale": "الانصهار يحتاج طاقة أقل فقط لتخفيف الروابط لتصبح سائلة.", "isCorrect": false },
+      { "text": "الكميتان متساويتان دائماً", "rationale": "القيم مختلفة وتعتمد على طبيعة الروابط.", "isCorrect": false },
+      { "text": "تصعيد المادة لا يتطلب حرارة", "rationale": "التبخر يحتاج لطاقة لكسر الروابط.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 37,
+    "question": "ماذا يحدث لسرعة انتقال الحرارة بين جسمين كلما زاد الفرق في درجات الحرارة بينهما؟",
+    "answerOptions": [
+      { "text": "يزداد معدل سريان الحرارة", "rationale": "فرق الحرارة الأكبر يدفع الطاقة بمعدل أسرع.", "isCorrect": true },
+      { "text": "يقل معدل السريان", "rationale": "الفروق الأقل تعني انتقالاً أبطأ.", "isCorrect": false },
+      { "text": "ينعدم انتقال الحرارة", "rationale": "العدم يحدث عند التساوي فقط.", "isCorrect": false },
+      { "text": "ينعكس اتجاه الحرارة", "rationale": "الاتجاه دائماً من الأسخن للأبرد.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 38,
+    "question": "ماذا يحدث للطاقة الحرارية الكامنة للانصهار عند تضاعف كتلة المادة المراد صهرها؟",
+    "answerOptions": [
+      { "text": "تتضاعف كمية الحرارة المطلوبة", "rationale": "كمية الحرارة تتناسب طردياً مع الكتلة (Q = m Lf).", "isCorrect": true },
+      { "text": "تقل للنصف", "rationale": "كتلة أكبر تعني حاجة لكمية أكبر من الطاقة لكسر الروابط.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "الحرارة الكامنة للمادة ثابتة، لكن الكمية الكلية المطلوبة تزداد.", "isCorrect": false },
+      { "text": "لا يمكن صهرها", "rationale": "يمكن صهرها بزيادة تزويد الطاقة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 39,
+    "question": "ماذا يحدث لبروتون عند وضعه ساكناً في مجال كهربائي منتظم؟",
+    "answerOptions": [
+      { "text": "يتحرك بعجلة منتظمة مع اتجاه المجال", "rationale": "لأن شحنته موجبة، فيتأثر بقوة في نفس اتجاه خطوط المجال.", "isCorrect": true },
+      { "text": "يتحرك بعجلة عكس اتجاه المجال", "rationale": "هذا ما يحدث للإلكترون سالب الشحنة.", "isCorrect": false },
+      { "text": "يظل ساكناً", "rationale": "سوف يتأثر بقوة كولوم فتحركه.", "isCorrect": false },
+      { "text": "يتحرك بسرعة منتظمة", "rationale": "يتحرك بعجلة لوجود قوة مستمرة عليه (قانون نيوتن الثاني).", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 40,
+    "question": "ماذا يحدث لحركة نيوترون عند قذفه عمودياً في مجال كهربائي منتظم؟",
+    "answerOptions": [
+      { "text": "يتحرك في خط مستقيم دون أن ينحرف", "rationale": "النيوترون متعادل الشحنة فلا يتأثر بالقوى الكهربائية.", "isCorrect": true },
+      { "text": "ينحرف نحو اللوح الموجب", "rationale": "هذا ما يحدث للجسيمات السالبة.", "isCorrect": false },
+      { "text": "ينحرف نحو اللوح السالب", "rationale": "هذا ما يحدث للجسيمات الموجبة.", "isCorrect": false },
+      { "text": "يتوقف عن الحركة", "rationale": "سيكمل حركته بقصوره الذاتي لغياب القوة المعيقة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 41,
+    "question": "ماذا يحدث لإلكترون عند وضعه في مجال كهربائي منتظم؟",
+    "answerOptions": [
+      { "text": "يتحرك بعجلة منتظمة عكس اتجاه المجال", "rationale": "الإلكترون شحنته سالبة فتؤثر عليه قوة عكس اتجاه المجال.", "isCorrect": true },
+      { "text": "يتحرك مع اتجاه المجال", "rationale": "تتجه نحو المجال الجسيمات الموجبة كالبروتون.", "isCorrect": false },
+      { "text": "لا يتحرك أبداً", "rationale": "سيتأثر بقوة كهربائية تحركه فوراً.", "isCorrect": false },
+      { "text": "يدور في مسار دائري", "rationale": "هذا يحدث في المجال المغناطيسي وليس الكهربائي المنتظم.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 42,
+    "question": "ماذا يحدث لشدة المجال الكهربائي عند مضاعفة المسافة التي تفصلنا عن شحنة نقطية؟",
+    "answerOptions": [
+      { "text": "تقل إلى الربع", "rationale": "شدة المجال تتناسب عكسياً مع مربع المسافة (قانون التربيع العكسي).", "isCorrect": true },
+      { "text": "تقل إلى النصف", "rationale": "التناسب مع المربع وليس المسافة نفسها.", "isCorrect": false },
+      { "text": "تزداد للضعف", "rationale": "الابتعاد عن الشحنة يقلل المجال ولا يزيده.", "isCorrect": false },
+      { "text": "تبقى ثابتة", "rationale": "المجال يضعف بالابتعاد عن المصدر.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 43,
+    "question": "ماذا يحدث لشدة المجال الكهربائي المتولد عند نقطة إذا تضاعفت الشحنة النقطية المسببة له؟",
+    "answerOptions": [
+      { "text": "تتضاعف شدة المجال الكهربائي", "rationale": "شدة المجال تتناسب طردياً مع الشحنة المصدرية.", "isCorrect": true },
+      { "text": "تقل للنصف", "rationale": "زيادة الشحنة تزيد من قوة المجال.", "isCorrect": false },
+      { "text": "تزداد أربعة أمثال", "rationale": "العلاقة طردية خطية مع الشحنة وليس مع مربعها.", "isCorrect": false },
+      { "text": "لا تتغير", "rationale": "الشحنة هي مسبب المجال، وتغيرها يغيره.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 44,
+    "question": "ماذا يحدث لخطوط المجال الكهربائي في المناطق التي تقل فيها شدة المجال؟",
+    "answerOptions": [
+      { "text": "تتباعد عن بعضها", "rationale": "تباعد الخطوط دليل على ضعف المجال.", "isCorrect": true },
+      { "text": "تتقارب من بعضها", "rationale": "التقارب يدل على قوة المجال.", "isCorrect": false },
+      { "text": "تتقاطع", "rationale": "خطوط المجال الكهربائي لا تتقاطع أبداً.", "isCorrect": false },
+      { "text": "تصبح دائرية", "rationale": "شكل الخطوط يعتمد على توزيع الشحنات.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 45,
+    "question": "ماذا يحدث لاتجاه المجال الكهربائي المتولد حول شحنة سالبة؟",
+    "answerOptions": [
+      { "text": "يكون دائماً متجهاً نحو الشحنة السالبة", "rationale": "اصطلاحاً، خطوط المجال تبدو وكأنها تدخل للشحنة السالبة.", "isCorrect": true },
+      { "text": "يكون مبتعداً عنها", "rationale": "هذا ينطبق على الشحنات الموجبة.", "isCorrect": false },
+      { "text": "يدور حول الشحنة", "rationale": "المجال الكهربائي للشحنة النقطية يكون شعاعياً.", "isCorrect": false },
+      { "text": "يكون موازياً لسطح الشحنة", "rationale": "الخطوط تخرج عمودية من أو إلى السطح.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 46,
+    "question": "ماذا يحدث للسعة الكهربائية لمكثف إذا زادت شحنته للضعف؟",
+    "answerOptions": [
+      { "text": "تظل ثابتة", "rationale": "السعة تعتمد على الأبعاد الهندسية والعازل، وأي زيادة بالشحنة يقابلها زيادة بالجهد.", "isCorrect": true },
+      { "text": "تتضاعف", "rationale": "السعة لا تعتمد على Q ولا على V.", "isCorrect": false },
+      { "text": "تقل للنصف", "rationale": "السعة ستبقى ثابتة ما لم يتغير التركيب الفيزيائي.", "isCorrect": false },
+      { "text": "تنعدم", "rationale": "المكثف يحتفظ بخصائصه كوعاء للشحنة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 47,
+    "question": "ماذا يحدث عند زيادة المسافة بين لوحي مكثف مستو إلى الضعف؟",
+    "answerOptions": [
+      { "text": "تقل السعة الكهربائية للنصف", "rationale": "السعة تتناسب عكسياً مع المسافة بين اللوحين (C=E.A/d).", "isCorrect": true },
+      { "text": "تتضاعف السعة", "rationale": "زيادة المسافة تقلل السعة.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "السعة تعتمد على البعد بين اللوحين.", "isCorrect": false },
+      { "text": "ينهار العازل", "rationale": "زيادة المسافة لا تسبب الانهيار بل تقلل المجال.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 48,
+    "question": "ماذا يحدث لسعة مكثف هوائي عند إدخال مادة عازلة (مثل الزجاج) بين لوحيه؟",
+    "answerOptions": [
+      { "text": "تزداد", "rationale": "ثابت العازلية للزجاج أكبر من الهواء فيزيد من السعة الكهربائية.", "isCorrect": true },
+      { "text": "تقل", "rationale": "المادة العازلة تزيد من قدرة المكثف على تخزين الشحنات.", "isCorrect": false },
+      { "text": "تبقى ثابتة", "rationale": "السعة تتناسب طردياً مع السماحية الكهربائية للعازل.", "isCorrect": false },
+      { "text": "يصبح المكثف موصلاً", "rationale": "الزجاج عازل جيد للكهرباء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 49,
+    "question": "ماذا يحدث للجهد الكهربائي لمكثف مشحون ومعزول عن المصدر عند إدخال مادة عازلة بين لوحيه؟",
+    "answerOptions": [
+      { "text": "يقل الجهد الكهربائي", "rationale": "السعة تزداد والشحنة ثابتة، وبما أن V=Q/C فإن الجهد يقل.", "isCorrect": true },
+      { "text": "يزداد الجهد الكهربائي", "rationale": "العلاقة عكسية بين الجهد والسعة عند ثبات الشحنة.", "isCorrect": false },
+      { "text": "يبقى الجهد ثابتاً", "rationale": "هذا يحدث لو كان المكثف متصلاً بالبطارية.", "isCorrect": false },
+      { "text": "تنعدم شحنته", "rationale": "هو معزول فشحنته محفوظة لا يمكن أن تختفي.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 50,
+    "question": "ماذا يحدث لشحنة مكثف هوائي متصل ببطارية (منبع تيار مستمر) عند إدخال مادة عازلة بين لوحيه؟",
+    "answerOptions": [
+      { "text": "تزداد شحنة المكثف", "rationale": "البطارية تحافظ على ثبات الجهد، وزيادة السعة (بسبب العازل) تؤدي لزيادة الشحنة (Q=CV).", "isCorrect": true },
+      { "text": "تظل الشحنة ثابتة", "rationale": "هذا يحدث للمكثف المفصول، المتصل يسحب شحنات جديدة.", "isCorrect": false },
+      { "text": "تقل شحنة المكثف", "rationale": "السعة تزيد فتسمح بتخزين شحنة أكبر وليس أقل.", "isCorrect": false },
+      { "text": "ينهار المكثف", "rationale": "العازل عادة يزيد من قوة التحمل للمكثف.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 51,
+    "question": "ماذا يحدث للطاقة الكهربائية المختزنة في مكثف هوائي مشحون ومعزول عند إبعاد لوحيه عن بعضهما؟",
+    "answerOptions": [
+      { "text": "تزداد الطاقة المختزنة", "rationale": "السعة تقل، والشحنة ثابتة، فمن العلاقة (U=Q^2/2C) تزداد الطاقة لبذل شغل ضد قوة التجاذب.", "isCorrect": true },
+      { "text": "تقل الطاقة المختزنة", "rationale": "السعة في المقام، فعندما تقل السعة، تزيد الطاقة.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "الشغل المبذول لإبعاد الألواح المتجاذبة يختزن كطاقة.", "isCorrect": false },
+      { "text": "تنعدم الطاقة", "rationale": "الشحنة لا تزال موجودة فالمكثف يمتلك طاقة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 52,
+    "question": "ماذا يحدث للمكثف الكهربائي عند تجاوز فرق الجهد بين لوحيه القيمة العظمى التي تتحملها المادة العازلة؟",
+    "answerOptions": [
+      { "text": "تحدث شرارة كهربائية تؤدي لتلف المكثف (جهد التعطيل)", "rationale": "المجال الشديد يؤدي لانهيار العازل ومرور شرارة تحرقه.", "isCorrect": true },
+      { "text": "تزداد كفاءة المكثف", "rationale": "كل مكثف له جهد أقصى يتحمله قبل الانهيار.", "isCorrect": false },
+      { "text": "تظل سعة المكثف تتزايد بشكل لانهائي", "rationale": "السعة ثابتة تعتمد على الأبعاد الهندسية.", "isCorrect": false },
+      { "text": "يتحول لمصدر للتيار المتردد", "rationale": "المكثف يخزن الطاقة ولا يولد تياراً متردداً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 53,
+    "question": "ماذا يحدث لمرور التيار في دائرة بها بطارية ومكثف بعد وصوله لتمام الشحن؟",
+    "answerOptions": [
+      { "text": "ينعدم مرور التيار", "rationale": "يتساوى جهد المكثف مع جهد البطارية فتتوقف الشحنات عن الحركة.", "isCorrect": true },
+      { "text": "يستمر مرور التيار بشدة عالية", "rationale": "المكثف يمنع مرور التيار المستمر بعد شحنه.", "isCorrect": false },
+      { "text": "ينعكس اتجاه التيار", "rationale": "البطارية لا تعكس قطبيتها، التيار يتوقف فقط.", "isCorrect": false },
+      { "text": "يزداد مرور التيار تدريجياً", "rationale": "التيار يتناقص تدريجياً أثناء الشحن حتى ينعدم.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 54,
+    "question": "ماذا يحدث للسعة المكافئة لعدة مكثفات عند توصيلها على التوازي؟",
+    "answerOptions": [
+      { "text": "تكون السعة المكافئة أكبر من أكبر سعة في المجموعة", "rationale": "في التوازي تُجمع السعات (C = C1 + C2 + ...) فتزداد.", "isCorrect": true },
+      { "text": "تكون أصغر من أصغر سعة", "rationale": "هذا يحدث في توصيل المكثفات على التوالي.", "isCorrect": false },
+      { "text": "تساوي متوسط السعات", "rationale": "السعات تُجمع لتكوين سعة كلية كبيرة.", "isCorrect": false },
+      { "text": "تظل ثابتة لا تتأثر", "rationale": "طريقة التوصيل تحدد السعة الكلية للدائرة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 55,
+    "question": "ماذا يحدث للسعة المكافئة لعدة مكثفات عند توصيلها على التوالي؟",
+    "answerOptions": [
+      { "text": "تكون السعة المكافئة أصغر من أصغر سعة في المجموعة", "rationale": "يُحسب المجموع بمقلوب السعات مما يصغر القيمة الكلية.", "isCorrect": true },
+      { "text": "تكون أكبر من أكبر سعة", "rationale": "هذا يحدث عند التوصيل على التوازي.", "isCorrect": false },
+      { "text": "لا تتأثر طريقة التوصيل", "rationale": "طرق التوصيل وُجدت للتحكم بالسعة الكلية.", "isCorrect": false },
+      { "text": "تصبح صفراً", "rationale": "السعة لا يمكن أن تنعدم بالتوصيل العادي.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 56,
+    "question": "ماذا يحدث للمجال المغناطيسي الناشئ عن سلك مستقيم إذا عكسنا اتجاه التيار المار فيه؟",
+    "answerOptions": [
+      { "text": "ينعكس اتجاه المجال المغناطيسي", "rationale": "حسب قاعدة اليد اليمنى، اتجاه المجال يرتبط باتجاه التيار.", "isCorrect": true },
+      { "text": "يتلاشى المجال المغناطيسي", "rationale": "التيار لا يزال يمر، فالمجال سيبقى موجوداً.", "isCorrect": false },
+      { "text": "تتضاعف شدته", "rationale": "انعكاس الاتجاه لا يؤثر على المقدار إذا كان التيار نفسه.", "isCorrect": false },
+      { "text": "لا يتغير اتجاهه", "rationale": "المجال المغناطيسي كمية متجهة تتبع التيار.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 57,
+    "question": "ماذا يحدث لشدة المجال المغناطيسي حول سلك مستقيم طويل إذا زادت شدة التيار الكهربائي للضعف؟",
+    "answerOptions": [
+      { "text": "تتضاعف شدة المجال المغناطيسي", "rationale": "شدة المجال (B) تتناسب طردياً مع شدة التيار (I).", "isCorrect": true },
+      { "text": "تقل للنصف", "rationale": "العلاقة بينهما طردية، وليست عكسية.", "isCorrect": false },
+      { "text": "تزداد لأربعة أمثال", "rationale": "العلاقة خطية طردية وليس مع المربع.", "isCorrect": false },
+      { "text": "تبقى ثابتة", "rationale": "المجال يتولد من التيار، فزيادته تزيد المجال.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 58,
+    "question": "ماذا يحدث لشدة المجال المغناطيسي عند نقطة ما كلما ابتعدنا عن السلك المستقيم الذي يمر به تيار؟",
+    "answerOptions": [
+      { "text": "تقل شدة المجال المغناطيسي", "rationale": "شدة المجال تتناسب عكسياً مع المسافة العمودية عن السلك.", "isCorrect": true },
+      { "text": "تزداد شدة المجال المغناطيسي", "rationale": "الابتعاد عن المصدر يضعف التأثير.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "هذا يحدث في المجال المنتظم داخل الملف، وليس حول سلك.", "isCorrect": false },
+      { "text": "تنعدم فوراً", "rationale": "تتلاشى تدريجياً وليس فوراً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 59,
+    "question": "ماذا يحدث لشدة المجال المغناطيسي عند مركز ملف دائري إذا زاد عدد لفاته إلى الضعف؟",
+    "answerOptions": [
+      { "text": "تتضاعف شدة المجال", "rationale": "شدة المجال تتناسب طردياً مع عدد اللفات (N).", "isCorrect": true },
+      { "text": "تقل للنصف", "rationale": "زيادة اللفات تعزز المجال وتجمعه.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "كل لفة تضيف مجالاً إضافياً للمركز.", "isCorrect": false },
+      { "text": "تنعكس جهة المجال", "rationale": "الاتجاه يعتمد على اتجاه التيار وليس عدد اللفات.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 60,
+    "question": "ماذا يحدث لشدة المجال المغناطيسي عند مركز ملف دائري إذا زاد نصف قطره إلى الضعف مع ثبات بقية العوامل؟",
+    "answerOptions": [
+      { "text": "تقل شدة المجال إلى النصف", "rationale": "شدة المجال تتناسب عكسياً مع نصف قطر الملف (r).", "isCorrect": true },
+      { "text": "تزداد للضعف", "rationale": "الاتساع يشتت المجال عند المركز، العلاقة عكسية.", "isCorrect": false },
+      { "text": "تبقى ثابتة", "rationale": "البعد عن نقطة المركز تغير، فيتغير المجال.", "isCorrect": false },
+      { "text": "تزداد لأربعة أمثال", "rationale": "التناسب العكسي مع r وليس العكس.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 61,
+    "question": "ماذا يحدث لشدة المجال المغناطيسي داخل ملف حلزوني عند شَدّه (إبعاده لفاته بحيث يزداد طوله للضعف)؟",
+    "answerOptions": [
+      { "text": "تقل شدة المجال إلى النصف", "rationale": "المجال في الملف الحلزوني يتناسب عكسياً مع طول محور الملف (L).", "isCorrect": true },
+      { "text": "تزداد للضعف", "rationale": "زيادة الطول تعني تشتت اللفات وضعف المجال.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "الطول من العوامل المؤثرة بقوة في المجال الداخلي.", "isCorrect": false },
+      { "text": "يصبح المجال دائرياً", "rationale": "المجال داخل الحلزوني دائماً منتظم خطي موازٍ للمحور.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 62,
+    "question": "ماذا يحدث لشدة المجال المغناطيسي داخل ملف حلزوني عند ضغطه (تقارب لفاته بحيث يقل طوله للنصف)؟",
+    "answerOptions": [
+      { "text": "تزداد شدة المجال للضعف", "rationale": "لأن تقليل الطول (L) يركز المجال أكثر، التناسب عكسي.", "isCorrect": true },
+      { "text": "تقل للنصف", "rationale": "تقارب اللفات يجعل المجال أقوى.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "تغير الطول يؤثر بشكل مباشر.", "isCorrect": false },
+      { "text": "ينعدم المجال", "rationale": "ضغط الملف يجعله أشبه بالمغناطيس القوي.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 63,
+    "question": "ماذا يحدث لشعاع ضوئي عند سقوطه عمودياً (زاوية سقوط = 0) على سطح مرآة مستوية؟",
+    "answerOptions": [
+      { "text": "يرتد على نفسه", "rationale": "زاوية السقوط تساوي زاوية الانعكاس وتساوي صفراً.", "isCorrect": true },
+      { "text": "ينعكس بزاوية 90 درجة", "rationale": "قانون الانعكاس يحتم أن تكون الزاوية مطابقة للسقوط.", "isCorrect": false },
+      { "text": "ينفذ من خلال المرآة", "rationale": "المرآة سطح عاكس غير شفاف.", "isCorrect": false },
+      { "text": "يتشتت في جميع الاتجاهات", "rationale": "السطح المصقول يسبب انعكاساً منتظماً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 64,
+    "question": "ماذا يحدث لشعاع ضوئي عند انتقاله مائلاً من وسط شفاف أقل كثافة ضوئية (كالهواء) إلى وسط أكبر كثافة ضوئية (كالماء)؟",
+    "answerOptions": [
+      { "text": "ينكسر مقترباً من العمود المقام", "rationale": "لأن سرعته تقل في الوسط الأكبر كثافة فيميل نحو العمود.", "isCorrect": true },
+      { "text": "ينكسر مبتعداً عن العمود المقام", "rationale": "هذا يحدث عند الانتقال من الكثيف إلى الخفيف.", "isCorrect": false },
+      { "text": "ينفذ دون انكسار", "rationale": "بسبب اختلاف السرعة لابد أن ينكسر إذا سقط مائلاً.", "isCorrect": false },
+      { "text": "ينعكس كلياً", "rationale": "الانعكاس الكلي لا يحدث عند الانتقال من أقل لأكبر كثافة.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 65,
+    "question": "ماذا يحدث لسرعة الضوء عند انتقاله من الفراغ إلى وسط شفاف كالزجاج؟",
+    "answerOptions": [
+      { "text": "تقل سرعته", "rationale": "الزجاج أكبر كثافة ضوئية من الفراغ، فتتباطأ فيه الموجات.", "isCorrect": true },
+      { "text": "تزداد سرعته", "rationale": "السرعة القصوى هي بالهواء/الفراغ.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "تختلف السرعة باختلاف الوسط.", "isCorrect": false },
+      { "text": "تنعدم فوراً", "rationale": "الزجاج وسط شفاف يسمح بمرور الضوء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 66,
+    "question": "ماذا يحدث لشعاع ضوئي ينتقل مائلاً من الزجاج (أكبر كثافة) إلى الهواء (أقل كثافة)؟",
+    "answerOptions": [
+      { "text": "ينكسر مبتعداً عن العمود المقام", "rationale": "لأن سرعة الضوء تزداد في الهواء الأقل كثافة، فيبتعد عن العمود.", "isCorrect": true },
+      { "text": "ينكسر مقترباً من العمود", "rationale": "الاقتراب يحدث في الحالة العكسية.", "isCorrect": false },
+      { "text": "يمر على استقامته", "rationale": "السقوط المائل بين وسطين مختلفين يسبب الانكسار.", "isCorrect": false },
+      { "text": "يمتص الزجاج الشعاع", "rationale": "الزجاج شفاف، سينفذ الشعاع للهواء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 67,
+    "question": "ماذا يحدث لأشعة الشمس المتوازية عندما تسقط على سطح غير مصقول (خشن)؟",
+    "answerOptions": [
+      { "text": "تتشتت في اتجاهات مختلفة (انعكاس غير منتظم)", "rationale": "السطح الخشن يجعل زوايا السقوط للعمود المقام مختلفة من نقطة لأخرى.", "isCorrect": true },
+      { "text": "ترتد متوازية", "rationale": "هذا الانعكاس المنتظم على المرآة.", "isCorrect": false },
+      { "text": "تمتصها المادة كلها", "rationale": "جزء منها يُمتص، لكن أغلبها يتشتت.", "isCorrect": false },
+      { "text": "تخترق السطح وتنكسر", "rationale": "الأسطح غير الشفافة تعكس الضوء ولا تمرره.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 68,
+    "question": "ماذا يحدث عندما يكون فرق المسير بين موجتين ضوئيتين متداخلتين من نفس المصدر مساوياً لعدد صحيح من الأطوال الموجية (nλ)؟",
+    "answerOptions": [
+      { "text": "يحدث تداخل بناء وتتكون أهداب مضيئة", "rationale": "تتطابق القمم مع القمم لتعطي سعة مزدوجة وإضاءة عالية.", "isCorrect": true },
+      { "text": "يحدث تداخل هدام وتتكون أهداب مظلمة", "rationale": "هذا يحدث عند فروق مسير نصف موجية.", "isCorrect": false },
+      { "text": "تختفي الموجات تماماً", "rationale": "التطابق في الطور يعززها لا يخفيها.", "isCorrect": false },
+      { "text": "ينكسر الضوء", "rationale": "هذه ظاهرة تداخل وليست انكساراً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 69,
+    "question": "ماذا يحدث عندما يكون فرق المسير بين الموجتين الضوئيتين في تجربة التداخل مساوياً (n+0.5)λ؟",
+    "answerOptions": [
+      { "text": "يحدث تداخل هدام وتتكون هدب مظلمة", "rationale": "تلتقي قمة مع قاع فيلغي كل منهما تأثير الآخر.", "isCorrect": true },
+      { "text": "يحدث تداخل بناء", "rationale": "البناء يحتاج أعداد صحيحة من الأطوال الموجية.", "isCorrect": false },
+      { "text": "تتضاعف قوة الإضاءة", "rationale": "بل تنعدم مكونة خطوطاً مظلمة.", "isCorrect": false },
+      { "text": "ينعكس الضوء للخلف", "rationale": "التداخل يسبب أنماطاً مضيئة ومظلمة، لا يعكسها للوراء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 70,
+    "question": "ماذا يحدث للهدب المركزي في تجربة شق يونج للتداخل؟",
+    "answerOptions": [
+      { "text": "يكون مضيئاً دائماً", "rationale": "لأن فرق المسير للموجتين عند المركز يساوي صفراً، فيحدث تداخل بناء دائم.", "isCorrect": true },
+      { "text": "يكون مظلماً دائماً", "rationale": "هذا غير صحيح لأن الشقين يبعدان مسافة متساوية عن المركز.", "isCorrect": false },
+      { "text": "يتبدل لونه بين المضيء والمظلم", "rationale": "هو ثابت لأنه ناتج عن تلاقي موجات بفرق مسير صفري.", "isCorrect": false },
+      { "text": "يختفي تماماً", "rationale": "المركز هو أوضح نقاط التداخل البناء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 71,
+    "question": "ماذا يحدث للبعد الهدبي (المسافة بين هدبين متتاليين) عند تقريب الحائل من الشق المزدوج؟",
+    "answerOptions": [
+      { "text": "يقل البعد الهدبي", "rationale": "التناسب طردي بين المسافة إلى الحائل (D) والبعد الهدبي (Δy).", "isCorrect": true },
+      { "text": "يزداد البعد الهدبي", "rationale": "الزيادة تحدث لو أبعدنا الحائل.", "isCorrect": false },
+      { "text": "يظل البعد ثابتاً", "rationale": "المسافة تؤثر مباشرة في شكل وتوسع الأهداب.", "isCorrect": false },
+      { "text": "يختفي التداخل", "rationale": "الأهداب تتقارب ولا تختفي.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 72,
+    "question": "ماذا يحدث لمقدار الحرارة الكامنة لتصعيد مادة مقارنة بالحرارة الكامنة للتجمد لنفس المادة؟",
+    "answerOptions": [
+      { "text": "تكون الحرارة الكامنة للتصعيد أكبر", "rationale": "إبعاد جزيئات السائل لتصبح غازاً يتطلب طاقة هائلة لكسر الروابط تماماً.", "isCorrect": true },
+      { "text": "تكون متساوية", "rationale": "كمية الطاقة تختلف حسب طبيعة الحالة الفيزيائية.", "isCorrect": false },
+      { "text": "تكون الحرارة الكامنة للتجمد أكبر", "rationale": "التجمد يحتاج فقط لفقد طاقة لتقوية الروابط، التصعيد يحتاج طاقة كسر هائلة.", "isCorrect": false },
+      { "text": "لا يمكن المقارنة بينهما", "rationale": "يمكن مقارنتهما، وكلاهما يُقاس بالجول لكل كجم.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 73,
+    "question": "ماذا يحدث عندما تمتص المادة كمية من الحرارة وتزيد الحركة الاهتزازية لجزيئاتها ولم تصل لدرجة التغير؟",
+    "answerOptions": [
+      { "text": "ترتفع درجة حرارتها", "rationale": "زيادة الحركة الاهتزازية يترجم مباشرة إلى ارتفاع في درجة الحرارة.", "isCorrect": true },
+      { "text": "تتغير حالتها فوراً", "rationale": "تتغير حالتها فقط عند درجات محددة كالغليان والانصهار.", "isCorrect": false },
+      { "text": "تنخفض درجة حرارتها", "rationale": "امتصاص الحرارة يعني اكتساب طاقة.", "isCorrect": false },
+      { "text": "يتوقف انتقال الحرارة", "rationale": "يستمر الانتقال طالما استمر التسخين.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 74,
+    "question": "ماذا يحدث لقراءة تدريج سلسيوس وتدريج فهرنهايت عند درجة حرارة 40-؟",
+    "answerOptions": [
+      { "text": "تتساوى قراءة الترمومترين", "rationale": "عند -40 تتطابق القيمتان عددياً في المعادلة الرياضية للتحويل.", "isCorrect": true },
+      { "text": "تكون قراءة الفهرنهايت ضعف السلسيوس", "rationale": "المعادلة لا تعطي الضعف عند هذه النقطة.", "isCorrect": false },
+      { "text": "ينكسر الترمومتر", "rationale": "الترمومترات يمكنها قياس هذه الدرجات الباردة.", "isCorrect": false },
+      { "text": "يكون السلسيوس موجباً والفهرنهايت سالباً", "rationale": "القيمتان سالبتان ومتطابقتان.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 75,
+    "question": "ماذا يحدث عند تلامس جسمين لهما نفس درجة الحرارة (متوسط طاقة حركة الجزيئات) ولكن مختلفين في الكتلة؟",
+    "answerOptions": [
+      { "text": "لا يحدث انتقال للطاقة الحرارية بينهما", "rationale": "انتقال الحرارة يتطلب فرقاً في درجات الحرارة وليس الكتلة.", "isCorrect": true },
+      { "text": "تنتقل الحرارة من الكتلة الأكبر للأقل", "rationale": "الكتلة لا تحدد اتجاه انتقال الحرارة.", "isCorrect": false },
+      { "text": "تنتقل الحرارة من الكتلة الأقل للأكبر", "rationale": "التلامس في نفس الدرجة يعني حالة اتزان مسبقة.", "isCorrect": false },
+      { "text": "ترتفع درجة حرارتهما معاً", "rationale": "لا يحدث تغيير لغياب المصدر.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 76,
+    "question": "ماذا يحدث لخطوط المجال الكهربائي الناشئ عن شحنتين نقطيتين مختلفتين بالنوع؟",
+    "answerOptions": [
+      { "text": "تخرج من الشحنة الموجبة وتدخل في السالبة", "rationale": "هذا هو الاصطلاح لتحديد مسار شحنة اختبار موجبة خيالية.", "isCorrect": true },
+      { "text": "تخرج من السالبة وتدخل بالموجبة", "rationale": "شحنة الاختبار الموجبة ستتنافر مع الموجب وتتجاذب مع السالب.", "isCorrect": false },
+      { "text": "تتنافر خطوطهما وتبتعد", "rationale": "التنافر يحدث للشحنات المتشابهة في النوع.", "isCorrect": false },
+      { "text": "تتقاطع في المنتصف", "rationale": "قاعدة ثابتة: خطوط المجال لا تتقاطع أبداً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 77,
+    "question": "ماذا يحدث للمجال الكهربائي المتولد بين لوحين موصلين مشحونين متوازيين يفصل بينهما هواء؟",
+    "answerOptions": [
+      { "text": "يكون مجالاً منتظماً", "rationale": "اللوحان المتوازيان يولدان خطوطاً مستقيمة ومتوازية، أي مجال ثابت الشدة والاتجاه.", "isCorrect": true },
+      { "text": "يكون مجالاً دائرياً", "rationale": "المجال الدائري حول الأسلاك للتيار الكهربائي.", "isCorrect": false },
+      { "text": "تتغير شدته باختلاف النقطة", "rationale": "في المجال المنتظم، الشدة ثابتة في كل النقاط الداخلية.", "isCorrect": false },
+      { "text": "ينعدم المجال", "rationale": "اللوحان يحملان شحنات فتتولد خطوط مجال قوية بينهما.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 78,
+    "question": "ماذا يحدث للطاقة الحرارية المفقودة من مكعب حديد ساخن عند إلقائه في كمية مساوية لكتلته من الماء البارد المعزول؟",
+    "answerOptions": [
+      { "text": "ترتفع درجة حرارة الماء لكن بشكل أبطأ من انخفاض حرارة الحديد", "rationale": "الماء سيكتسب الحرارة، لكن لأن سعة الماء الحرارية عالية جداً، سيسخن بمقدار قليل مقارنة بانخفاض حرارة الحديد.", "isCorrect": true },
+      { "text": "ينخفض الماء لنفس درجة الحديد", "rationale": "الماء سيسخن ولن تنخفض حرارته.", "isCorrect": false },
+      { "text": "تتساوى درجات التغير للحديد والماء", "rationale": "تختلف الدرجات لاختلاف السعة الحرارية النوعية.", "isCorrect": false },
+      { "text": "يغلي الماء فوراً", "rationale": "الماء يقاوم الارتفاع في الحرارة ولن يغلي إلا لو كانت حرارة الحديد مهولة جداً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 79,
+    "question": "ماذا يحدث لقيمة السعة الحرارية لمادة معينة عندما تصبح كتلتها تساوي 1 كيلوجرام؟",
+    "answerOptions": [
+      { "text": "تتساوى عددياً مع السعة الحرارية النوعية لتلك المادة", "rationale": "السعة النوعية هي السعة الحرارية لكل 1 كيلوجرام، فتتطابق القيمتان عند هذه الكتلة.", "isCorrect": true },
+      { "text": "تنعدم السعة الحرارية", "rationale": "الكتلة موجودة فلا يمكن أن تنعدم السعة.", "isCorrect": false },
+      { "text": "تتضاعف قيمتها", "rationale": "تساوي النوعية ولا تتضاعف.", "isCorrect": false },
+      { "text": "لا علاقة بينهما", "rationale": "يوجد علاقة رياضية C = m.c", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 80,
+    "question": "ماذا يحدث لكمية الحرارة اللازمة لتغيير درجة حرارة مادة عند زيادة التغير في درجات الحرارة المطلوب إحداثه؟",
+    "answerOptions": [
+      { "text": "تزداد الحرارة المطلوبة تناسباً طردياً", "rationale": "القانون Q = m c ΔT يوضح التناسب الطردي بين الحرارة والتغير في الدرجة.", "isCorrect": true },
+      { "text": "تقل الحرارة", "rationale": "الحاجة لتسخين أكثر تتطلب طاقة أكثر.", "isCorrect": false },
+      { "text": "تظل ثابتة", "rationale": "كل درجة إضافية تتطلب جول إضافي من الطاقة.", "isCorrect": false },
+      { "text": "تتناسب عكسياً", "rationale": "العلاقة طردية.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 81,
+    "question": "ماذا يحدث إذا تم وضع مادتين مختلفين (A و B) لهما نفس الكتلة ونفس درجة الحرارة الابتدائية فوق نفس السخان لفترة متساوية، علماً بأن سعة A النوعية أكبر من B؟",
+    "answerOptions": [
+      { "text": "تكون درجة حرارة B النهائية أعلى من A", "rationale": "لأن B سعتها صغيرة، تسخن أسرع من A التي تقاوم التسخين.", "isCorrect": true },
+      { "text": "تكون درجة حرارة A أعلى", "rationale": "A سعتها كبيرة فمعدل ارتفاع حرارتها أبطأ.", "isCorrect": false },
+      { "text": "درجات حرارتهما متساوية", "rationale": "لو اختلف النوع واختلفت السعة فلا تتساوى درجات الحرارة المكتسبة.", "isCorrect": false },
+      { "text": "A لن ترتفع حرارتها أبداً", "rationale": "سترتفع لكن بمعدل أبطأ.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 82,
+    "question": "ماذا يحدث لقوة التجاذب بين لوحي المكثف الكهربائي إذا تم إبعادهما عن بعضهما؟",
+    "answerOptions": [
+      { "text": "يتم بذل شغل يختزن على هيئة طاقة كهربائية", "rationale": "إبعاد لوحين مختلفي الشحنة يتطلب قوة تتغلب على التجاذب، هذا الشغل يخزن كطاقة.", "isCorrect": true },
+      { "text": "تتلاشى الشحنات من الألواح", "rationale": "اللوحان معزولان فالشحنات باقية.", "isCorrect": false },
+      { "text": "ينهار المكثف", "rationale": "الابتعاد يقلل المجال الكهربائي ولا يسبب انهياره.", "isCorrect": false },
+      { "text": "يولد تياراً كهربائياً", "rationale": "لا توجد دائرة مغلقة لمرور تيار.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 83,
+    "question": "ماذا يحدث للمجال المغناطيسي في مركز ملف دائري إذا تم إنقاص عدد لفاته للنصف مع الحفاظ على نفس التيار ونصف القطر؟",
+    "answerOptions": [
+      { "text": "يقل المجال المغناطيسي للنصف", "rationale": "التناسب طردي بين شدة المجال (B) وعدد اللفات (N).", "isCorrect": true },
+      { "text": "يتضاعف المجال المغناطيسي", "rationale": "عدد لفات أقل يولد مجالاً أضعف.", "isCorrect": false },
+      { "text": "ينعكس اتجاهه", "rationale": "الاتجاه مرتبط باتجاه التيار وليس اللفات.", "isCorrect": false },
+      { "text": "لا يتأثر", "rationale": "اللفات هي المصدر المولد للمجال.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 84,
+    "question": "ماذا يحدث لزاوية الانعكاس إذا زادت زاوية السقوط لشعاع ضوئي بمقدار 10 درجات على مرآة مستوية؟",
+    "answerOptions": [
+      { "text": "تزداد زاوية الانعكاس بمقدار 10 درجات", "rationale": "حسب قانون الانعكاس الأول: زاوية السقوط = زاوية الانعكاس دائماً.", "isCorrect": true },
+      { "text": "تقل بمقدار 10 درجات", "rationale": "هذا يخالف قانون الانعكاس.", "isCorrect": false },
+      { "text": "تظل كما هي", "rationale": "تتغير الانعكاس بتغير السقوط بانتظام.", "isCorrect": false },
+      { "text": "ينكسر الشعاع", "rationale": "المرآة تعكس الضوء ولا تكسره.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 85,
+    "question": "ماذا يحدث لسرعة الموجات الكهرومغناطيسية (مثل الضوء) عند انتقالها في الفراغ المطلق؟",
+    "answerOptions": [
+      { "text": "تنتقل بسرعة ثابتة مقدارها 300,000 كم/ث (C)", "rationale": "هذا هو الثابت الكوني لسرعة الضوء في الفراغ، ولا شيء يعيقه.", "isCorrect": true },
+      { "text": "تتزايد سرعتها باستمرار", "rationale": "سرعة الضوء ثابتة ولا تتسارع في الفراغ.", "isCorrect": false },
+      { "text": "تتباطأ بسبب غياب الوسط المادي", "rationale": "الموجات الكهرومغناطيسية لا تحتاج لوسط مادي وتكون أسرع بغيابه.", "isCorrect": false },
+      { "text": "تنعكس الموجات على نفسها", "rationale": "ستستمر في طريقها حتى تصطدم بشيء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 86,
+    "question": "ماذا يحدث للشعاع الضوئي عند سقوطه على السطح الفاصل بين وسطين شفافين، زاوية سقوطه لا تساوي صفراً؟",
+    "answerOptions": [
+      { "text": "ينكسر لمروره بشكل مائل بين وسطين مختلفين بالكثافة", "rationale": "الضوء المائل يعاني تغيراً مفاجئاً بالسرعة والاتجاه (الانكسار).", "isCorrect": true },
+      { "text": "ينعكس كلياً", "rationale": "الانعكاس الكلي له شروط خاصة كالانتقال للوسط الأقل والزاوية الحرجة.", "isCorrect": false },
+      { "text": "يمر على استقامته", "rationale": "يمر على استقامته فقط لو سقط عمودياً.", "isCorrect": false },
+      { "text": "يتوقف عند السطح", "rationale": "الأوساط شفافة فيمر الضوء خلالها.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 87,
+    "question": "ماذا يحدث لمعامل الانكسار النسبي من وسط أول لوسط ثاني إذا زادت زاوية السقوط للضعف؟",
+    "answerOptions": [
+      { "text": "يبقى ثابتاً لا يتغير", "rationale": "معامل الانكسار يعتمد على نوعي المادتين وسرعة الضوء فيهما، وهو نسبة ثابتة.", "isCorrect": true },
+      { "text": "يزداد للضعف", "rationale": "زاوية الانكسار ستتغير بحيث تحافظ على نسبة (n) ثابتة.", "isCorrect": false },
+      { "text": "يقل للنصف", "rationale": "هذا ثابت للمواد لا يتأثر بزاوية السقوط.", "isCorrect": false },
+      { "text": "ينعدم", "rationale": "الانكسار سيحدث بمعامل ثابت.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 88,
+    "question": "ماذا يحدث في تجربة يونج عند إغلاق أحد الشقين؟",
+    "answerOptions": [
+      { "text": "يختفي نمط التداخل", "rationale": "التداخل يتطلب مصدرين (موجتين متراكبتين)، إغلاق شق يجعله مصدراً واحداً كالحيود البسيط.", "isCorrect": true },
+      { "text": "تزداد وضوح الأهداب", "rationale": "بدون موجتين لا تتكون أهداب تداخل.", "isCorrect": false },
+      { "text": "يتكون هدب مركزي فقط", "rationale": "الهدب المركزي هو نتاج تداخل الموجتين.", "isCorrect": false },
+      { "text": "تتكون أهداب دائرية", "rationale": "تجربة يونج تنتج خطوطاً وتعتمد على شقين متوازيين.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 89,
+    "question": "ماذا يحدث لخطوط المجال الكهربائي حول شحنة نقطية إذا ابتعدنا عنها لمسافات كبيرة جداً (اللانهاية)؟",
+    "answerOptions": [
+      { "text": "تمتد الخطوط وتتباعد حتى تنعدم الشدة", "rationale": "نظرياً تمتد للانهاية، لكن شدة المجال تتلاشى بالتدريج للصفر عند مسافات هائلة.", "isCorrect": true },
+      { "text": "تنعطف عائدة للشحنة", "rationale": "الخطوط تخرج بشكل شعاعي مستقيم ولا تنعطف دون مؤثر خارجي.", "isCorrect": false },
+      { "text": "تنقطع عند مسافة معينة", "rationale": "الخطوط تمثل تأثيراً مستمراً يمتد نظرياً للانهاية.", "isCorrect": false },
+      { "text": "تتوازى", "rationale": "تتباعد ولن تتوازى لأن مصدرها نقطي.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 90,
+    "question": "ماذا يحدث عند وضع مادة عازلة ثابت عازليتها (2) بين لوحي مكثف متصل ببطارية بالنسبة للمجال الكهربائي؟",
+    "answerOptions": [
+      { "text": "يظل المجال الكهربائي ثابتاً", "rationale": "لأن الجهد (V) ثابت لوجود البطارية، والمسافة (d) ثابتة، والمجال E=V/d يظل ثابتاً.", "isCorrect": true },
+      { "text": "يقل المجال للنصف", "rationale": "هذا يحدث للمكثف المفصول وليس المتصل.", "isCorrect": false },
+      { "text": "يتضاعف المجال", "rationale": "البطارية تحافظ على ثبات فرق الجهد فيثبت المجال.", "isCorrect": false },
+      { "text": "ينعدم المجال", "rationale": "البطارية تزود الشحنات وتحافظ على المجال.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 91,
+    "question": "ماذا يحدث لشحنة مكثف عند زيادة السعة إلى الضعف مع ثبات فرق الجهد (باستخدام بطارية)؟",
+    "answerOptions": [
+      { "text": "تتضاعف كمية الشحنة", "rationale": "لأن Q = CV ، عند ثبات V وزيادة C تتضاعف Q.", "isCorrect": true },
+      { "text": "تقل للنصف", "rationale": "التناسب بين السعة والشحنة طردي بوجود البطارية.", "isCorrect": false },
+      { "text": "تبقى ثابتة", "rationale": "البطارية ستضخ شحنات إضافية لملء السعة الجديدة.", "isCorrect": false },
+      { "text": "تتسرب للهواء", "rationale": "اللوحان يحفظان الشحنة ما دام الجهد أقل من حد الانهيار.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 92,
+    "question": "ماذا يحدث لخطوط المجال المغناطيسي داخل الملف اللولبي إذا تم ضغط لفاته بحيث تتقارب جداً؟",
+    "answerOptions": [
+      { "text": "تصبح متوازية وكثيفة جداً ومنطبقة على المحور", "rationale": "تقارب اللفات يعزز انتظام المجال ويزيد شدته وكثافته بالداخل.", "isCorrect": true },
+      { "text": "تخرج من الجوانب بشكل دائري", "rationale": "الخطوط الدائرية تكون خارج الملف المتباعد أو عند حلقة منفردة.", "isCorrect": false },
+      { "text": "تلغي بعضها البعض", "rationale": "اللفات المتجاورة تقوي بعضها ولا تلغيها في الملف اللولبي.", "isCorrect": false },
+      { "text": "تنعدم عند المركز", "rationale": "المركز هو أقوى نقاط المجال الداخلي.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 93,
+    "question": "ماذا يحدث للمجال المغناطيسي في مركز ملف دائري عند مرور التيار فيه في اتجاه عقارب الساعة؟",
+    "answerOptions": [
+      { "text": "يكون اتجاه المجال عمودياً على مستوى الملف نحو الداخل", "rationale": "بتطبيق قاعدة اليد اليمنى، التفاف الأصابع مع التيار يجعل الإبهام يشير للداخل.", "isCorrect": true },
+      { "text": "يكون عمودياً نحو الخارج", "rationale": "هذا يحدث لو كان التيار عكس عقارب الساعة.", "isCorrect": false },
+      { "text": "يكون موازياً لسطح الملف", "rationale": "المجال في المركز عمودي دائماً.", "isCorrect": false },
+      { "text": "ينعدم", "rationale": "التيار الدائري يولد حتماً مجالاً في المركز.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 94,
+    "question": "ماذا يحدث لدرجة حرارة الماء والجليد معاً أثناء الانصهار في وعاء معزول تماماً؟",
+    "answerOptions": [
+      { "text": "تثبت درجة الحرارة عند الصفر السيليزي حتى ينصهر الجليد كلياً", "rationale": "التوازن الحراري أثناء تغير الحالة يستلزم ثبات درجة الحرارة.", "isCorrect": true },
+      { "text": "ينخفض الماء والجليد لتحت الصفر", "rationale": "لا يمكن التبريد أكثر دون سحب حرارة خارجية.", "isCorrect": false },
+      { "text": "يرتفعان تدريجياً فوراً", "rationale": "يجب أن تكتمل عملية كسر الروابط أولاً.", "isCorrect": false },
+      { "text": "يتبخر الماء", "rationale": "نحن في درجة الصفر وليس الغليان.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 95,
+    "question": "ماذا يحدث لسرعة انتقال الضوء عند وضع لوح زجاجي سميك في طريقه؟",
+    "answerOptions": [
+      { "text": "تقل السرعة داخل اللوح بسبب زيادة الكثافة الضوئية للزجاج", "rationale": "الزجاج وسط ذو كثافة ضوئية عالية تقاوم سرعة انتقال الموجات.", "isCorrect": true },
+      { "text": "تزداد السرعة داخل الزجاج", "rationale": "السرعة القصوى هي بالهواء/الفراغ.", "isCorrect": false },
+      { "text": "تظل ثابتة تماماً", "rationale": "الموجات الكهرومغناطيسية تتأثر بالوسط المادي.", "isCorrect": false },
+      { "text": "يتوقف الضوء داخل الزجاج", "rationale": "الزجاج شفاف، سيمر الضوء ولكن أبطأ.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 96,
+    "question": "ماذا يحدث للحرارة الكلية لمكثف عند توصيل طرفيه بمقاومة سلكية لتفريغه؟",
+    "answerOptions": [
+      { "text": "تتحول الطاقة الكهربائية المختزنة إلى طاقة حرارية في السلك", "rationale": "تيار التفريغ يمر عبر المقاومة فتسخن وتبدد الطاقة المختزنة.", "isCorrect": true },
+      { "text": "ينعدم تأثيرها ولا تولد حرارة", "rationale": "الطاقة لا تفنى، وتتحول لحرارة بفعل المقاومة.", "isCorrect": false },
+      { "text": "يبرد السلك وتنخفض حرارته", "rationale": "مرور التيار يسخن الأسلاك.", "isCorrect": false },
+      { "text": "ترتد الطاقة للمكثف", "rationale": "التفريغ هو استنزاف لطاقة المكثف.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 97,
+    "question": "ماذا يحدث لشدة المجال المغناطيسي حول سلك مستقيم إذا عكسنا اتجاه التيار المار؟",
+    "answerOptions": [
+      { "text": "المقدار يظل ثابتاً ولكن الاتجاه ينعكس", "rationale": "الاتجاه مرتبط باتجاه التيار، والمقدار مرتبط بقيمته وليس باتجاهه.", "isCorrect": true },
+      { "text": "المقدار والاتجاه يتغيران", "rationale": "لم نغير قيمة التيار لكي يتغير المقدار.", "isCorrect": false },
+      { "text": "لا يتأثر المجال نهائياً", "rationale": "المجال كمية متجهة تتأثر باتجاه المسبب.", "isCorrect": false },
+      { "text": "ينعدم المجال لحظة العكس", "rationale": "ينعكس مباشرة ولا يبقى منعدماً.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 98,
+    "question": "ماذا يحدث للطاقة المختزنة في مكثفين متصلين على التوازي مقارنة بتوصيلهما على التوالي مع نفس البطارية؟",
+    "answerOptions": [
+      { "text": "الطاقة المختزنة في التوازي تكون أكبر", "rationale": "السعة الكلية في التوازي أكبر، وبما أن الجهد ثابت للمصدر، فالطاقة U=(0.5*C*V^2) تكون أكبر.", "isCorrect": true },
+      { "text": "الطاقة في التوالي تكون أكبر", "rationale": "التوالي يقلل السعة الكلية فتقل الطاقة الكلية المسحوبة من البطارية.", "isCorrect": false },
+      { "text": "تكون متساوية في الحالتين", "rationale": "لاختلاف السعة المكافئة تختلف الطاقة.", "isCorrect": false },
+      { "text": "تنعدم في التوالي", "rationale": "تكون صغيرة لكن لا تنعدم.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 99,
+    "question": "ماذا يحدث لطول الموجة الضوئية عند انتقالها من الهواء إلى الماء؟",
+    "answerOptions": [
+      { "text": "يقل الطول الموجي لقلة السرعة", "rationale": "التردد يظل ثابتاً، وبما أن السرعة تقل في الماء فالطول الموجي يجب أن يقل ليتناسب معها.", "isCorrect": true },
+      { "text": "يزداد الطول الموجي", "rationale": "هذا يحدث لو زادت السرعة (بالانتقال للفراغ مثلاً).", "isCorrect": false },
+      { "text": "يبقى ثابتاً تماماً", "rationale": "التغير في السرعة يؤثر حتماً على الطول الموجي.", "isCorrect": false },
+      { "text": "يختفي الضوء", "rationale": "الماء وسط شفاف يسمح بنفاذ الضوء.", "isCorrect": false }
+    ]
+  },
+  {
+    "questionNumber": 100,
+    "question": "ماذا يحدث في النهاية عند خلط 50 جرام ماء حار مع 50 جرام ماء بارد في مسعر معزول؟",
+    "answerOptions": [
+      { "text": "يصلان إلى درجة حرارة نهائية متوسطة بين الدرجتين ويحدث اتزان حراري", "rationale": "تساوي الكتلة والنوع والمكان المعزول يجعل الحرارة المفقودة تتساوى تماماً مع المكتسبة، فتكون الدرجة النهائية في المنتصف.", "isCorrect": true },
+      { "text": "يأخذ الخليط حرارة الماء الحار بالكامل", "rationale": "لابد من انخفاض حرارة الماء الحار لتدفئة البارد.", "isCorrect": false },
+      { "text": "يبرد الخليط فوراً لدرجة الغرفة", "rationale": "المسعر معزول، لا علاقة له بدرجة الغرفة.", "isCorrect": false },
+      { "text": "يتبخر جزء من الماء الحار ليعوض البرودة", "rationale": "لا يحدث تبخر إذا لم نصل لدرجة الغليان، والعملية مجرد انتقال حرارة.", "isCorrect": false }
+    ]
+  }
+];
+
+        function App() {
+            const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+            const [selectedAnswers, setSelectedAnswers] = useState({});
+            const [showResults, setShowResults] = useState(false);
+            const [score, setScore] = useState(0);
+
+            // إجمالي عدد الأسئلة
+            const totalQuestions = quizData.length;
+            // تفاصيل السؤال الحالي
+            const currentQuestion = quizData[currentQuestionIndex];
+            // التحقق مما إذا كان السؤال الحالي قد تمت الإجابة عليه
+            const isAnswered = selectedAnswers[currentQuestionIndex] !== undefined;
+
+            const handleOptionSelect = (optionIndex) => {
+                if (isAnswered) return; // منع تغيير الإجابة بعد اختيارها
+
+                const isCorrect = currentQuestion.answerOptions[optionIndex].isCorrect;
+                
+                setSelectedAnswers({
+                    ...selectedAnswers,
+                    [currentQuestionIndex]: optionIndex
+                });
+
+                if (isCorrect) {
+                    setScore(prevScore => prevScore + 1);
+                }
+            };
+
+            const handleNextQuestion = () => {
+                if (currentQuestionIndex < totalQuestions - 1) {
+                    setCurrentQuestionIndex(currentQuestionIndex + 1);
+                } else {
+                    setShowResults(true);
+                }
+            };
+
+            const handleRestart = () => {
+                setCurrentQuestionIndex(0);
+                setSelectedAnswers({});
+                setShowResults(false);
+                setScore(0);
+            };
+
+            if (showResults) {
+                const percentage = Math.round((score / totalQuestions) * 100);
+                return (
+                    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 text-slate-800">
+                        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center">
+                            <Award className="w-20 h-20 mx-auto text-blue-500 mb-6" />
+                            <h2 className="text-3xl font-bold text-slate-800 mb-2">اكتمل الاختبار!</h2>
+                            <p className="text-slate-600 mb-8">لقد أجبت على جميع أسئلة ماذا يحدث ببراعة.</p>
+                            
+                            <div className="bg-blue-50 rounded-xl p-6 mb-8 border border-blue-100">
+                                <div className="text-5xl font-extrabold text-blue-600 mb-2">{percentage}%</div>
+                                <p className="text-lg text-blue-800">النتيجة: {score} من {totalQuestions}</p>
+                            </div>
+                            
+                            <button 
+                                onClick={handleRestart}
+                                className="flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+                            >
+                                <RotateCcw className="w-5 h-5" />
+                                إعادة الاختبار
+                            </button>
+                        </div>
+
+                        <footer className="mt-8 text-slate-500 font-medium text-sm">
+                            أعده الموجه الفني للفيزياء أ/ وليد عزت
+                        </footer>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-slate-50 py-8 px-4">
+                    <div className="max-w-3xl mx-auto">
+                        
+                        {/* Header */}
+                        <header className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-blue-600 p-2 rounded-lg text-white">
+                                    <BookOpen className="w-6 h-6" />
+                                </div>
+                                <h1 className="text-2xl font-bold text-slate-800">بنك أسئلة ماذا يحدث - فيزياء</h1>
+                            </div>
+                            <div className="bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 font-medium text-slate-700 flex-shrink-0">
+                                السؤال {currentQuestionIndex + 1} / {totalQuestions}
+                            </div>
+                        </header>
+
+                        {/* Progress Bar */}
+                        <div className="w-full bg-slate-200 rounded-full h-2.5 mb-8 overflow-hidden" dir="ltr">
+                            <div 
+                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                                style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+                            ></div>
+                        </div>
+
+                        {/* Question Card */}
+                        <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8 mb-6 border border-slate-100">
+                            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-8 leading-relaxed">
+                                {currentQuestion.question}
+                            </h2>
+
+                            <div className="space-y-4">
+                                {currentQuestion.answerOptions.map((option, index) => {
+                                    const isSelected = selectedAnswers[currentQuestionIndex] === index;
+                                    const isCorrect = option.isCorrect;
+                                    
+                                    let buttonStyle = "bg-white hover:bg-slate-50 border-slate-200 text-slate-700";
+                                    let icon = null;
+
+                                    if (isAnswered) {
+                                        if (isCorrect) {
+                                            buttonStyle = "bg-green-50 border-green-500 text-green-800";
+                                            icon = <CheckCircle2 className="w-6 h-6 text-green-600" />;
+                                        } else if (isSelected && !isCorrect) {
+                                            buttonStyle = "bg-red-50 border-red-500 text-red-800";
+                                            icon = <XCircle className="w-6 h-6 text-red-600" />;
+                                        } else {
+                                            buttonStyle = "bg-slate-50 border-slate-200 text-slate-400 opacity-60";
+                                        }
+                                    }
+
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleOptionSelect(index)}
+                                            disabled={isAnswered}
+                                            className={`w-full text-right p-5 rounded-xl border-2 transition-all duration-200 flex items-center justify-between text-lg ${buttonStyle} ${!isAnswered ? 'hover:border-blue-300 hover:shadow-sm' : ''}`}
+                                        >
+                                            <span className="font-medium ml-4">{option.text}</span>
+                                            {icon}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Feedback Section */}
+                        {isAnswered && (
+                            <div className={`p-6 rounded-xl mb-6 border-2 fade-in ${currentQuestion.answerOptions[selectedAnswers[currentQuestionIndex]].isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                <h3 className={`font-bold text-xl mb-2 ${currentQuestion.answerOptions[selectedAnswers[currentQuestionIndex]].isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                                    {currentQuestion.answerOptions[selectedAnswers[currentQuestionIndex]].isCorrect ? 'إجابة صحيحة! 🎉' : 'إجابة خاطئة! 💡'}
+                                </h3>
+                                <p className="text-slate-700 text-lg leading-relaxed">
+                                    <strong>التفسير العلمي: </strong> 
+                                    {currentQuestion.answerOptions.find(opt => opt.isCorrect).rationale}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Navigation */}
+                        {isAnswered && (
+                            <div className="flex justify-end fade-in">
+                                <button 
+                                    onClick={handleNextQuestion}
+                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+                                >
+                                    {currentQuestionIndex === totalQuestions - 1 ? 'عرض النتيجة' : 'السؤال التالي'}
+                                    <ChevronLeft className="w-5 h-5 rotate-180" />
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Footer */}
+                        <footer className="mt-12 text-center text-slate-500 font-medium pb-4">
+                            أعده الموجه الفني للفيزياء أ/ وليد عزت
+                        </footer>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
