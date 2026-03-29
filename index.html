@@ -84,7 +84,23 @@
                 <p class="text-slate-500 mt-3 text-lg">الرجاء تحديد الصف الدراسي الخاص بك لعرض التطبيقات والاختبارات المتاحة</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- زر العاشر -->
+                <button onclick="selectGrade('10')" class="group relative bg-white rounded-3xl p-10 border-2 border-slate-100 hover:border-amber-400 hover-lift overflow-hidden text-center block w-full shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div class="absolute inset-0 bg-amber-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-24 h-24 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                            <i class="ph-duotone ph-books text-6xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-black text-slate-800 mb-3">الصف العاشر</h3>
+                        <p class="text-slate-500 font-medium text-lg">القسم العلمي - الفصل الدراسي الثاني</p>
+                        <div class="mt-6 inline-flex items-center text-amber-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                            <span>عرض التطبيقات</span>
+                            <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </button>
+
                 <!-- زر الحادي عشر -->
                 <button onclick="selectGrade('11')" class="group relative bg-white rounded-3xl p-10 border-2 border-slate-100 hover:border-emerald-400 hover-lift overflow-hidden text-center block w-full shadow-sm hover:shadow-lg transition-all duration-300">
                     <div class="absolute inset-0 bg-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -116,6 +132,76 @@
                         </div>
                     </div>
                 </button>
+            </div>
+        </div>
+
+        <!-- تطبيقات الصف العاشر -->
+        <div id="grade-10-view" class="hidden">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold text-slate-700">تطبيقات الصف العاشر</h2>
+                <p class="text-slate-500 mt-2 text-lg">اختر مسار التدريب للبدء</p>
+            </div>
+            <!-- تم تعديل الشبكة لتصبح 2×2 للبطاقات الأربع -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- بطاقة 1 -->
+                <a href="بنك أسئلة تفاعلي اختيار من متعدد للصف العاشر.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                        <i class="ph-duotone ph-exam text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-slate-800">اختيار من متعدد (1)</h3>
+                    <p class="text-slate-500 mb-8 leading-relaxed h-16">
+                        بنك أسئلة تفاعلي لأسئلة الاختيار من متعدد مع التصحيح الفوري والتقييم.
+                    </p>
+                    <div class="flex items-center text-blue-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                        <span>الدخول للاختبار</span>
+                        <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                    </div>
+                </a>
+                
+                <!-- بطاقة 2 -->
+                <a href="بنك أسئلة تفاعلي اختيار من متعدد للصف العاشر2.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                        <i class="ph-duotone ph-list-checks text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-slate-800">اختيار من متعدد (2)</h3>
+                    <p class="text-slate-500 mb-8 leading-relaxed h-16">
+                        نموذج آخر لأسئلة الاختيار من متعدد بتصميم عصري وتفسيرات شاملة.
+                    </p>
+                    <div class="flex items-center text-emerald-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                        <span>الدخول للاختبار</span>
+                        <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                    </div>
+                </a>
+                
+                <!-- بطاقة 3 -->
+                <a href="بنك أسئلة تفاعلي علل للصف العاشر.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                    <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                        <i class="ph-duotone ph-pencil-line text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-slate-800">أسئلة (علل)</h3>
+                    <p class="text-slate-500 mb-8 leading-relaxed h-16">
+                        تطبيق شامل لأسئلة التعليل مع التفسيرات العلمية النموذجية.
+                    </p>
+                    <div class="flex items-center text-purple-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                        <span>الدخول للمراجعة</span>
+                        <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                    </div>
+                </a>
+
+                <!-- بطاقة 4 الجديدة: ماذا يحدث للصف العاشر -->
+                <a href="بنك أسئلة تفاعلي ماذا يحدث للصف العاشر.html" class="block bg-white rounded-3xl p-8 border border-slate-100 hover-lift group">
+                    <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300">
+                        <i class="ph-duotone ph-lightbulb-filament text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-slate-800">أسئلة (ماذا يحدث)</h3>
+                    <p class="text-slate-500 mb-8 leading-relaxed h-16">
+                        تطبيق تفاعلي يركز على أسئلة التوقع والاستنتاج مع التقييم والتفسير.
+                    </p>
+                    <div class="flex items-center text-amber-600 font-bold group-hover:tracking-wide transition-all duration-300">
+                        <span>الدخول للتطبيق</span>
+                        <i class="ph-bold ph-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                    </div>
+                </a>
             </div>
         </div>
 
@@ -277,6 +363,7 @@
     <!-- سكربت التحكم بالواجهة -->
     <script>
         const selectionView = document.getElementById('grade-selection-view');
+        const grade10View = document.getElementById('grade-10-view');
         const grade11View = document.getElementById('grade-11-view');
         const grade12View = document.getElementById('grade-12-view');
         const backContainer = document.getElementById('back-container');
@@ -293,7 +380,12 @@
             backContainer.classList.remove('hidden');
             backContainer.classList.add('animate-fade-in');
 
-            if (grade === '11') {
+            if (grade === '10') {
+                pageSubtitle.innerText = 'الصف العاشر - الفصل الدراسي الثاني';
+                header.className = 'bg-gradient-to-l from-amber-800 via-amber-700 to-orange-700 text-white shadow-xl relative overflow-hidden transition-all duration-500';
+                grade10View.classList.remove('hidden');
+                grade10View.classList.add('animate-fade-in');
+            } else if (grade === '11') {
                 pageSubtitle.innerText = 'الصف الحادي عشر العلمي - الفصل الدراسي الثاني';
                 header.className = 'bg-gradient-to-l from-emerald-900 via-emerald-800 to-teal-800 text-white shadow-xl relative overflow-hidden transition-all duration-500';
                 grade11View.classList.remove('hidden');
@@ -309,6 +401,8 @@
         // دالة للعودة إلى الشاشة الرئيسية
         function showSelection() {
             // إخفاء بطاقات الصفوف
+            grade10View.classList.add('hidden');
+            grade10View.classList.remove('animate-fade-in');
             grade11View.classList.add('hidden');
             grade11View.classList.remove('animate-fade-in');
             grade12View.classList.add('hidden');
