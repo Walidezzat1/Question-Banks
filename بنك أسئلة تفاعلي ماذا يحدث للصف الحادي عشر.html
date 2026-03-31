@@ -34,7 +34,7 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- Icons Components (Replacing lucide-react) ---
+        // --- Icons Components ---
         const CheckCircle2 = ({ className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
@@ -77,8 +77,15 @@
             </svg>
         );
 
+        const HomeIcon = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        );
+
         // --- Quiz Data ---
-        const quizData = [
+        const rawQuizData = [
   {
     "questionNumber": 1,
     "question": "ماذا يحدث لدرجة حرارة جسمين متلامسين ومختلفين في درجة الحرارة عند وصولهما إلى حالة الاتزان الحراري؟",
@@ -113,7 +120,7 @@
     "questionNumber": 4,
     "question": "ماذا يحدث لدرجة حرارة المادة عند تبريدها (سحب طاقة منها)؟",
     "answerOptions": [
-      { "text": "تنخفض لقلة متوسط طاقة حركة جزيئاتها", "rationale": "سحب الطاقة يقلل من اهتزاز الجزيئات فتنخفض درجة الحرارة.", "isCorrect": true },
+      { "text": "تنخفض لقلة متوسط طاقة حركة الجزئ الواحد", "rationale": "سحب الطاقة يقلل من اهتزاز الجزيئات فتنخفض درجة الحرارة.", "isCorrect": true },
       { "text": "ترتفع لزيادة الروابط", "rationale": "التبريد لا يرفع درجة الحرارة.", "isCorrect": false },
       { "text": "تبقى ثابتة", "rationale": "إلا إذا كانت المادة تغير حالتها، التبريد يخفض الحرارة.", "isCorrect": false },
       { "text": "تتذبذب", "rationale": "التبريد يسبب انخفاضاً مستمراً.", "isCorrect": false }
@@ -131,7 +138,7 @@
   },
   {
     "questionNumber": 6,
-    "question": "ماذا يحدث للطاقة الداخلية لجسم ما عند اكتسابه كمية من الحرارة دون تغير حالته؟",
+    "question": "ماذا يحدث لدرجة حرارة جسم ما عند اكتسابه كمية من الحرارة دون تغير حالته؟",
     "answerOptions": [
       { "text": "تزداد", "rationale": "الحرارة المكتسبة تزيد من الطاقات الحركية والكامنة للجزيئات.", "isCorrect": true },
       { "text": "تقل", "rationale": "الجسم يكتسب طاقة ولا يفقدها.", "isCorrect": false },
@@ -157,16 +164,6 @@
       { "text": "متساوي في الإناءين", "rationale": "درجة الحرارة متساوية لكن المجموع الكلي للطاقة يعتمد على الكتلة.", "isCorrect": false },
       { "text": "النصف في إناء اللترين", "rationale": "زيادة الجزيئات تزيد من المجموع، ولا تنقصه.", "isCorrect": false },
       { "text": "لا يمكن التنبؤ", "rationale": "يمكن حسابها بناءً على الكتلة ودرجة الحرارة.", "isCorrect": false }
-    ]
-  },
-  {
-    "questionNumber": 9,
-    "question": "ماذا يحدث عند وضع ترمومتر في فم مريض لقياس درجة حرارته؟",
-    "answerOptions": [
-      { "text": "يمتص الترمومتر جزءاً يسيراً من حرارة الفم حتى يصل للاتزان", "rationale": "قياس الحرارة يتطلب حدوث اتزان حراري بين الترمومتر والجسم.", "isCorrect": true },
-      { "text": "يعطي الترمومتر حرارة للفم", "rationale": "الترمومتر أبرد من فم المريض.", "isCorrect": false },
-      { "text": "يظل الترمومتر عند درجة الصفر", "rationale": "السائل داخل الترمومتر سيتمدد باكتساب الحرارة.", "isCorrect": false },
-      { "text": "تنخفض حرارة المريض بشكل كبير", "rationale": "الترمومتر صغير جداً ولن يؤثر تأثيراً ملحوظاً على حرارة المريض.", "isCorrect": false }
     ]
   },
   {
@@ -313,7 +310,7 @@
     "questionNumber": 24,
     "question": "ماذا يحدث للمسافات البينية لجزيئات المادة عند تبريدها؟",
     "answerOptions": [
-      { "text": "تتقارب الجزيئات من بعضها", "rationale": "نقصان الطاقة الحركية يقلل سعة الاهتزاز فتتقارب.", "isCorrect": true },
+      { "text": "تتقارب الجزيئات من بعضها", "rationale": "نقصان الطاقة الحركية يقلل سرعة الاهتزاز فتتقارب.", "isCorrect": true },
       { "text": "تتباعد الجزيئات عن بعضها", "rationale": "التباعد يحدث نتيجة التسخين.", "isCorrect": false },
       { "text": "لا تتغير المسافات", "rationale": "التغير الحراري يؤثر على حركة الجزيئات.", "isCorrect": false },
       { "text": "تنعدم المسافات", "rationale": "تظل هناك مسافات بينية مهما بردت المادة.", "isCorrect": false }
@@ -373,7 +370,7 @@
     "questionNumber": 30,
     "question": "ماذا يحدث لغطاء معدني محكم على زجاجة عند سكب ماء ساخن عليه؟",
     "answerOptions": [
-      { "text": "يتمدد الغطاء ويسهل فتحه", "rationale": "المعادن تتمدد بشكل ملحوظ بالحرارة فيتسع الغطاء.", "isCorrect": true },
+      { "text": "يتمدد الغطاء ويسهل فتحه", "rationale": "لان معامل التمدد للمعادن أكبر من معامل التمدد للزجاج", "isCorrect": true },
       { "text": "ينكمش الغطاء ويصعب فتحه", "rationale": "الماء الساخن يسبب التمدد وليس الانكماش.", "isCorrect": false },
       { "text": "تتكسر الزجاجة فوراً", "rationale": "الماء سُكب على الغطاء المعدني بشكل أساسي.", "isCorrect": false },
       { "text": "لا يتأثر", "rationale": "الحرارة تؤثر على جميع الأجسام الصلبة.", "isCorrect": false }
@@ -403,7 +400,7 @@
     "questionNumber": 33,
     "question": "ماذا يحدث عند إضافة قطعة من الجليد بدرجة 0 سيليزي إلى كوب من العصير الدافئ؟",
     "answerOptions": [
-      { "text": "يبرد العصير بفاعلية كبيرة لانصهار الجليد", "rationale": "الجليد يمتص كمية كبيرة من الحرارة (الحرارة الكامنة) لينصهر أولاً.", "isCorrect": true },
+      { "text": "يبرد العصير بفاعلية كبيرة لانصهار الجليد بسرعة", "rationale": "الجليد يمتص كمية كبيرة من الحرارة (الحرارة الكامنة) لينصهر أولاً.", "isCorrect": true },
       { "text": "تغلي مكونات العصير", "rationale": "الجليد بارد ويمتص حرارة.", "isCorrect": false },
       { "text": "لا يتغير شيء", "rationale": "الاختلاف الحراري يسبب انتقالاً للطاقة.", "isCorrect": false },
       { "text": "تنبعث حرارة من الجليد للعصير", "rationale": "الحرارة تنتقل من الساخن للبارد (من العصير للجليد).", "isCorrect": false }
@@ -761,7 +758,7 @@
   },
   {
     "questionNumber": 69,
-    "question": "ماذا يحدث عندما يكون فرق المسير بين الموجتين الضوئيتين في تجربة التداخل مساوياً (n+0.5)λ؟",
+    "question": "ماذا يحدث عندما يكون فرق المسير بين الموجتين الضوئيتين في تجربة التداخل مساويا عدد فردي من انصاف الاطوال الموجيه؟",
     "answerOptions": [
       { "text": "يحدث تداخل هدام وتتكون هدب مظلمة", "rationale": "تلتقي قمة مع قاع فيلغي كل منهما تأثير الآخر.", "isCorrect": true },
       { "text": "يحدث تداخل بناء", "rationale": "البناء يحتاج أعداد صحيحة من الأطوال الموجية.", "isCorrect": false },
@@ -821,7 +818,7 @@
   },
   {
     "questionNumber": 75,
-    "question": "ماذا يحدث عند تلامس جسمين لهما نفس درجة الحرارة (متوسط طاقة حركة الجزيئات) ولكن مختلفين في الكتلة؟",
+    "question": "ماذا يحدث عند تلامس جسمين لهما نفس درجة الحرارة (متوسط طاقة حركة الجزئ الواحد) ولكن مختلفين في الكتلة؟",
     "answerOptions": [
       { "text": "لا يحدث انتقال للطاقة الحرارية بينهما", "rationale": "انتقال الحرارة يتطلب فرقاً في درجات الحرارة وليس الكتلة.", "isCorrect": true },
       { "text": "تنتقل الحرارة من الكتلة الأكبر للأقل", "rationale": "الكتلة لا تحدد اتجاه انتقال الحرارة.", "isCorrect": false },
@@ -907,16 +904,6 @@
       { "text": "يتضاعف المجال المغناطيسي", "rationale": "عدد لفات أقل يولد مجالاً أضعف.", "isCorrect": false },
       { "text": "ينعكس اتجاهه", "rationale": "الاتجاه مرتبط باتجاه التيار وليس اللفات.", "isCorrect": false },
       { "text": "لا يتأثر", "rationale": "اللفات هي المصدر المولد للمجال.", "isCorrect": false }
-    ]
-  },
-  {
-    "questionNumber": 84,
-    "question": "ماذا يحدث لزاوية الانعكاس إذا زادت زاوية السقوط لشعاع ضوئي بمقدار 10 درجات على مرآة مستوية؟",
-    "answerOptions": [
-      { "text": "تزداد زاوية الانعكاس بمقدار 10 درجات", "rationale": "حسب قانون الانعكاس الأول: زاوية السقوط = زاوية الانعكاس دائماً.", "isCorrect": true },
-      { "text": "تقل بمقدار 10 درجات", "rationale": "هذا يخالف قانون الانعكاس.", "isCorrect": false },
-      { "text": "تظل كما هي", "rationale": "تتغير الانعكاس بتغير السقوط بانتظام.", "isCorrect": false },
-      { "text": "ينكسر الشعاع", "rationale": "المرآة تعكس الضوء ولا تكسره.", "isCorrect": false }
     ]
   },
   {
@@ -1081,32 +1068,113 @@
   }
 ];
 
+        // --- Categories Logic ---
+        const categoriesMap = {
+            "الحرارة والاتزان الحراري": [1, 2, 3, 4, 5, 6, 7, 8, 10, 73, 74, 75],
+            "القياسات الحرارية": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 37, 78, 79, 80, 81, 100],
+            "التمدد الحراري": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+            "الطاقة وتغير الحالة": [31, 32, 33, 34, 35, 36, 38, 72, 94],
+            "المجالات الكهربائية": [39, 40, 41, 42, 43, 44, 45, 76, 77, 89],
+            "المكثفات": [46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 82, 90, 91, 96, 98],
+            "المجالات المغناطيسية": [56, 57, 58, 59, 60, 61, 62, 83, 92, 93, 97],
+            "الضوء وخواصه": [63, 64, 65, 66, 67, 68, 69, 70, 71, 85, 86, 87, 88, 95, 99]
+        };
+
+        // Attach category to each question
+        const processedQuizData = rawQuizData.map(q => {
+            let assignedLesson = "غير مصنف";
+            for (const [lesson, numbers] of Object.entries(categoriesMap)) {
+                if (numbers.includes(q.questionNumber)) {
+                    assignedLesson = lesson;
+                    break;
+                }
+            }
+            return { ...q, lesson: assignedLesson };
+        });
+
+
+        // --- App Component ---
         function App() {
+            const [selectedLesson, setSelectedLesson] = useState(null);
+            const [quizData, setQuizData] = useState([]);
+            
             const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
             const [selectedAnswers, setSelectedAnswers] = useState({});
             const [showResults, setShowResults] = useState(false);
             const [score, setScore] = useState(0);
 
-            // إجمالي عدد الأسئلة
+            const lessonsList = Object.keys(categoriesMap);
+
+            const startQuiz = (lesson) => {
+                setSelectedLesson(lesson);
+                if (lesson === 'الكل') {
+                    setQuizData(processedQuizData);
+                } else {
+                    setQuizData(processedQuizData.filter(q => q.lesson === lesson));
+                }
+                setCurrentQuestionIndex(0);
+                setSelectedAnswers({});
+                setShowResults(false);
+                setScore(0);
+            };
+
+            const resetToMenu = () => {
+                setSelectedLesson(null);
+                setQuizData([]);
+            };
+
+            // ---- Menu Screen ----
+            if (!selectedLesson) {
+                return (
+                    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4 text-slate-800 fade-in">
+                        <div className="bg-white rounded-3xl shadow-xl p-8 max-w-2xl w-full text-center border border-slate-100">
+                            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <BookOpen className="w-10 h-10 text-blue-600" />
+                            </div>
+                            <h1 className="text-3xl font-extrabold text-slate-800 mb-4">بنك أسئلة ماذا يحدث - فيزياء</h1>
+                            <p className="text-slate-500 mb-10 text-lg">الرجاء اختيار الدرس الذي تود اختباره أو اختر جميع الدروس للتقييم الشامل.</p>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                                {lessonsList.map((lesson, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => startQuiz(lesson)}
+                                        className="bg-white border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-semibold py-4 px-6 rounded-xl transition duration-200 shadow-sm"
+                                    >
+                                        {lesson}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button 
+                                onClick={() => startQuiz('الكل')}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md text-lg"
+                            >
+                                اختبار في جميع الدروس الشامل ({processedQuizData.length} سؤال)
+                            </button>
+                        </div>
+                        <footer className="mt-8 text-slate-400 font-medium text-sm">
+                            أعده الموجه الفني للفيزياء أ/ وليد عزت
+                        </footer>
+                    </div>
+                )
+            }
+
+            // ---- Quiz Logic ----
             const totalQuestions = quizData.length;
-            // تفاصيل السؤال الحالي
             const currentQuestion = quizData[currentQuestionIndex];
-            // التحقق مما إذا كان السؤال الحالي قد تمت الإجابة عليه
             const isAnswered = selectedAnswers[currentQuestionIndex] !== undefined;
 
             const handleOptionSelect = (optionIndex) => {
-                if (isAnswered) return; // منع تغيير الإجابة بعد اختيارها
+                if (isAnswered) return;
 
                 const isCorrect = currentQuestion.answerOptions[optionIndex].isCorrect;
-                
                 setSelectedAnswers({
                     ...selectedAnswers,
                     [currentQuestionIndex]: optionIndex
                 });
 
-                if (isCorrect) {
-                    setScore(prevScore => prevScore + 1);
-                }
+                if (isCorrect) setScore(prevScore => prevScore + 1);
             };
 
             const handleNextQuestion = () => {
@@ -1124,27 +1192,38 @@
                 setScore(0);
             };
 
+            // ---- Results Screen ----
             if (showResults) {
                 const percentage = Math.round((score / totalQuestions) * 100);
                 return (
-                    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 text-slate-800">
+                    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 text-slate-800 fade-in">
                         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center">
                             <Award className="w-20 h-20 mx-auto text-blue-500 mb-6" />
                             <h2 className="text-3xl font-bold text-slate-800 mb-2">اكتمل الاختبار!</h2>
-                            <p className="text-slate-600 mb-8">لقد أجبت على جميع أسئلة ماذا يحدث ببراعة.</p>
+                            <p className="text-slate-600 mb-2">اختبار: {selectedLesson}</p>
+                            <p className="text-slate-600 mb-8">لقد أجبت على الأسئلة ببراعة.</p>
                             
                             <div className="bg-blue-50 rounded-xl p-6 mb-8 border border-blue-100">
                                 <div className="text-5xl font-extrabold text-blue-600 mb-2">{percentage}%</div>
                                 <p className="text-lg text-blue-800">النتيجة: {score} من {totalQuestions}</p>
                             </div>
                             
-                            <button 
-                                onClick={handleRestart}
-                                className="flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
-                            >
-                                <RotateCcw className="w-5 h-5" />
-                                إعادة الاختبار
-                            </button>
+                            <div className="flex flex-col gap-3">
+                                <button 
+                                    onClick={handleRestart}
+                                    className="flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+                                >
+                                    <RotateCcw className="w-5 h-5" />
+                                    إعادة الاختبار الحالي
+                                </button>
+                                <button 
+                                    onClick={resetToMenu}
+                                    className="flex items-center justify-center w-full gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-3 px-6 rounded-lg transition duration-200"
+                                >
+                                    <HomeIcon className="w-5 h-5" />
+                                    العودة للقائمة الرئيسية
+                                </button>
+                            </div>
                         </div>
 
                         <footer className="mt-8 text-slate-500 font-medium text-sm">
@@ -1154,20 +1233,25 @@
                 );
             }
 
+            // ---- Quiz Screen ----
             return (
-                <div className="min-h-screen bg-slate-50 py-8 px-4">
+                <div className="min-h-screen bg-slate-50 py-8 px-4 fade-in">
                     <div className="max-w-3xl mx-auto">
                         
                         {/* Header */}
                         <header className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-blue-600 p-2 rounded-lg text-white">
-                                    <BookOpen className="w-6 h-6" />
-                                </div>
-                                <h1 className="text-2xl font-bold text-slate-800">بنك أسئلة ماذا يحدث - فيزياء</h1>
+                            <div className="flex flex-col gap-1 text-center sm:text-right">
+                                <h1 className="text-2xl font-bold text-slate-800">اختبار {selectedLesson === 'الكل' ? 'شامل' : selectedLesson}</h1>
+                                <span className="text-sm font-medium text-slate-500">الدرس: {currentQuestion.lesson}</span>
                             </div>
-                            <div className="bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 font-medium text-slate-700 flex-shrink-0">
-                                السؤال {currentQuestionIndex + 1} / {totalQuestions}
+                            
+                            <div className="flex items-center gap-3">
+                                <div className="bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 font-medium text-slate-700 flex-shrink-0">
+                                    السؤال {currentQuestionIndex + 1} / {totalQuestions}
+                                </div>
+                                <button onClick={resetToMenu} className="bg-slate-200 hover:bg-slate-300 text-slate-600 p-2 rounded-full transition" title="القائمة الرئيسية">
+                                    <HomeIcon className="w-5 h-5" />
+                                </button>
                             </div>
                         </header>
 
@@ -1182,6 +1266,7 @@
                         {/* Question Card */}
                         <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8 mb-6 border border-slate-100">
                             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-8 leading-relaxed">
+                                <span className="text-blue-600 text-lg sm:text-xl ml-2 font-bold opacity-50">Q{currentQuestion.questionNumber}.</span>
                                 {currentQuestion.question}
                             </h2>
 
