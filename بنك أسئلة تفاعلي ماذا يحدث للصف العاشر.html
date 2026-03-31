@@ -1563,8 +1563,13 @@
             });
         });
 
-        // Gemini API call with Exponential Backoff
+        // Gemini API call or Local Evaluation Fallback
         async function evaluateWithGemini(question, modelAnswer, studentAnswer) {
+            // Fallback for local HTML file without API key (Offline Mode)
+            if (!apiKey || apiKey === "") {
+                return simulateLocalEvaluation(modelAnswer, studentAnswer);
+            }
+
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             
             const systemInstruction = `أنت معلم فيزياء دقيق وإيجابي. المطلوب منك هو تقييم إجابة الطالب ومقارنتها بالإجابة النموذجية.
@@ -1604,6 +1609,37 @@
                     await new Promise(resolve => setTimeout(resolve, delays[i]));
                 }
             }
+        }
+        
+        // خوارزمية تقييم محلية (تعمل بدون انترنت/مفتاح API)
+        function simulateLocalEvaluation(modelAnswer, studentAnswer) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    // كلمات لا تؤخذ بعين الاعتبار في التقييم
+                    const stopWords = ['في', 'من', 'على', 'إلى', 'عن', 'أن', 'إن', 'لأن', 'بسبب', 'عند', 'عندما', 'مع', 'هذا', 'هذه', 'أو', 'و', 'ثم', 'الحدث:', 'التفسير:'];
+                    
+                    // تنظيف الإجابة النموذجية واستخراج الكلمات المفتاحية
+                    const cleanModel = modelAnswer.replace(/[،.()]/g, ' ');
+                    const modelWords = cleanModel.split(/\\s+/).filter(w => w.length > 2 && !stopWords.includes(w));
+                    
+                    let matchCount = 0;
+                    modelWords.forEach(word => {
+                        // التحقق من وجود الكلمة في إجابة الطالب
+                        if (studentAnswer.includes(word)) matchCount++;
+                    });
+                    
+                    const matchPercentage = modelWords.length > 0 ? (matchCount / modelWords.length) : 0;
+                    
+                    // إعطاء تغذية راجعة بناءً على التطابق
+                    if (matchPercentage >= 0.4) {
+                        resolve("ممتاز! إجابتك صحيحة وتحتوي على المفاهيم العلمية الدقيقة.");
+                    } else if (matchPercentage > 0.1 || studentAnswer.length > 20) {
+                        resolve("أحسنت المحاولة، إجابتك قريبة ولكن ينقصها بعض الدقة العلمية. راجع الإجابة النموذجية لتثبيت المفهوم.");
+                    } else {
+                        resolve("إجابتك تحتاج إلى مراجعة. يبدو أنك لم تذكر المفاهيم الأساسية المطلوبة، يرجى قراءة الإجابة النموذجية بعناية.");
+                    }
+                }, 800); // Simulate processing time
+            });
         }
 
         // Section toggling logic
