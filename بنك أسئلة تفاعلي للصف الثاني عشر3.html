@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,24 +39,45 @@
             background-color: #2563eb;
             border-radius: 4px;
         }
+        /* إخفاء شريط التمرير لأزرار التنقل */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* لتعويض المساحة التي يأخذها الشريط العلوي الثابت عند التمرير */
+        .chapter-section {
+            scroll-margin-top: 220px; 
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased">
 
-    <!-- Header & Search -->
+    <!-- Header & Search & Navigation -->
     <header class="bg-blue-700 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-center mb-4">150 سؤال "ماذا يحدث" في الفيزياء</h1>
-            <p class="text-blue-200 text-center mb-6 text-sm md:text-base">للصف الثاني عشر (يتضمن أسئلة المذكرة الإضافية)</p>
+        <div class="max-w-5xl mx-auto px-4 py-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-center mb-2">150 سؤال "ماذا يحدث" في الفيزياء</h1>
+            <p class="text-blue-200 text-center mb-4 text-sm md:text-base">للصف الثاني عشر (اختبار ذاتي ذكي)</p>
             
-            <div class="relative max-w-2xl mx-auto">
+            <div class="relative max-w-3xl mx-auto mb-4">
                 <input type="text" id="searchInput" 
-                    class="w-full bg-white text-slate-800 rounded-full py-3 px-6 pr-12 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" 
+                    class="w-full bg-white text-slate-800 rounded-full py-2.5 px-6 pr-12 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" 
                     placeholder="ابحث عن سؤال أو كلمة مفتاحية...">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 absolute right-4 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 absolute right-4 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </div>
+
+            <!-- أزرار التنقل بين الفصول -->
+            <nav class="flex overflow-x-auto gap-2 pb-2 pt-1 scrollbar-hide max-w-4xl mx-auto items-center justify-start md:justify-center">
+                <a href="#ch1" class="nav-btn whitespace-nowrap px-4 py-1.5 bg-blue-800 hover:bg-blue-600 rounded-full text-sm font-semibold transition-colors border border-blue-500">الفصل الأول</a>
+                <a href="#ch2" class="nav-btn whitespace-nowrap px-4 py-1.5 bg-blue-800 hover:bg-blue-600 rounded-full text-sm font-semibold transition-colors border border-blue-500">الفصل الثاني</a>
+                <a href="#ch3" class="nav-btn whitespace-nowrap px-4 py-1.5 bg-blue-800 hover:bg-blue-600 rounded-full text-sm font-semibold transition-colors border border-blue-500">الفصل الثالث</a>
+                <a href="#ch4" class="nav-btn whitespace-nowrap px-4 py-1.5 bg-blue-800 hover:bg-blue-600 rounded-full text-sm font-semibold transition-colors border border-blue-500">الفصل الرابع</a>
+                <a href="#ch5" class="nav-btn whitespace-nowrap px-4 py-1.5 bg-blue-800 hover:bg-blue-600 rounded-full text-sm font-semibold transition-colors border border-blue-500">الفصل الخامس</a>
+            </nav>
         </div>
     </header>
 
@@ -64,7 +85,7 @@
     <main class="max-w-4xl mx-auto px-4 py-8" id="contentContainer">
 
         <!-- الفصل الأول -->
-        <section class="chapter-section mb-10">
+        <section id="ch1" class="chapter-section mb-10">
             <h2 class="chapter-title text-2xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">الفصل الأول: الحث الكهرومغناطيسي والمولدات والمحركات</h2>
             <div class="space-y-3">
                 <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
@@ -336,11 +357,131 @@
                         <p>تزيد القوة المغناطيسية إلى المِثلين.</p>
                     </div>
                 </details>
+                
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>101. ماذا يحدث عند حركة مغناطيس داخل ملف؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يتولد تيار كهربائي حثي (تأثيري).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>102. ماذا يحدث للتدفق المغناطيسي عندما تسقط خطوط المجال موازية للسطح؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>ينعدم التدفق المغناطيسي.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>103. ماذا يحدث للتيار الحثي عند توقف المغناطيس عن الحركة داخل الملف؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>ينعدم التيار الحثي.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>104. ماذا يحدث لاتجاه التيار التأثيري المتولد عند تقريب قطب شمالي لمغناطيس من ملف؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يتولد قطب شمالي مشابه ليقاوم الاقتراب (حسب قانون لنز).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>105. ماذا يحدث للتدفق المغناطيسي عندما تكون الزاوية بين خطوط المجال والعمودي على السطح 90 درجة؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>ينعدم التدفق المغناطيسي.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>106. ماذا يحدث للقوة الدافعة الكهربائية في المولد عندما يكون مستوى الملف عمودياً على خطوط المجال؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تنعدم (تساوي صفر).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>107. ماذا يحدث للقوة الدافعة الكهربائية في المولد عندما يكون مستوى الملف موازياً لخطوط المجال؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تكون قيمة عظمى.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>108. ماذا يحدث لعزم الازدواج عندما يكون مستوى ملف المحرك عمودياً على خط المجال؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>ينعدم عزم الازدواج.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>109. ماذا يحدث لملف المحرك عند انعدام عزم الازدواج في الوضع العمودي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يستمر بالدوران بسبب القصور الذاتي الدوراني.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>110. ماذا يحدث لمسار إلكترون يتحرك موازياً لخطوط مجال مغناطيسي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>لا يتأثر بقوة مغناطيسية ويتحرك في خط مستقيم.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>111. ماذا يحدث لمسار بروتون يتحرك عمودياً على مجال مغناطيسي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>ينحرف في مسار دائري.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>112. ماذا يحدث لقراءة الميزان الزنبركي المعلق به ساق يمر بها تيار عند وضعها في مجال مغناطيسي وتأثرها بقوة لأعلى تساوي وزنها؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تصبح قراءة الميزان صفراً.</p>
+                    </div>
+                </details>
             </div>
         </section>
 
         <!-- الفصل الثاني -->
-        <section class="chapter-section mb-10">
+        <section id="ch2" class="chapter-section mb-10">
             <h2 class="chapter-title text-2xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">الفصل الثاني: التيار المتردد</h2>
             <div class="space-y-3">
                 <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
@@ -522,11 +663,131 @@
                         <p>يساوي صفر (لأن جهدهما متساويان ومتعاكسان في الطور).</p>
                     </div>
                 </details>
+                
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>113. ماذا يحدث لفرق الجهد بالنسبة للتيار في دائرة تحوي مقاومة أومية فقط؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يتفقان في الطور.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>114. ماذا يحدث لفرق الجهد بالنسبة للتيار في دائرة تحوي ملف حثي نقي فقط؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يتقدم الجهد على التيار بربع دورة.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>115. ماذا يحدث لفرق الجهد بالنسبة للتيار في دائرة تحوي مكثف فقط؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يتأخر الجهد عن التيار بربع دورة.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>116. ماذا يحدث للممانعة الحثية لملف عند مرور تيار مستمر؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تنعدم (تساوي صفر).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>117. ماذا يحدث للمكثف عند توصيله بمصدر تيار مستمر؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يمنع مرور التيار (تصبح ممانعته لا نهائية).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>118. ماذا يحدث للممانعة السعوية عند زيادة تردد التيار المتردد؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تقل الممانعة السعوية.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>119. ماذا يحدث للممانعة الحثية عند زيادة تردد التيار المتردد؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تزداد الممانعة الحثية.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>120. ماذا يحدث لشدة التيار في دائرة (R-L-C) توالي عند حالة الرنين؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تكون أكبر ما يمكن.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>121. ماذا يحدث لمقاومة الدائرة (Z) في حالة الرنين؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تصبح أقل ما يمكن وتساوي المقاومة الأومية (R).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>122. ماذا يحدث لفرق الطور بين الجهد والتيار في حالة الرنين؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>ينعدم (يتفقان في الطور).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>123. ماذا يحدث لتردد الرنين عند إنقاص سعة المكثف في الدائرة؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يزداد تردد الرنين.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>124. ماذا يحدث لإضاءة مصباح في دائرة تيار متردد RLC إذا أصبحت الممانعة الحثية تساوي الممانعة السعوية؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تزداد الإضاءة لأكبر قيمة (للوصول لحالة الرنين).</p>
+                    </div>
+                </details>
             </div>
         </section>
 
         <!-- الفصل الثالث -->
-        <section class="chapter-section mb-10">
+        <section id="ch3" class="chapter-section mb-10">
             <h2 class="chapter-title text-2xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">الفصل الثالث: أشباه الموصلات والوصلة الثنائية</h2>
             <div class="space-y-3">
                 <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
@@ -715,14 +976,154 @@
                         <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
                     </summary>
                     <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينقطع مرور التيار الكهربائي (تعمل كمفتاح مفتوح).</p>
+                        <p>ينقطع مرور التيار الكهربائي (تعمل كم مفتاح مفتوح).</p>
+                    </div>
+                </details>
+                
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>125. ماذا يحدث للمواد العازلة عند تطبيق فرق جهد عليها في درجات الحرارة العادية؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>لا توصل التيار لأن الإلكترونات لا تستطيع القفز لنطاق التوصيل.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>126. ماذا يحدث لأشباه الموصلات النقية عند رفع درجة حرارتها؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تزداد قدرتها على التوصيل الكهربائي.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>127. ماذا يحدث لبلورة شبه الموصل النقية عند إضافة ذرات خماسية التكافؤ (كالزرنيخ)؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تصبح شبه موصل من النوع السالب (N).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>128. ماذا يحدث لبلورة شبه الموصل النقية عند إضافة ذرات ثلاثية التكافؤ (كالبورون)؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تصبح شبه موصل من النوع الموجب (P).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>129. ماذا يحدث كهربائياً لبلورة شبه الموصل بعد التطعيم؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تبقى متعادلة كهربائياً.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>130. ماذا يحدث عند التحام بلورة سالبة (N) مع بلورة موجبة (P)؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تنتقل إلكترونات من N إلى P وتنتقل فجوات من P إلى N وتتكون منطقة الاستنزاف.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>131. ماذا يحدث للبلورة (N) عند تكوين الوصلة الثنائية؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تكتسب جهداً موجباً.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>132. ماذا يحدث للبلورة (P) عند تكوين الوصلة الثنائية؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تكتسب جهداً سالباً.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>133. ماذا يحدث لاتساع منطقة الاستنزاف في الوصلة الثنائية في حالة الانحياز الأمامي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يقل اتساعها (تضيق).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>134. ماذا يحدث لمقاومة الوصلة الثنائية في حالة الانحياز الأمامي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تقل وتسمح بمرور التيار الكهربائي.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>135. ماذا يحدث لاتساع منطقة الاستنزاف في حالة الانحياز العكسي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يزداد اتساعها (تتسع).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>136. ماذا يحدث لمقاومة الوصلة الثنائية في حالة الانحياز العكسي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تزداد جداً وتمنع مرور التيار الكهربائي.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>137. ماذا يحدث للمجال الكهربائي الخارجي مقارنة بالمجال الداخلي في حالة الانحياز العكسي؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يكون في نفس اتجاه المجال الداخلي (مما يزيد من منطقة الاستنزاف).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>138. ماذا يحدث للتيار المتردد عند مروره في وصلة ثنائية؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يتم تقويمه تقويماً نصف موجي.</p>
                     </div>
                 </details>
             </div>
         </section>
 
         <!-- الفصل الرابع -->
-        <section class="chapter-section mb-10">
+        <section id="ch4" class="chapter-section mb-10">
             <h2 class="chapter-title text-2xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">الفصل الرابع: الفيزياء الحديثة والتأثير الكهروضوئي</h2>
             <div class="space-y-3">
                 <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
@@ -904,11 +1305,71 @@
                         <p>تزداد.</p>
                     </div>
                 </details>
+                
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>139. ماذا يحدث عند انتقال إلكترون في الذرة من مستوى طاقة أعلى إلى مستوى طاقة أدنى؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>ينبعث فوتون طاقته تساوي الفرق بين طاقتي المستويين.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>140. ماذا يحدث للضوء الساقط على سطح معدن إذا كان تردده أقل من تردد العتبة؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>لا تتحرر إلكترونات من سطح المعدن.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>141. ماذا يحدث لسرعة الإلكترونات الضوئية المنبعثة عند زيادة تردد الضوء الساقط؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تزداد سرعتها (وطاقتها الحركية).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>142. ماذا يحدث لعدد الإلكترونات المنبعثة عند زيادة شدة الضوء الساقط (بتردد أكبر من تردد العتبة)؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يزداد عدد الإلكترونات المنبعثة (يزداد التيار الكهروضوئي).</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>143. ماذا يحدث لجهد القطع عند زيادة تردد الضوء الساقط؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>يزداد مقدار (القيمة المطلقة) جهد القطع.</p>
+                    </div>
+                </details>
+
+                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
+                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
+                        <span>144. ماذا يحدث لسرعة الإلكترونات المنبعثة عند عكس أقطاب البطارية وزيادة الجهد العكسي تدريجياً؟</span>
+                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
+                    </summary>
+                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
+                        <p>تقل سرعتها حتى تتوقف تماماً عند الوصول لجهد القطع.</p>
+                    </div>
+                </details>
             </div>
         </section>
 
         <!-- الفصل الخامس -->
-        <section class="chapter-section mb-10">
+        <section id="ch5" class="chapter-section mb-10">
             <h2 class="chapter-title text-2xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">الفصل الخامس: الفيزياء النووية</h2>
             <div class="space-y-3">
                 <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
@@ -1090,453 +1551,7 @@
                         <p>تختلف الخواص الفيزيائية بسبب اختلاف العدد الكتلي (عدد النيوترونات).</p>
                     </div>
                 </details>
-            </div>
-        </section>
-
-        <!-- الأسئلة الإضافية (من المذكرة) -->
-        <section class="chapter-section mb-10">
-            <h2 class="chapter-title text-2xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">أسئلة إضافية (من المذكرة المرفقة)</h2>
-            <div class="space-y-3">
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>101. ماذا يحدث عند حركة مغناطيس داخل ملف؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يتولد تيار كهربائي حثي (تأثيري).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>102. ماذا يحدث للتدفق المغناطيسي عندما تسقط خطوط المجال موازية للسطح؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينعدم التدفق المغناطيسي.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>103. ماذا يحدث للتيار الحثي عند توقف المغناطيس عن الحركة داخل الملف؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينعدم التيار الحثي.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>104. ماذا يحدث لاتجاه التيار التأثيري المتولد عند تقريب قطب شمالي لمغناطيس من ملف؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يتولد قطب شمالي مشابه ليقاوم الاقتراب (حسب قانون لنز).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>105. ماذا يحدث للتدفق المغناطيسي عندما تكون الزاوية بين خطوط المجال والعمودي على السطح 90 درجة؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينعدم التدفق المغناطيسي.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>106. ماذا يحدث للقوة الدافعة الكهربائية في المولد عندما يكون مستوى الملف عمودياً على خطوط المجال؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تنعدم (تساوي صفر).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>107. ماذا يحدث للقوة الدافعة الكهربائية في المولد عندما يكون مستوى الملف موازياً لخطوط المجال؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تكون قيمة عظمى.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>108. ماذا يحدث لعزم الازدواج عندما يكون مستوى ملف المحرك عمودياً على خط المجال؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينعدم عزم الازدواج.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>109. ماذا يحدث لملف المحرك عند انعدام عزم الازدواج في الوضع العمودي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يستمر بالدوران بسبب القصور الذاتي الدوراني.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>110. ماذا يحدث لمسار إلكترون يتحرك موازياً لخطوط مجال مغناطيسي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>لا يتأثر بقوة مغناطيسية ويتحرك في خط مستقيم.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>111. ماذا يحدث لمسار بروتون يتحرك عمودياً على مجال مغناطيسي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينحرف في مسار دائري.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>112. ماذا يحدث لقراءة الميزان الزنبركي المعلق به ساق يمر بها تيار عند وضعها في مجال مغناطيسي وتأثرها بقوة لأعلى تساوي وزنها؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تصبح قراءة الميزان صفراً.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>113. ماذا يحدث لفرق الجهد بالنسبة للتيار في دائرة تحوي مقاومة أومية فقط؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يتفقان في الطور.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>114. ماذا يحدث لفرق الجهد بالنسبة للتيار في دائرة تحوي ملف حثي نقي فقط؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يتقدم الجهد على التيار بربع دورة.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>115. ماذا يحدث لفرق الجهد بالنسبة للتيار في دائرة تحوي مكثف فقط؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يتأخر الجهد عن التيار بربع دورة.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>116. ماذا يحدث للممانعة الحثية لملف عند مرور تيار مستمر؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تنعدم (تساوي صفر).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>117. ماذا يحدث للمكثف عند توصيله بمصدر تيار مستمر؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يمنع مرور التيار (تصبح ممانعته لا نهائية).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>118. ماذا يحدث للممانعة السعوية عند زيادة تردد التيار المتردد؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تقل الممانعة السعوية.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>119. ماذا يحدث للممانعة الحثية عند زيادة تردد التيار المتردد؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تزداد الممانعة الحثية.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>120. ماذا يحدث لشدة التيار في دائرة (R-L-C) توالي عند حالة الرنين؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تكون أكبر ما يمكن.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>121. ماذا يحدث لمقاومة الدائرة (Z) في حالة الرنين؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تصبح أقل ما يمكن وتساوي المقاومة الأومية (R).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>122. ماذا يحدث لفرق الطور بين الجهد والتيار في حالة الرنين؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينعدم (يتفقان في الطور).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>123. ماذا يحدث لتردد الرنين عند إنقاص سعة المكثف في الدائرة؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يزداد تردد الرنين.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>124. ماذا يحدث لإضاءة مصباح في دائرة تيار متردد RLC إذا أصبحت الممانعة الحثية تساوي الممانعة السعوية؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تزداد الإضاءة لأكبر قيمة (للوصول لحالة الرنين).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>125. ماذا يحدث للمواد العازلة عند تطبيق فرق جهد عليها في درجات الحرارة العادية؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>لا توصل التيار لأن الإلكترونات لا تستطيع القفز لنطاق التوصيل.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>126. ماذا يحدث لأشباه الموصلات النقية عند رفع درجة حرارتها؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تزداد قدرتها على التوصيل الكهربائي.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>127. ماذا يحدث لبلورة شبه الموصل النقية عند إضافة ذرات خماسية التكافؤ (كالزرنيخ)؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تصبح شبه موصل من النوع السالب (N).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>128. ماذا يحدث لبلورة شبه الموصل النقية عند إضافة ذرات ثلاثية التكافؤ (كالبورون)؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تصبح شبه موصل من النوع الموجب (P).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>129. ماذا يحدث كهربائياً لبلورة شبه الموصل بعد التطعيم؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تبقى متعادلة كهربائياً.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>130. ماذا يحدث عند التحام بلورة سالبة (N) مع بلورة موجبة (P)؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تنتقل إلكترونات من N إلى P وتنتقل فجوات من P إلى N وتتكون منطقة الاستنزاف.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>131. ماذا يحدث للبلورة (N) عند تكوين الوصلة الثنائية؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تكتسب جهداً موجباً.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>132. ماذا يحدث للبلورة (P) عند تكوين الوصلة الثنائية؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تكتسب جهداً سالباً.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>133. ماذا يحدث لاتساع منطقة الاستنزاف في الوصلة الثنائية في حالة الانحياز الأمامي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يقل اتساعها (تضيق).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>134. ماذا يحدث لمقاومة الوصلة الثنائية في حالة الانحياز الأمامي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تقل وتسمح بمرور التيار الكهربائي.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>135. ماذا يحدث لاتساع منطقة الاستنزاف في حالة الانحياز العكسي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يزداد اتساعها (تتسع).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>136. ماذا يحدث لمقاومة الوصلة الثنائية في حالة الانحياز العكسي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تزداد جداً وتمنع مرور التيار الكهربائي.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>137. ماذا يحدث للمجال الكهربائي الخارجي مقارنة بالمجال الداخلي في حالة الانحياز العكسي؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يكون في نفس اتجاه المجال الداخلي (مما يزيد من منطقة الاستنزاف).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>138. ماذا يحدث للتيار المتردد عند مروره في وصلة ثنائية؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يتم تقويمه تقويماً نصف موجي.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>139. ماذا يحدث عند انتقال إلكترون في الذرة من مستوى طاقة أعلى إلى مستوى طاقة أدنى؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>ينبعث فوتون طاقته تساوي الفرق بين طاقتي المستويين.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>140. ماذا يحدث للضوء الساقط على سطح معدن إذا كان تردده أقل من تردد العتبة؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>لا تتحرر إلكترونات من سطح المعدن.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>141. ماذا يحدث لسرعة الإلكترونات الضوئية المنبعثة عند زيادة تردد الضوء الساقط؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تزداد سرعتها (وطاقتها الحركية).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>142. ماذا يحدث لعدد الإلكترونات المنبعثة عند زيادة شدة الضوء الساقط (بتردد أكبر من تردد العتبة)؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يزداد عدد الإلكترونات المنبعثة (يزداد التيار الكهروضوئي).</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>143. ماذا يحدث لجهد القطع عند زيادة تردد الضوء الساقط؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>يزداد مقدار (القيمة المطلقة) جهد القطع.</p>
-                    </div>
-                </details>
-
-                <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
-                    <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
-                        <span>144. ماذا يحدث لسرعة الإلكترونات المنبعثة عند عكس أقطاب البطارية وزيادة الجهد العكسي تدريجياً؟</span>
-                        <span class="text-blue-500 group-open:rotate-180 transition-transform duration-300">▼</span>
-                    </summary>
-                    <div class="p-4 bg-blue-50/50 border-t border-slate-100 text-slate-700">
-                        <p>تقل سرعتها حتى تتوقف تماماً عند الوصول لجهد القطع.</p>
-                    </div>
-                </details>
-
+                
                 <details class="q-item bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden group">
                     <summary class="font-semibold p-4 cursor-pointer hover:bg-slate-50 flex justify-between items-center text-blue-900">
                         <span>145. ماذا يحدث لكتلة النواة مقارنة بمجموع كتل مكوناتها منفردة؟</span>
@@ -1614,7 +1629,7 @@
         <p class="text-sm text-blue-400 font-semibold">إعداد الموجه الفني للفيزياء أ/ وليد عزت</p>
     </footer>
 
-    <!-- Search Logic -->
+    <!-- Search & Evaluation Logic -->
     <script>
         // دالة التقييم الذكي للإجابات بالتركيز على الحدث الأساسي
         function evaluateAnswer(userAnswer, correctAnswer) {
@@ -1643,7 +1658,6 @@
             for (let pair of opposites) {
                 let p0 = pair[0];
                 let p1 = pair[1];
-                // إذا كانت الإجابة الصحيحة تحتوي على الكلمة الأولى، والطالب كتب الكلمة المعاكسة
                 if (correct.includes(p0) && user.includes(p1)) {
                     if (!user.includes('لا ' + p1) && !user.includes('لم ' + p1)) {
                         return { msg: "إجابة خاطئة (تحتوي على معنى عكسي للحدث الأساسي). ❌", style: "bg-red-100 text-red-700 border border-red-200" };
@@ -1679,7 +1693,6 @@
 
             let requiredEvents = [];
             for (let group of keyEvents) {
-                // إذا كانت الإجابة النموذجية تحتوي على أحد كلمات المجموعة
                 if (group.some(word => correct.includes(word))) {
                     requiredEvents.push(group);
                 }
@@ -1687,7 +1700,6 @@
 
             let missedCoreEvent = false;
             if (requiredEvents.length > 0) {
-                // يجب أن يذكر الطالب كلمة واحدة على الأقل من كل مجموعة مطلوبة
                 for (let group of requiredEvents) {
                     let userHit = group.some(word => user.includes(word));
                     if (!userHit) {
