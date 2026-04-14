@@ -9,18 +9,6 @@
     
     <!-- Chosen Palette: Warm Neutrals with Kuwaiti Blue Accents (Slate-50, Slate-800, Blue-600, Sky-500, Amber-400) -->
     
-    <!-- Application Structure Plan: The SPA is structured as an interactive educational dashboard divided into three main thematic sections: 1. "نظرة عامة" (Overview) providing a statistical breakdown of the curriculum using a Donut Chart. 2. "مفاهيم تفاعلية" (Interactive Concepts) which acts as a virtual lab translating static graphs from the report (AC circuits, Photoelectric effect, Nuclear Binding Energy) into dynamic, user-controllable Chart.js visualizations. 3. "المختبر المعرفي" (Knowledge Lab) presenting a filterable, interactive database of the crucial "علل" (Give Reason) questions. -->
-    
-    <!-- Visualization & Content Choices: 
-    1. Curriculum Breakdown -> Inform -> Donut Chart (Chart.js) -> Hover interactions -> Justification: Shows the weight of each chapter clearly. No SVG used.
-    2. AC Circuits (V & I Phase Shifts) -> Change/Compare -> Dynamic Line Chart (Chart.js) -> User toggles between Resistor, Inductor, and Capacitor to see phase shifts -> Justification: Translates static textbook graphs into a dynamic learning tool to visualize wave phase differences. No SVG used.
-    3. Photoelectric Effect (KE vs f) -> Relationships -> Multi-line Chart (Chart.js) -> Hover to see threshold frequencies -> Justification: Explains Einstein's equation visually for different metals. No SVG used.
-    4. Nuclear Binding Energy -> Relationships -> Line/Scatter Chart (Chart.js) -> Highlights regions of stability, fission, and fusion -> Justification: Crucial graph in the report, made explorable. No SVG used.
-    5. Question Bank -> Organize -> Filterable HTML List with interactive evaluation -> User types answer, clicks check, gets evaluation and model answer -> Justification: Transforms reading into active recall and self-assessment. No SVG used. 
-    -->
-    
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         
@@ -214,9 +202,9 @@
 
         <section id="question-bank" class="scroll-mt-20 mb-24">
             <div class="mb-8 text-center">
-                <h2 class="text-3xl font-bold text-slate-800 mb-4">بنك التعليلات والتقييم الذاتي</h2>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">بنك التعليلات (اختيار من متعدد)</h2>
                 <p class="text-slate-600 max-w-3xl mx-auto leading-relaxed">
-                    اختبر معلوماتك! اقرأ السؤال، اكتب إجابتك العلمية في المربع المخصص، ثم اضغط على زر التحقق لمعرفة مدى صحة إجابتك ومقارنتها مع الإجابة النموذجية المعتمدة.
+                    اختبر معلوماتك! اقرأ السؤال، اختر التفسير العلمي الصحيح من بين الخيارات المتاحة، ثم اضغط على زر التحقق لمعرفة النتيجة.
                 </p>
             </div>
 
@@ -524,59 +512,54 @@
             { id: 100, category: 'nuclear', q: 'عند سقوط ضوء على سطحين فلزيين، قد تنبعث إلكترونات من أحدهما ولا تنبعث من الآخر.', a: 'لاختلاف دالة الشغل، فقد تكون طاقة الضوء أكبر من دالة شغل الأول وتحرر الكترونات، وأقل من الثاني فلا تحرر.' }
         ];
 
-        // Advanced Logic for evaluating user's answer vs Model Answer
+        // دالة مساعدة لخلط المصفوفات (Fisher-Yates) لتغيير ترتيب الخيارات
+        const shuffleArray = (array) => {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        };
+
+        // Advanced Logic for evaluating user's choice
         window.evaluateAnswer = (id) => {
-            const userAnswer = document.getElementById(`answer-input-${id}`).value.trim();
+            const selectedOption = document.querySelector(`input[name="q-${id}"]:checked`);
             const feedbackArea = document.getElementById(`feedback-area-${id}`);
             const evalText = document.getElementById(`evaluation-text-${id}`);
             
-            // Find model answer
             const questionObj = questionsData.find(q => q.id === id);
             if (!questionObj) return;
-            const modelAnswer = questionObj.a;
 
-            if (userAnswer === "") {
-                alert("الرجاء كتابة إجابة أولاً قبل التحقق.");
+            feedbackArea.classList.remove('hidden');
+
+            if (!selectedOption) {
+                evalText.className = 'p-3 rounded-lg font-medium text-sm border bg-amber-50 text-amber-800 border-amber-200';
+                evalText.innerHTML = '⚠️ <strong>تنبيه:</strong> الرجاء اختيار إجابة أولاً قبل التحقق.';
                 return;
             }
 
-            // Simple evaluation logic: Remove common stop words and check keyword overlap
-            const stopWords = ['في', 'من', 'على', 'إلى', 'الى', 'أن', 'ان', 'لأن', 'لان', 'بسبب', 'هو', 'هي', 'و', 'أو', 'ما', 'لا', 'لم', 'لن', 'مع', 'عن', 'هذا', 'هذه', 'التي', 'الذي'];
-            
-            const normalizeText = (text) => {
-                return text.replace(/[،.؛:()]/g, '')
-                           .split(/\s+/)
-                           .filter(w => w.length > 2 && !stopWords.includes(w));
-            };
-            
-            const userWords = normalizeText(userAnswer);
-            const modelWords = normalizeText(modelAnswer);
-            
-            let matchCount = 0;
-            modelWords.forEach(mw => {
-                if (userWords.some(uw => mw.includes(uw) || uw.includes(mw))) {
-                    matchCount++;
-                }
-            });
+            const isCorrect = selectedOption.getAttribute('data-correct') === 'true';
 
-            // Calculate ratio
-            const matchRatio = modelWords.length > 0 ? matchCount / modelWords.length : 0;
-            
-            // Show feedback area
-            feedbackArea.classList.remove('hidden');
-            
-            // Apply styles based on match ratio
-            evalText.className = 'p-3 rounded-lg font-medium text-sm border';
-            if (matchRatio >= 0.5) {
+            evalText.className = 'p-4 rounded-lg font-medium text-sm border leading-relaxed';
+            if (isCorrect) {
                 evalText.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
-                evalText.innerHTML = '✅ <strong>تقييم الإجابة:</strong> إجابة ممتازة! لقد قمت بذكر الكلمات المفتاحية الأساسية.';
-            } else if (matchRatio >= 0.25) {
-                evalText.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
-                evalText.innerHTML = '⚠️ <strong>تقييم الإجابة:</strong> إجابتك تحتوي على بعض النقاط الصحيحة، لكنها غير مكتملة. راجع الإجابة النموذجية أدناه.';
+                evalText.innerHTML = '✅ <strong>إجابة صحيحة!</strong> أحسنت الاختيار.';
+                // Highlight the correct option
+                selectedOption.closest('label').classList.add('bg-emerald-50', 'border-emerald-400');
             } else {
                 evalText.classList.add('bg-red-50', 'text-red-800', 'border-red-200');
-                evalText.innerHTML = '❌ <strong>تقييم الإجابة:</strong> إجابتك تفتقر إلى المصطلحات العلمية الدقيقة. يرجى مراجعة الإجابة النموذجية جيداً.';
+                evalText.innerHTML = `❌ <strong>إجابة خاطئة.</strong><br><br><span class="text-slate-900 font-bold">التفسير الصحيح هو:</span> ${questionObj.a}`;
+                // Highlight the wrong option
+                selectedOption.closest('label').classList.add('bg-red-50', 'border-red-400');
             }
+            
+            // Disable interactions after answering
+            document.querySelectorAll(`input[name="q-${id}"]`).forEach(radio => {
+                radio.disabled = true;
+                radio.closest('label').classList.remove('cursor-pointer', 'hover:bg-sky-50');
+            });
         };
 
         const renderQuestions = (filter) => {
@@ -586,6 +569,26 @@
             const filtered = filter === 'all' ? questionsData : questionsData.filter(q => q.category === filter);
             
             filtered.forEach(item => {
+                // توليد 3 خيارات خاطئة من نفس القسم لجعل التشتيت أقوى علمياً
+                let pool = questionsData.filter(q => q.id !== item.id && q.category === item.category);
+                if(pool.length < 3) {
+                    pool = questionsData.filter(q => q.id !== item.id);
+                }
+                
+                const shuffledPool = shuffleArray([...pool]);
+                const distractors = shuffledPool.slice(0, 3).map(q => q.a);
+                
+                // دمج الإجابة الصحيحة مع المشتتات وخلطهم عشوائياً
+                const options = shuffleArray([item.a, ...distractors]);
+                const correctIndex = options.indexOf(item.a);
+
+                let optionsHTML = options.map((opt, idx) => `
+                    <label class="flex items-start gap-3 p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-sky-50 transition-colors">
+                        <input type="radio" name="q-${item.id}" value="${idx}" data-correct="${idx === correctIndex}" class="mt-1 w-4 h-4 text-sky-600 focus:ring-sky-500 cursor-pointer">
+                        <span class="text-slate-700 text-sm leading-relaxed">${opt}</span>
+                    </label>
+                `).join('');
+
                 const div = document.createElement('div');
                 div.className = 'bg-white p-5 rounded-xl border border-slate-200 shadow-sm transition-shadow';
                 div.innerHTML = `
@@ -594,28 +597,24 @@
                             ${item.id}
                         </div>
                         <div class="w-full">
-                            <h4 class="text-lg font-bold text-slate-800 mb-3 leading-relaxed">
-                                ${item.q}
+                            <h4 class="text-lg font-bold text-slate-800 mb-4 leading-relaxed">
+                                علل: ${item.q}
                             </h4>
                             
-                            <!-- User Input Area -->
-                            <div class="mb-3">
-                                <textarea id="answer-input-${item.id}" rows="2" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all resize-none text-slate-700" placeholder="اكتب إجابتك هنا..."></textarea>
+                            <!-- Options Area -->
+                            <div class="mb-5 space-y-2">
+                                ${optionsHTML}
                             </div>
                             
                             <!-- Check Button -->
-                            <button onclick="evaluateAnswer(${item.id})" class="bg-slate-800 hover:bg-sky-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm shadow-sm">
+                            <button onclick="evaluateAnswer(${item.id})" class="bg-slate-800 hover:bg-sky-600 text-white font-medium py-2 px-6 rounded-lg transition-colors text-sm shadow-sm">
                                 تحقق من الإجابة
                             </button>
                             
-                            <!-- Feedback & Model Answer Area (Hidden initially) -->
+                            <!-- Feedback Area -->
                             <div id="feedback-area-${item.id}" class="hidden mt-4 space-y-3 transition-all duration-300">
                                 <div id="evaluation-text-${item.id}"></div>
-                                <div class="bg-slate-50 p-4 rounded-lg border-r-4 border-sky-500 text-slate-700 leading-relaxed shadow-inner">
-                                    <span class="font-bold text-slate-900 ml-1">الإجابة النموذجية المعتمدة:</span> ${item.a}
-                                </div>
                             </div>
-
                         </div>
                     </div>
                 `;
