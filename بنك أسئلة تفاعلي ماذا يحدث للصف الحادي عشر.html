@@ -1072,7 +1072,7 @@
     "answerOptions": [
       { "text": "ترتفع", "rationale": "لأن درجة الحرارة تتناسب طردياً مع متوسط الطاقة الحركية للجزيئات.", "isCorrect": true },
       { "text": "تنخفض", "rationale": "زيادة الطاقة الحركية تعني زيادة الحرارة.", "isCorrect": false },
-      { "text": "تبقى ثابتة", "rationale": "زيادة الحركة تؤدي لارتفاع الحرارة.", "isCorrect": false },
+      { "text": "يبقى ثابتة", "rationale": "زيادة الحركة تؤدي لارتفاع الحرارة.", "isCorrect": false },
       { "text": "تنعدم", "rationale": "تنعدم فقط عند الصفر المطلق.", "isCorrect": false }
     ]
   },
@@ -1806,17 +1806,30 @@
                         </div>
 
                         {/* Feedback Section */}
-                        {isAnswered && (
-                            <div className={`p-6 rounded-xl mb-6 border-2 fade-in ${currentQuestion.answerOptions[selectedAnswers[currentQuestionIndex]].isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                                <h3 className={`font-bold text-xl mb-2 ${currentQuestion.answerOptions[selectedAnswers[currentQuestionIndex]].isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                                    {currentQuestion.answerOptions[selectedAnswers[currentQuestionIndex]].isCorrect ? 'إجابة صحيحة! 🎉' : 'إجابة خاطئة! 💡'}
-                                </h3>
-                                <p className="text-slate-700 text-lg leading-relaxed">
-                                    <strong>التفسير العلمي: </strong> 
-                                    {currentQuestion.answerOptions.find(opt => opt.isCorrect).rationale}
-                                </p>
-                            </div>
-                        )}
+                        {isAnswered && (() => {
+                            const isUserCorrect = currentQuestion.answerOptions[selectedAnswers[currentQuestionIndex]].isCorrect;
+                            const correctAnswer = currentQuestion.answerOptions.find(opt => opt.isCorrect);
+                            
+                            return (
+                                <div className={`p-6 rounded-xl mb-6 border-2 fade-in ${isUserCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                    <h3 className={`font-bold text-xl mb-3 ${isUserCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                                        {isUserCorrect ? 'إجابة صحيحة! 🎉' : 'إجابة خاطئة! 💡'}
+                                    </h3>
+                                    
+                                    {!isUserCorrect && (
+                                        <div className="mb-3 text-lg">
+                                            <span className="font-bold text-slate-800">الإجابة الصحيحة هي: </span>
+                                            <span className="text-slate-700">{correctAnswer.text}</span>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="text-lg leading-relaxed">
+                                        <strong className="text-blue-800">التفسير العلمي: </strong> 
+                                        <span className="text-slate-700">{correctAnswer.rationale}</span>
+                                    </div>
+                                </div>
+                            );
+                        })()}
 
                         {/* Navigation */}
                         {isAnswered && (
